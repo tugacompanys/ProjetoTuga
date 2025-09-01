@@ -6,11 +6,10 @@ import RegisterScreen from "./src/screens/RegisterScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 //import RegistroDoseScreen from './src/screens/RegistroDoseScreen';
 
-
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  return (
+  return (    
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Splash">
         <Stack.Screen
@@ -18,6 +17,7 @@ export default function App() {
           component={SplashScreen}
           options={{ headerShown: false }}
         />
+        
         <Stack.Screen
           name="Login"
           component={LoginScreen}
@@ -31,7 +31,7 @@ export default function App() {
         <Stack.Screen
           name="HomeScreen"
           component={HomeScreen}
-          options={{ title: "Início" }}
+          options={{ title: "Início", headerShown: false }}
         />
        {/* <Stack.Screen
           name="RegistroDose"

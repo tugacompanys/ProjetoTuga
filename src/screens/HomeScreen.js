@@ -16,18 +16,6 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-const dicas = [
-  "Beba 2L de água hoje 💧",
-  "Faça 15 min de caminhada 🚶‍♂️",
-  "Evite alimentos muito açucarados 🍬",
-];
-
-const registrosHoje = [
-  { glicemia: 98, insulina: 4 },
-  { glicemia: 110, insulina: 6 },
-  { glicemia: 102, insulina: 4 },
-];
-
 const data = [
   {
     title: 'FAZER NOVO REGISTRO',
@@ -82,19 +70,77 @@ const noticias = [
   },
 ];
 
-export default function HomeScreen({ route }) {
+const dicas = [
+  "Beba 2L de água hoje 💧",
+  "Faça 15 min de caminhada 🚶‍♂️",
+  "Evite alimentos muito açucarados 🍬",
+];
+
+const registrosHoje = [
+  { glicemia: 98, insulina: 4 },
+  { glicemia: 110, insulina: 6 },
+  { glicemia: 102, insulina: 4 },
+];
+
+
+export default function HomeScreen({ route, navigation }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const { user } = route.params || {};
-  const nome = user?.displayName || "Usuário";
+  const [menuAberto, setMenuAberto] = useState(false);
+
+  // ✅ forma segura (não quebra se não tiver route/user)
+  const nome = route?.params?.user?.displayName ?? "Usuário";
 
   return (
+
+    
     <SafeAreaView style={styles.container}>
-      <Text style={{ fontSize: 22, fontWeight: "bold", margin: 20, color: '#277410ff' }}>
-        Bem-vindo, {nome}! ✌
-      </Text>
+      {/* Header com botão hambúrguer */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => setMenuAberto(!menuAberto)}>
+          <Ionicons name="menu-outline" size={32} color="#ffffffff" right={10} />
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Bem-vindo, {nome}! ✌</Text>
+      </View>
+
+
+
+      {/* Menu lateral com overlay */}
+{menuAberto && (
+  <TouchableOpacity 
+    style={styles.modalOverlay} 
+    activeOpacity={1} 
+    onPress={() => setMenuAberto(false)}
+  >
+    <Animated.View entering={FadeInUp} style={styles.menu}>
+      <TouchableOpacity style={styles.menuItem}>
+        <Ionicons name="person-outline" size={20} color="#000" />
+        <Text style={styles.menuText}>Editar Perfil</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.menuItem}
+        onPress={() => {
+          setMenuAberto(false);
+          navigation.replace("Login");
+        }}
+      >
+        <Ionicons name="swap-horizontal-outline" size={20} color="#000" />
+        <Text style={styles.menuText}>Trocar Conta</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuItem}>
+        <Ionicons name="settings-outline" size={20} color="#000" />
+        <Text style={styles.menuText}>Configurações</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuItem}>
+        <Ionicons name="exit-outline" size={20} color="red" />
+        <Text style={[styles.menuText, { color: "red" }]}>Sair</Text>
+      </TouchableOpacity>
+    </Animated.View>
+  </TouchableOpacity>
+)}
+
 
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-        {/* Carrossel de ações no topo */}
+        {/* Carrossel de ações */}
         <View style={styles.carouselContainer}>
           <Carousel
             loop
@@ -127,37 +173,40 @@ export default function HomeScreen({ route }) {
           </View>
         </View>
 
-  <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 20 }}>
-    <Text style={{ fontSize: 24, fontWeight: "bold", marginLeft: 20, marginBottom: 10 }}>Notícias & Curiosidades</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20 }}>
-        {noticias.map((item, index) => (
-    <View key={index} style={[styles.carouselCard, { backgroundColor: "#1e90ff", width: 250, marginBottom: 40}]}>
-        <Text style={{ fontWeight: "bold", color: "#fff", marginBottom: 5, fontSize: 18 }}>{item.title}</Text>
-        <Text style={{ color: "#fff", marginBottom: 10, }}>{item.description}</Text>
-        <TouchableOpacity
-          style={{ backgroundColor: "#fff", paddingVertical: 5, paddingHorizontal: 10, borderRadius: 10 }}
-          onPress={() => Linking.openURL(item.url)}
-        >
-          <Text style={{ color: "#1e90ff", fontWeight: "bold"}}>Ler mais</Text>
-      </TouchableOpacity>
-    </View>
-  ))}
-  </ScrollView>
-</Animated.View>
-
-        {/* Resumo diário animado */}
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>Resumo Diário</Text>
-      {registrosHoje.length === 0 ? (
-        <Text>Nenhum registro para hoje.</Text>
-      ) : (
-        registrosHoje.map((item, index) => (
-          <Text key={index}>
-            Glicemia: {item.glicemia} mg/dL | Insulina: {item.insulina} UI
+        {/* Notícias */}
+        <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 20 }}>
+          <Text style={{ fontSize: 24, fontWeight: "bold", marginLeft: 20, marginBottom: 10 }}>
+            Notícias & Curiosidades
           </Text>
-        ))
-      )}
-    </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20 }}>
+            {noticias.map((item, index) => (
+              <View key={index} style={[styles.carouselCard, { backgroundColor: "#1e90ff", width: 250, marginBottom: 40 }]}>
+                <Text style={{ fontWeight: "bold", color: "#fff", marginBottom: 5, fontSize: 18 }}>{item.title}</Text>
+                <Text style={{ color: "#fff", marginBottom: 10 }}>{item.description}</Text>
+                <TouchableOpacity
+                  style={{ backgroundColor: "#fff", paddingVertical: 5, paddingHorizontal: 10, borderRadius: 10 }}
+                  onPress={() => Linking.openURL(item.url)}
+                >
+                  <Text style={{ color: "#1e90ff", fontWeight: "bold" }}>Ler mais</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
+        </Animated.View>
+
+        {/* Resumo diário */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Resumo Diário</Text>
+          {registrosHoje.length === 0 ? (
+            <Text>Nenhum registro para hoje.</Text>
+          ) : (
+            registrosHoje.map((item, index) => (
+              <Text key={index}>
+                Glicemia: {item.glicemia} mg/dL | Insulina: {item.insulina} UI
+              </Text>
+            ))
+          )}
+        </View>
 
         {/* Mini gráfico */}
         <Animated.View entering={FadeInUp.delay(200)} style={styles.card}>
@@ -184,7 +233,7 @@ export default function HomeScreen({ route }) {
           />
         </Animated.View>
 
-        {/* Carrossel de dicas */}
+        {/* Dicas */}
         <Animated.View entering={FadeInUp.delay(300)}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.carousel}>
             {dicas.map((dica, index) => (
@@ -221,9 +270,67 @@ export default function HomeScreen({ route }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffffff',
     flex: 1,
   },
+  header: {
+    backgroundColor: "#1e90ff",
+    position: "fixed",
+    borderRadius: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    marginTop: 10,
+    top: -30,
+  },
+
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft: 15,
+    left: 115,
+    color: "#ffffffff",
+  },
+
+menu: {
+  position: "absolute",
+  top:50, // abaixo do header
+  right: 240,
+  backgroundColor: "#ffffffff",
+  padding: 15,
+  borderRadius: 10,
+  elevation: 5, // sombra no Android
+  shadowColor: "#000", // sombra no iOS
+  shadowOpacity: 0.2,
+  shadowRadius: 5,
+  zIndex: 999, // fica acima de tudo
+},
+menuItem: {
+  paddingVertical: 10,
+  fontSize: 16,
+  borderBottomWidth: 1,
+  borderBottomColor: "#eee",
+},
+
+  menuText: {
+    fontSize: 16,
+    marginLeft: 10,
+    fontWeight: "500",
+  },
+modalOverlay: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: "rgba(0, 0, 0, 0.36)", // leve escurecimento da tela
+  justifyContent: 'flex-start',
+  alignItems: 'flex-end',
+  zIndex: 998, // abaixo do menu
+},
+
+
   card: {
     borderRadius: 16,
     padding: 20,
@@ -245,8 +352,6 @@ const styles = StyleSheet.create({
     marginRight: 15,
     minWidth: 200,
   },
-
-
   carouselText: { color: "#fff", fontWeight: "bold" },
   carouselContainer: { marginTop: 20, alignItems: "center" },
   iconContainer: { marginBottom: 10 },
@@ -268,5 +373,3 @@ const styles = StyleSheet.create({
   footerItem: { alignItems: 'center' },
   footerText: { fontSize: 12, marginTop: 4, fontWeight: '600' },
 });
-
-
