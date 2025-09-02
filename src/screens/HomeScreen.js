@@ -1,80 +1,68 @@
-import React, { useState } from 'react';
-import { Linking } from 'react-native';
-import {
-  View,
-  Text,
-  Dimensions,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
-import Carousel from 'react-native-reanimated-carousel';
-import Animated, { FadeInUp } from 'react-native-reanimated';
-import { LineChart } from 'react-native-chart-kit';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import React, { useState } from "react";
+import { Linking, Dimensions, StyleSheet, SafeAreaView, Modal, Image, View, Text, TouchableOpacity, ScrollView } from "react-native";
+import Carousel from "react-native-reanimated-carousel";
+import Animated, { FadeInUp } from "react-native-reanimated";
+import { LineChart } from "react-native-chart-kit";
+import YoutubePlayer from "react-native-youtube-iframe";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get("window");
 
 const data = [
   {
-    title: 'FAZER NOVO REGISTRO',
-    description: 'Faça novo registro do seu estado glicêmico.',
-    backgroundColor: '#e3f8f5ff',
-    titleColor: '#000000',
-    descriptionColor: '#555555',
-    buttonColor: '#00cfff',
-    buttonText: 'fazer registro',
+    title: "FAZER NOVO REGISTRO",
+    description: "Faça novo registro do seu estado glicêmico.",
+    backgroundColor: "#e3f8f5ff",
+    titleColor: "#000000",
+    descriptionColor: "#555555",
+    buttonColor: "#00cfff",
+    buttonText: "fazer registro",
     icon: <Ionicons name="create-outline" size={32} color="#00cfff" />,
-    onPress: () => console.log('Registro clicado!'),
+    onPress: () => console.log("Registro clicado!"),
   },
   {
-    title: 'DOSE DE INSULINA',
-    description: 'Insira as doses aplicadas durante o dia.',
-    backgroundColor: '#f0fef5',
-    titleColor: '#00796b',
-    descriptionColor: '#33691e',
-    buttonColor: '#4caf50',
-    buttonText: 'registrar dose',
+    title: "DOSE DE INSULINA",
+    description: "Insira as doses aplicadas durante o dia.",
+    backgroundColor: "#f0fef5",
+    titleColor: "#00796b",
+    descriptionColor: "#33691e",
+    buttonColor: "#4caf50",
+    buttonText: "registrar dose",
     icon: <MaterialCommunityIcons name="needle" size={32} color="#4caf50" />,
-    onPress: () => console.log('Dose clicada!'),
+    onPress: () => console.log("Dose clicada!"),
   },
   {
-    title: 'ÍNDICE DIÁRIO',
-    description: 'Veja seu índice glicêmico médio do dia.',
-    backgroundColor: '#fff8e1',
-    titleColor: '#ff6f00',
-    descriptionColor: '#6d4c41',
-    buttonColor: '#ff9800',
-    buttonText: 'ver índice',
+    title: "ÍNDICE DIÁRIO",
+    description: "Veja seu índice glicêmico médio do dia.",
+    backgroundColor: "#fff8e1",
+    titleColor: "#ff6f00",
+    descriptionColor: "#6d4c41",
+    buttonColor: "#ff9800",
+    buttonText: "ver índice",
     icon: <Ionicons name="stats-chart" size={32} color="#ff9800" />,
-    onPress: () => console.log('Índice clicado!'),
+    onPress: () => console.log("Índice clicado!"),
   },
 ];
 
 const noticias = [
   {
     title: "Controle da glicemia",
-    description: "Aprenda 5 dicas práticas para manter sua glicemia estável.",
-    url: "https://natcofarma.com/controle-de-glicemia/natcofarma"
+    description: "Aprenda 5 dicas práticas para manter sua glicemia estável e saudável. mantenha um estilo de vida equilibrado.",
+    url: "https://natcofarma.com/controle-de-glicemia/natcofarma",
   },
   {
     title: "Alimentação saudável",
-    description: "Descubra alimentos que ajudam no controle da diabetes.",
-    url: "https://aworsaude.com.br/dieta-para-diabetes"
+    description: "Descubra alimentos que ajudam no controle da diabetes e dicas de receitas saudáveis para o seu dia a dia.",
+    url: "https://aworsaude.com.br/dieta-para-diabetes",
   },
   {
-    title: "Exercícios recomendados",
-    description: "Veja quais exercícios são mais eficazes para diabéticos.",
-    url: "https://www.youtube.com/watch?v=AnF8j2MLkH4"
+    title: "O que é Diabetes, e quais são os tipos?",
+    description: "Veja quais tipos de diabetes existem e como cada um afeta o corpo.",
+    url: "https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/d/diabetes",
   },
 ];
 
-const dicas = [
-  "Beba 2L de água hoje 💧",
-  "Faça 15 min de caminhada 🚶‍♂️",
-  "Evite alimentos muito açucarados 🍬",
-];
+const dicas = ["Beba 2L de água hoje 💧", "Faça 15 min de caminhada 🚶‍♂️", "Evite alimentos muito açucarados 🍬"];
 
 const registrosHoje = [
   { glicemia: 98, insulina: 4 },
@@ -82,62 +70,66 @@ const registrosHoje = [
   { glicemia: 102, insulina: 4 },
 ];
 
+// Vídeos do YouTube
+const videos = [
+  { id: "AnF8j2MLkH4", title: "Exercícios recomendados para diabéticos" },
+  { id: "LRfH7Tz3rtI", title: "Café com bolinho Barato para DIABÉTICOS" },
+  { id: "ercbFjVG2Vs", title: "5 MANEIRAS DE REVERTER O PRÉ-DIABETES!" },
+];
 
 export default function HomeScreen({ route, navigation }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [menuAberto, setMenuAberto] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [videoId, setVideoId] = useState(null);
 
-  // ✅ forma segura (não quebra se não tiver route/user)
   const nome = route?.params?.user?.displayName ?? "Usuário";
 
-  return (
+  const openVideo = (id) => {
+    setVideoId(id);
+    setModalVisible(true);
+  };
 
-    
+  return (
     <SafeAreaView style={styles.container}>
-      {/* Header com botão hambúrguer */}
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => setMenuAberto(!menuAberto)}>
-          <Ionicons name="menu-outline" size={32} color="#ffffffff" right={10} />
+        <TouchableOpacity onPress={() => setMenuAberto((v) => !v)}>
+          <Ionicons name="menu-outline" size={28} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerText}>Bem-vindo, {nome}! ✌</Text>
+        <View style={{ width: 28 }} />{/* espaçador para balancear o ícone */}
       </View>
 
-
-
       {/* Menu lateral com overlay */}
-{menuAberto && (
-  <TouchableOpacity 
-    style={styles.modalOverlay} 
-    activeOpacity={1} 
-    onPress={() => setMenuAberto(false)}
-  >
-    <Animated.View entering={FadeInUp} style={styles.menu}>
-      <TouchableOpacity style={styles.menuItem}>
-        <Ionicons name="person-outline" size={20} color="#000" />
-        <Text style={styles.menuText}>Editar Perfil</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.menuItem}
-        onPress={() => {
-          setMenuAberto(false);
-          navigation.replace("Login");
-        }}
-      >
-        <Ionicons name="swap-horizontal-outline" size={20} color="#000" />
-        <Text style={styles.menuText}>Trocar Conta</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.menuItem}>
-        <Ionicons name="settings-outline" size={20} color="#000" />
-        <Text style={styles.menuText}>Configurações</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.menuItem}>
-        <Ionicons name="exit-outline" size={20} color="red" />
-        <Text style={[styles.menuText, { color: "red" }]}>Sair</Text>
-      </TouchableOpacity>
-    </Animated.View>
-  </TouchableOpacity>
-)}
-
+      {menuAberto && (
+        <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={() => setMenuAberto(false)}>
+          <Animated.View entering={FadeInUp} style={styles.menu}>
+            <TouchableOpacity style={styles.menuItem}>
+              <Ionicons name="person-outline" size={20} color="#000" />
+              <Text style={styles.menuText}>Editar Perfil</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuAberto(false);
+                navigation.replace("Login");
+              }}
+            >
+              <Ionicons name="swap-horizontal-outline" size={20} color="#000" />
+              <Text style={styles.menuText}>Trocar Conta</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <Ionicons name="settings-outline" size={20} color="#000" />
+              <Text style={styles.menuText}>Configurações</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <Ionicons name="exit-outline" size={20} color="red" />
+              <Text style={[styles.menuText, { color: "red" }]}>Sair</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </TouchableOpacity>
+      )}
 
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
         {/* Carrossel de ações */}
@@ -154,10 +146,7 @@ export default function HomeScreen({ route, navigation }) {
                 <View style={styles.iconContainer}>{item.icon}</View>
                 <Text style={[styles.title, { color: item.titleColor }]}>{item.title}</Text>
                 <Text style={[styles.description, { color: item.descriptionColor }]}>{item.description}</Text>
-                <TouchableOpacity
-                  style={[styles.button, { backgroundColor: item.buttonColor }]}
-                  onPress={item.onPress}
-                >
+                <TouchableOpacity style={[styles.button, { backgroundColor: item.buttonColor }]} onPress={item.onPress}>
                   <Text style={styles.buttonText}>{item.buttonText}</Text>
                 </TouchableOpacity>
               </View>
@@ -165,19 +154,14 @@ export default function HomeScreen({ route, navigation }) {
           />
           <View style={styles.dots}>
             {data.map((_, index) => (
-              <View
-                key={index}
-                style={[styles.dot, index === activeIndex && styles.activeDot]}
-              />
+              <View key={index} style={[styles.dot, index === activeIndex && styles.activeDot]} />
             ))}
           </View>
         </View>
 
         {/* Notícias */}
         <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 24, fontWeight: "bold", marginLeft: 20, marginBottom: 10 }}>
-            Notícias & Curiosidades
-          </Text>
+          <Text style={{ fontSize: 24, fontWeight: "bold", marginLeft: 20, marginBottom: 10 }}>Notícias & Curiosidades</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20 }}>
             {noticias.map((item, index) => (
               <View key={index} style={[styles.carouselCard, { backgroundColor: "#1e90ff", width: 250, marginBottom: 40 }]}>
@@ -195,7 +179,7 @@ export default function HomeScreen({ route, navigation }) {
         </Animated.View>
 
         {/* Resumo diário */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: "#fff" }]}>
           <Text style={styles.cardTitle}>Resumo Diário</Text>
           {registrosHoje.length === 0 ? (
             <Text>Nenhum registro para hoje.</Text>
@@ -209,7 +193,7 @@ export default function HomeScreen({ route, navigation }) {
         </View>
 
         {/* Mini gráfico */}
-        <Animated.View entering={FadeInUp.delay(200)} style={styles.card}>
+        <Animated.View entering={FadeInUp.delay(200)} style={[styles.card, { backgroundColor: "#fff" }]}>
           <Text style={styles.cardTitle}>Últimos 7 dias</Text>
           <LineChart
             data={{
@@ -243,25 +227,71 @@ export default function HomeScreen({ route, navigation }) {
             ))}
           </ScrollView>
         </Animated.View>
-      </ScrollView>
 
-      {/* Footer */}
+     {/* Vídeos recomendados */}
+        <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 20 }}>
+          <Text style={styles.sectionTitle}>🎥 Vídeos Recomendados</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20, marginBottom: 20 }}>
+            {videos.map((video, index) => (
+              <TouchableOpacity 
+                key={index} 
+                onPress={() => setVideoId(video.id)} 
+                style={[styles.videoCard, { width: screenWidth * 0.6 }]}
+              >
+                <Image source={{ uri: `https://img.youtube.com/vi/${video.id}/hqdefault.jpg` }} style={styles.thumbnail} />
+                <Text style={styles.videoTitle} numberOfLines={2}>{video.title}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </Animated.View>
+
+          {/* Player do vídeo */}
+          {videoId && (
+            <View style={{
+              marginHorizontal: 20,
+              marginVertical: 10,
+              borderRadius: 12,
+              overflow: 'hidden'
+            }}>
+              <YoutubePlayer
+                height={220}
+                play={true}
+                videoId={videoId}
+                webViewProps={{ allowsFullscreenVideo: true }}
+              />
+              <TouchableOpacity 
+                style={{
+                  backgroundColor: '#e40000ff',
+                  padding: 10,
+                  borderRadius: 8,
+                  marginTop: 10,
+                  alignItems: 'center'
+                }}
+                onPress={() => setVideoId(null)}
+              >
+                <Text style={{color: '#fff', fontWeight: 'bold'}}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          </ScrollView>
+
+          {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity style={styles.footerItem}>
           <Ionicons name="home-outline" size={24} color="#00c47c" />
-          <Text style={[styles.footerText, { color: '#00c47c' }]}>Início</Text>
+          <Text style={[styles.footerText, { color: "#00c47c" }]}>Início</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.footerItem}>
           <Ionicons name="water-outline" size={24} color="#00bcd4" />
-          <Text style={[styles.footerText, { color: '#00bcd4' }]}>Glicemia</Text>
+          <Text style={[styles.footerText, { color: "#00bcd4" }]}>Glicemia</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.footerItem}>
           <MaterialCommunityIcons name="silverware-fork-knife" size={24} color="#d17d6b" />
-          <Text style={[styles.footerText, { color: '#d17d6b' }]}>Refeição</Text>
+          <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.footerItem}>
           <Ionicons name="barbell-outline" size={24} color="#7c6e7f" />
-          <Text style={[styles.footerText, { color: '#7c6e7f' }]}>Exercícios</Text>
+          <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -269,74 +299,57 @@ export default function HomeScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#ffffffff',
-    flex: 1,
-  },
+  container: { backgroundColor: "#fff", flex: 1 },
   header: {
     backgroundColor: "#1e90ff",
-    position: "fixed",
-    borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingVertical: 40,
+    paddingVertical: 16,
+  },
+  headerText: { fontSize: 20, fontWeight: "bold", color: "#fff" },
+
+  // Menu lateral
+  menuOverlay: {
+    position: "absolute",
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.36)",
+    justifyContent: "flex-start",
+    alignItems: "right",
+    paddingTop: 50,
+    zIndex: 998,
+  },
+  menu: {
     marginTop: 10,
-    top: -30,
+    marginRight: 10,
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 10,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    zIndex: 999,
+    width: 220,
   },
-
-  headerText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginLeft: 15,
-    left: 115,
-    color: "#ffffffff",
+  menuItem: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
-
-menu: {
-  position: "absolute",
-  top:50, // abaixo do header
-  right: 240,
-  backgroundColor: "#ffffffff",
-  padding: 15,
-  borderRadius: 10,
-  elevation: 5, // sombra no Android
-  shadowColor: "#000", // sombra no iOS
-  shadowOpacity: 0.2,
-  shadowRadius: 5,
-  zIndex: 999, // fica acima de tudo
-},
-menuItem: {
-  paddingVertical: 10,
-  fontSize: 16,
-  borderBottomWidth: 1,
-  borderBottomColor: "#eee",
-},
-
-  menuText: {
-    fontSize: 16,
-    marginLeft: 10,
-    fontWeight: "500",
-  },
-modalOverlay: {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundColor: "rgba(0, 0, 0, 0.36)", // leve escurecimento da tela
-  justifyContent: 'flex-start',
-  alignItems: 'flex-end',
-  zIndex: 998, // abaixo do menu
-},
-
+  menuText: { fontSize: 16, fontWeight: "500" },
 
   card: {
     borderRadius: 16,
     padding: 20,
+    marginHorizontal: 20,
     marginBottom: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -355,21 +368,47 @@ modalOverlay: {
   carouselText: { color: "#fff", fontWeight: "bold" },
   carouselContainer: { marginTop: 20, alignItems: "center" },
   iconContainer: { marginBottom: 10 },
-  title: { fontSize: 16, fontWeight: 'bold', marginBottom: 8, textAlign: 'center' },
-  description: { fontSize: 14, textAlign: 'center', marginBottom: 15 },
+  title: { fontSize: 16, fontWeight: "bold", marginBottom: 8, textAlign: "center" },
+  description: { fontSize: 14, textAlign: "center", marginBottom: 15 },
   button: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20 },
-  buttonText: { color: '#fff', fontWeight: '600', textTransform: 'lowercase' },
-  dots: { flexDirection: 'row', marginTop: -20, paddingBottom: 30 },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#ccc', margin: 4 },
-  activeDot: { backgroundColor: '#000' },
+  buttonText: { color: "#fff", fontWeight: "600", textTransform: "lowercase" },
+  dots: { flexDirection: "row", marginTop: -10, paddingBottom: 30 },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#ccc", margin: 4 },
+  activeDot: { backgroundColor: "#000" },
+
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#ddd',
-    backgroundColor: '#fff',
+    borderTopColor: "#ddd",
+    backgroundColor: "#fff",
   },
-  footerItem: { alignItems: 'center' },
-  footerText: { fontSize: 12, marginTop: 4, fontWeight: '600' },
+  footerItem: { alignItems: "center" },
+  footerText: { fontSize: 12, marginTop: 4, fontWeight: "600" },
+
+  // YouTube
+  sectionTitle: { fontSize: 22, fontWeight: "bold", marginBottom: 10, paddingHorizontal: 20 },
+  videoCard: {
+    marginRight: 15,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    overflow: "hidden",
+    elevation: 4,
+  },
+  thumbnail: { width: "100%", height: 120 },
+  videoTitle: { fontSize: 14, fontWeight: "600", padding: 8 },
+  videoOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 10,
+    alignItems: "center",
+  },
 });
