@@ -4,12 +4,14 @@ import SplashScreen from "./src/screens/SplashScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 import RegisterScreen from "./src/screens/RegisterScreen";
 import HomeScreen from "./src/screens/HomeScreen";
+import ProfileSetupScreen from "./src/screens/ProfileSetupScreen";
+import IndiceDiarioScreen from "./src/screens/IndiceDiarioScreen"; // <== IMPORT CORRETO
 //import RegistroDoseScreen from './src/screens/RegistroDoseScreen';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  return (    
+  return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Splash">
         <Stack.Screen
@@ -17,7 +19,7 @@ export default function App() {
           component={SplashScreen}
           options={{ headerShown: false }}
         />
-        
+
         <Stack.Screen
           name="Login"
           component={LoginScreen}
@@ -33,7 +35,15 @@ export default function App() {
           component={HomeScreen}
           options={{ title: "Início", headerShown: false }}
         />
-       {/* <Stack.Screen
+        <Stack.Screen name="Perfil"
+          component={ProfileSetupScreen}
+          options={{ title: "Seu plano" }} />
+
+        <Stack.Screen name="IndiceDiario"
+          component={IndiceDiarioScreen}
+          options={{ title: "ÍndiceDiario" }} />
+
+        {/* <Stack.Screen
           name="RegistroDose"
           component={RegistroDoseScreen}
           options={{ title: "Registrar Dose" }}

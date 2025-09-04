@@ -1,10 +1,14 @@
-import React, { useState } from "react";
-import { Linking, Dimensions, StyleSheet, SafeAreaView, Modal, Image, View, Text, TouchableOpacity, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  Linking, Dimensions, StyleSheet, SafeAreaView, Image,
+  View, Text, TouchableOpacity, ScrollView
+} from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { LineChart } from "react-native-chart-kit";
 import YoutubePlayer from "react-native-youtube-iframe";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -18,7 +22,7 @@ const data = [
     buttonColor: "#00cfff",
     buttonText: "fazer registro",
     icon: <Ionicons name="create-outline" size={32} color="#00cfff" />,
-    onPress: () => console.log("Registro clicado!"),
+    onPress: (navigation) => navigation.navigate("Perfil"),
   },
   {
     title: "DOSE DE INSULINA",
@@ -80,28 +84,31 @@ const videos = [
 export default function HomeScreen({ route, navigation }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [menuAberto, setMenuAberto] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
   const [videoId, setVideoId] = useState(null);
+  const [plano, setPlano] = useState(null);
 
   const nome = route?.params?.user?.displayName ?? "Usuário";
 
-  const openVideo = (id) => {
-    setVideoId(id);
-    setModalVisible(true);
-  };
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", async () => {
+      const p = await AsyncStorage.getItem("@nutrition_plan");
+      setPlano(p ? JSON.parse(p) : null);
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => setMenuAberto((v) => !v)}>
+        <TouchableOpacity onPress={() => setMenuAberto(!menuAberto)}>
           <Ionicons name="menu-outline" size={28} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerText}>Bem-vindo, {nome}! ✌</Text>
-        <View style={{ width: 28 }} />{/* espaçador para balancear o ícone */}
+        <View style={{ width: 28 }} />
       </View>
 
-      {/* Menu lateral com overlay */}
+      {/* Menu lateral */}
       {menuAberto && (
         <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={() => setMenuAberto(false)}>
           <Animated.View entering={FadeInUp} style={styles.menu}>
@@ -146,7 +153,10 @@ export default function HomeScreen({ route, navigation }) {
                 <View style={styles.iconContainer}>{item.icon}</View>
                 <Text style={[styles.title, { color: item.titleColor }]}>{item.title}</Text>
                 <Text style={[styles.description, { color: item.descriptionColor }]}>{item.description}</Text>
-                <TouchableOpacity style={[styles.button, { backgroundColor: item.buttonColor }]} onPress={item.onPress}>
+                <TouchableOpacity
+                  style={[styles.button, { backgroundColor: item.buttonColor }]}
+                  onPress={() => item.onPress(navigation)}
+                >
                   <Text style={styles.buttonText}>{item.buttonText}</Text>
                 </TouchableOpacity>
               </View>
@@ -181,7 +191,13 @@ export default function HomeScreen({ route, navigation }) {
         {/* Resumo diário */}
         <View style={[styles.card, { backgroundColor: "#fff" }]}>
           <Text style={styles.cardTitle}>Resumo Diário</Text>
-          {registrosHoje.length === 0 ? (
+          {plano ? (
+            <>
+              <Text>Meta: {plano.macros.kcal} kcal</Text>
+              <Text>Carbo: {plano.macros.carbs_g} g · Prot: {plano.macros.protein_g} g · Gord: {plano.macros.fat_g} g</Text>
+              <Text style={{ marginTop: 6, fontWeight: "600" }}>Café da manhã: {plano.perMeal.cafe.kcal} kcal</Text>
+            </>
+          ) : registrosHoje.length === 0 ? (
             <Text>Nenhum registro para hoje.</Text>
           ) : (
             registrosHoje.map((item, index) => (
@@ -228,54 +244,58 @@ export default function HomeScreen({ route, navigation }) {
           </ScrollView>
         </Animated.View>
 
-     {/* Vídeos recomendados */}
+        {/* Vídeos recomendados */}
         <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 20 }}>
           <Text style={styles.sectionTitle}>🎥 Vídeos Recomendados</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20, marginBottom: 20 }}>
             {videos.map((video, index) => (
-              <TouchableOpacity 
-                key={index} 
-                onPress={() => setVideoId(video.id)} 
+              <TouchableOpacity
+                key={index}
+                onPress={() => setVideoId(video.id)}
                 style={[styles.videoCard, { width: screenWidth * 0.6 }]}
               >
                 <Image source={{ uri: `https://img.youtube.com/vi/${video.id}/hqdefault.jpg` }} style={styles.thumbnail} />
-                <Text style={styles.videoTitle} numberOfLines={2}>{video.title}</Text>
+                <Text style={styles.videoTitle} numberOfLines={2}>{
+                  video.title
+                }</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
         </Animated.View>
 
-          {/* Player do vídeo */}
-          {videoId && (
-            <View style={{
+        {/* Player do vídeo */}
+        {videoId && (
+          <View
+            style={{
               marginHorizontal: 20,
               marginVertical: 10,
               borderRadius: 12,
-              overflow: 'hidden'
-            }}>
-              <YoutubePlayer
-                height={220}
-                play={true}
-                videoId={videoId}
-                webViewProps={{ allowsFullscreenVideo: true }}
-              />
-              <TouchableOpacity 
-                style={{
-                  backgroundColor: '#e40000ff',
-                  padding: 10,
-                  borderRadius: 8,
-                  marginTop: 10,
-                  alignItems: 'center'
-                }}
-                onPress={() => setVideoId(null)}
-              >
-                <Text style={{color: '#fff', fontWeight: 'bold'}}>Fechar</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          </ScrollView>
+              overflow: 'hidden',
+            }}
+          >
+            <YoutubePlayer
+              height={220}
+              play={true}
+              videoId={videoId}
+              webViewProps={{ allowsFullscreenVideo: true }}
+            />
+            <TouchableOpacity
+              style={{
+                backgroundColor: '#e40000ff',
+                padding: 10,
+                borderRadius: 8,
+                marginTop: 10,
+                alignItems: 'center',
+              }}
+              onPress={() => setVideoId(null)}
+            >
+              <Text style={{ color: '#fff', fontWeight: 'bold' }}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
 
-          {/* Footer */}
+      {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity style={styles.footerItem}>
           <Ionicons name="home-outline" size={24} color="#00c47c" />
@@ -298,6 +318,7 @@ export default function HomeScreen({ route, navigation }) {
   );
 }
 
+// Styles (mesmo que você já tinha)
 const styles = StyleSheet.create({
   container: { backgroundColor: "#fff", flex: 1 },
   header: {
@@ -398,17 +419,4 @@ const styles = StyleSheet.create({
   },
   thumbnail: { width: "100%", height: 120 },
   videoTitle: { fontSize: 14, fontWeight: "600", padding: 8 },
-  videoOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    width: "90%",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 10,
-    alignItems: "center",
-  },
 });
