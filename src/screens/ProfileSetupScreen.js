@@ -3,7 +3,7 @@ import {
   View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert
 } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
-import { db } from "../config/firebaseConfig"; // seu arquivo de configuração do Firebase
+import { db } from "../config/firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ACTIVITY = [
@@ -23,19 +23,76 @@ const GOALS = [
 const MACROS_PCT = { carbs: 0.5, protein: 0.2, fat: 0.3 };
 const MEALS_SPLIT = { cafe: 0.25, almoco: 0.35, jantar: 0.3, lanche: 0.1 };
 
+// ---- HELPERS ----
+function toNumber(v) {
+  if (typeof v === "number") return v;
+  if (v == null) return NaN;
+  const s = String(v).trim().replace(",", ".");
+  const n = Number(s);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+/**
+ * Distribui um inteiro `total` entre chaves de `fractions` (obj: {k: frac})
+ * Garante que a soma das partes == Math.round(total).
+ * Usa floor + distribui resto baseado nas maiores casas decimais.
+ */
+function distributeInteger(total, fractions) {
+  const roundedTotal = Math.round(total);
+  const entries = Object.entries(fractions);
+  // exact shares
+  const exact = entries.map(([k, frac]) => ({ k, frac, exact: roundedTotal * frac }));
+  // floor each
+  const floored = exact.map(e => Math.floor(e.exact));
+  let sumFloored = floored.reduce((s, v) => s + v, 0);
+  let remainder = roundedTotal - sumFloored;
+  // fractional parts to decide quem recebe +1
+  const fracParts = exact.map((e, i) => ({ idx: i, part: e.exact - Math.floor(e.exact) }));
+  fracParts.sort((a, b) => b.part - a.part);
+  const allocated = floored.slice();
+  let i = 0;
+  while (remainder > 0 && i < fracParts.length) {
+    allocated[fracParts[i].idx] += 1;
+    remainder--;
+    i++;
+  }
+  // If still remainder (very rare), distribute from start
+  i = 0;
+  while (remainder > 0) {
+    allocated[i % allocated.length] += 1;
+    remainder--;
+    i++;
+  }
+  // Build result map
+  const result = {};
+  entries.forEach((entry, idx) => {
+    result[entry[0]] = allocated[idx];
+  });
+  return result;
+}
+
+// ---- Cálculos ----
 function mifflin({ sexo, pesoKg, alturaCm, idade }) {
   const base = 10 * pesoKg + 6.25 * alturaCm - 5 * idade;
   return sexo === "masculino" ? base + 5 : base - 161;
 }
 
 function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
-  const pesoKg = Number(peso);
-  const alturaCm = Number(altura);
-  const idadeNum = Number(idade);
-  const atividadeNum = Number(atividade);
+  // trata entradas (aceita strings com vírgula)
+  const pesoKg = toNumber(peso);
+  const alturaCm = toNumber(altura);
+  const idadeNum = toNumber(idade);
+  const atividadeNum = toNumber(atividade);
 
-  const bmr = mifflin({ sexo, pesoKg, alturaCm, idade: idadeNum });
-  const tdee = bmr * atividadeNum;
+  if (!Number.isFinite(pesoKg) || !Number.isFinite(alturaCm) || !Number.isFinite(idadeNum) || !Number.isFinite(atividadeNum)) {
+    throw new Error("Valores numéricos inválidos para peso/altura/idade/atividade.");
+  }
+
+  const bmrRaw = mifflin({ sexo, pesoKg, alturaCm, idade: idadeNum });
+  const bmr = Math.round(bmrRaw);
+  const tdeeRaw = bmrRaw * atividadeNum;
+  const tdee = Math.round(tdeeRaw);
+
   const goalAdj = GOALS.find(g => g.value === objetivo)?.adj ?? 0;
   const kcal = Math.max(1200, Math.round(tdee + goalAdj));
 
@@ -50,21 +107,28 @@ function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
     fat_g: Math.round(fatKcal / 9),
   };
 
+  // Distribuir por refeição garantindo soma correta
+  const perMealKcal = distributeInteger(kcal, MEALS_SPLIT);
+  const perMealCarbs = distributeInteger(macros.carbs_g, MEALS_SPLIT);
+  const perMealProtein = distributeInteger(macros.protein_g, MEALS_SPLIT);
+  const perMealFat = distributeInteger(macros.fat_g, MEALS_SPLIT);
+
   const perMeal = Object.fromEntries(
-    Object.entries(MEALS_SPLIT).map(([refeicao, frac]) => [
-      refeicao,
+    Object.keys(MEALS_SPLIT).map((key) => ([
+      key,
       {
-        kcal: Math.round(kcal * frac),
-        carbs_g: Math.round(macros.carbs_g * frac),
-        protein_g: Math.round(macros.protein_g * frac),
-        fat_g: Math.round(macros.fat_g * frac),
-      },
-    ])
+        kcal: perMealKcal[key],
+        carbs_g: perMealCarbs[key],
+        protein_g: perMealProtein[key],
+        fat_g: perMealFat[key],
+      }
+    ]))
   );
 
-  return { bmr: Math.round(bmr), tdee: Math.round(tdee), macros, perMeal };
+  return { bmr, tdee, macros, perMeal };
 }
 
+// ---- COMPONENTE ----
 export default function ProfileSetupScreen({ navigation, route }) {
   const [sexo, setSexo] = useState("feminino");
   const [idade, setIdade] = useState("");
@@ -83,7 +147,9 @@ export default function ProfileSetupScreen({ navigation, route }) {
     if (!canPreview) return null;
     try {
       return buildPlan({ sexo, peso, altura, idade, atividade, objetivo });
-    } catch {
+    } catch (err) {
+      // se entrar aqui, provavelmente inputs inválidos (ex: "70,5" ok; "abc" não)
+      console.warn("buildPlan error:", err.message);
       return null;
     }
   }, [sexo, idade, peso, altura, atividade, objetivo]);
@@ -95,12 +161,24 @@ export default function ProfileSetupScreen({ navigation, route }) {
     }
 
     const perfil = {
-      sexo, idade: Number(idade), peso: Number(peso), altura: Number(altura),
-      atividade: Number(atividade), objetivo, tipoDiabetes, medicamentos,
+      sexo,
+      idade: toNumber(idade),
+      peso: toNumber(peso),
+      altura: toNumber(altura),
+      atividade: toNumber(atividade),
+      objetivo,
+      tipoDiabetes,
+      medicamentos,
       updatedAt: Date.now(),
     };
 
-    const plano = buildPlan(perfil);
+    let plano;
+    try {
+      plano = buildPlan(perfil);
+    } catch (err) {
+      Alert.alert("Erro", "Valores numéricos inválidos. Verifique os campos.");
+      return;
+    }
 
     try {
       await AsyncStorage.setItem("@user_profile", JSON.stringify(perfil));
@@ -129,8 +207,8 @@ export default function ProfileSetupScreen({ navigation, route }) {
 
       <View style={styles.grid}>
         <Field label="Idade" value={idade} onChangeText={setIdade} placeholder="anos" keyboardType="numeric" />
-        <Field label="Peso" value={peso} onChangeText={setPeso} placeholder="kg" keyboardType="numeric" />
-        <Field label="Altura" value={altura} onChangeText={setAltura} placeholder="cm" keyboardType="numeric" />
+        <Field label="Peso" value={peso} onChangeText={setPeso} placeholder="kg (ex: 72 ou 72,5)" keyboardType="numeric" />
+        <Field label="Altura" value={altura} onChangeText={setAltura} placeholder="cm (ex: 175)" keyboardType="numeric" />
       </View>
 
       <Text style={styles.label}>Nível de atividade</Text>
@@ -178,7 +256,6 @@ export default function ProfileSetupScreen({ navigation, route }) {
             ))}
           </View>
 
-          {/* Botão de navegação direto */}
           <TouchableOpacity
             style={[styles.saveBtn, { backgroundColor: "#34d399", marginTop: 8 }]}
             onPress={() => {
