@@ -3,7 +3,7 @@ import {
     View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert
 } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
-import { db } from "../config/firebaseConfig"; // seu arquivo de configuração do Firebase
+import { db } from "../config/firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ACTIVITY = [
@@ -23,12 +23,62 @@ const GOALS = [
 const MACROS_PCT = { carbs: 0.5, protein: 0.2, fat: 0.3 };
 const MEALS_SPLIT = { cafe: 0.25, almoco: 0.35, jantar: 0.3, lanche: 0.1 };
 
+// ---- HELPERS ----
+function toNumber(v) {
+  if (typeof v === "number") return v;
+  if (v == null) return NaN;
+  const s = String(v).trim().replace(",", ".");
+  const n = Number(s);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+/**
+ * Distribui um inteiro `total` entre chaves de `fractions` (obj: {k: frac})
+ * Garante que a soma das partes == Math.round(total).
+ * Usa floor + distribui resto baseado nas maiores casas decimais.
+ */
+function distributeInteger(total, fractions) {
+  const roundedTotal = Math.round(total);
+  const entries = Object.entries(fractions);
+  // exact shares
+  const exact = entries.map(([k, frac]) => ({ k, frac, exact: roundedTotal * frac }));
+  // floor each
+  const floored = exact.map(e => Math.floor(e.exact));
+  let sumFloored = floored.reduce((s, v) => s + v, 0);
+  let remainder = roundedTotal - sumFloored;
+  // fractional parts to decide quem recebe +1
+  const fracParts = exact.map((e, i) => ({ idx: i, part: e.exact - Math.floor(e.exact) }));
+  fracParts.sort((a, b) => b.part - a.part);
+  const allocated = floored.slice();
+  let i = 0;
+  while (remainder > 0 && i < fracParts.length) {
+    allocated[fracParts[i].idx] += 1;
+    remainder--;
+    i++;
+  }
+  // If still remainder (very rare), distribute from start
+  i = 0;
+  while (remainder > 0) {
+    allocated[i % allocated.length] += 1;
+    remainder--;
+    i++;
+  }
+  // Build result map
+  const result = {};
+  entries.forEach((entry, idx) => {
+    result[entry[0]] = allocated[idx];
+  });
+  return result;
+}
+
+// ---- Cálculos ----
 function mifflin({ sexo, pesoKg, alturaCm, idade }) {
     const base = 10 * pesoKg + 6.25 * alturaCm - 5 * idade;
     return sexo === "masculino" ? base + 5 : base - 161;
 }
 
 function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
+<<<<<<< HEAD
     const pesoKg = Number(peso);
     const alturaCm = Number(altura);
     const idadeNum = Number(idade);
@@ -38,6 +88,25 @@ function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
     const tdee = bmr * atividadeNum;
     const goalAdj = GOALS.find(g => g.value === objetivo)?.adj ?? 0;
     const kcal = Math.max(1200, Math.round(tdee + goalAdj));
+=======
+  // trata entradas (aceita strings com vírgula)
+  const pesoKg = toNumber(peso);
+  const alturaCm = toNumber(altura);
+  const idadeNum = toNumber(idade);
+  const atividadeNum = toNumber(atividade);
+
+  if (!Number.isFinite(pesoKg) || !Number.isFinite(alturaCm) || !Number.isFinite(idadeNum) || !Number.isFinite(atividadeNum)) {
+    throw new Error("Valores numéricos inválidos para peso/altura/idade/atividade.");
+  }
+
+  const bmrRaw = mifflin({ sexo, pesoKg, alturaCm, idade: idadeNum });
+  const bmr = Math.round(bmrRaw);
+  const tdeeRaw = bmrRaw * atividadeNum;
+  const tdee = Math.round(tdeeRaw);
+
+  const goalAdj = GOALS.find(g => g.value === objetivo)?.adj ?? 0;
+  const kcal = Math.max(1200, Math.round(tdee + goalAdj));
+>>>>>>> 0777315ee8ffb68e29175f6f290cf5d835c22ee5
 
     const carbsKcal = kcal * MACROS_PCT.carbs;
     const proteinKcal = kcal * MACROS_PCT.protein;
@@ -50,6 +119,7 @@ function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
         fat_g: Math.round(fatKcal / 9),
     };
 
+<<<<<<< HEAD
     const perMeal = Object.fromEntries(
         Object.entries(MEALS_SPLIT).map(([refeicao, frac]) => [
             refeicao,
@@ -63,8 +133,30 @@ function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
     );
 
     return { bmr: Math.round(bmr), tdee: Math.round(tdee), macros, perMeal };
+=======
+  // Distribuir por refeição garantindo soma correta
+  const perMealKcal = distributeInteger(kcal, MEALS_SPLIT);
+  const perMealCarbs = distributeInteger(macros.carbs_g, MEALS_SPLIT);
+  const perMealProtein = distributeInteger(macros.protein_g, MEALS_SPLIT);
+  const perMealFat = distributeInteger(macros.fat_g, MEALS_SPLIT);
+
+  const perMeal = Object.fromEntries(
+    Object.keys(MEALS_SPLIT).map((key) => ([
+      key,
+      {
+        kcal: perMealKcal[key],
+        carbs_g: perMealCarbs[key],
+        protein_g: perMealProtein[key],
+        fat_g: perMealFat[key],
+      }
+    ]))
+  );
+
+  return { bmr, tdee, macros, perMeal };
+>>>>>>> 0777315ee8ffb68e29175f6f290cf5d835c22ee5
 }
 
+// ---- COMPONENTE ----
 export default function ProfileSetupScreen({ navigation, route }) {
     const [sexo, setSexo] = useState("feminino");
     const [idade, setIdade] = useState("");
@@ -84,9 +176,17 @@ export default function ProfileSetupScreen({ navigation, route }) {
         return null; // só impede se algum campo estiver vazio
     }
     try {
+<<<<<<< HEAD
         return buildPlan({ sexo, peso, altura, idade, atividade, objetivo });
     } catch {
         return null;
+=======
+      return buildPlan({ sexo, peso, altura, idade, atividade, objetivo });
+    } catch (err) {
+      // se entrar aqui, provavelmente inputs inválidos (ex: "70,5" ok; "abc" não)
+      console.warn("buildPlan error:", err.message);
+      return null;
+>>>>>>> 0777315ee8ffb68e29175f6f290cf5d835c22ee5
     }
 }, [sexo, idade, peso, altura, atividade, objetivo]);
 
@@ -123,10 +223,32 @@ export default function ProfileSetupScreen({ navigation, route }) {
         }
     }
 
+<<<<<<< HEAD
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.title}>Seu Perfil</Text>
+=======
+    const perfil = {
+      sexo,
+      idade: toNumber(idade),
+      peso: toNumber(peso),
+      altura: toNumber(altura),
+      atividade: toNumber(atividade),
+      objetivo,
+      tipoDiabetes,
+      medicamentos,
+      updatedAt: Date.now(),
+    };
+
+    let plano;
+    try {
+      plano = buildPlan(perfil);
+    } catch (err) {
+      Alert.alert("Erro", "Valores numéricos inválidos. Verifique os campos.");
+      return;
+    }
+>>>>>>> 0777315ee8ffb68e29175f6f290cf5d835c22ee5
 
             <Text style={styles.label}>Sexo</Text>
             <View style={styles.row}>
@@ -167,7 +289,15 @@ export default function ProfileSetupScreen({ navigation, route }) {
                 ))}
             </View>
 
+<<<<<<< HEAD
             <Field label="Medicamentos (opcional)" value={medicamentos} onChangeText={setMedicamentos} placeholder="Insulina, metformina, etc." multiline />
+=======
+      <View style={styles.grid}>
+        <Field label="Idade" value={idade} onChangeText={setIdade} placeholder="anos" keyboardType="numeric" />
+        <Field label="Peso" value={peso} onChangeText={setPeso} placeholder="kg (ex: 72 ou 72,5)" keyboardType="numeric" />
+        <Field label="Altura" value={altura} onChangeText={setAltura} placeholder="cm (ex: 175)" keyboardType="numeric" />
+      </View>
+>>>>>>> 0777315ee8ffb68e29175f6f290cf5d835c22ee5
 
             {preview && (
                 <View style={styles.preview}>
@@ -198,11 +328,49 @@ export default function ProfileSetupScreen({ navigation, route }) {
                 </View>
             )}
 
+<<<<<<< HEAD
             <TouchableOpacity style={styles.saveBtn} onPress={handleSalvar}>
                 <Text style={styles.saveTxt}>Salvar plano</Text>
             </TouchableOpacity>
         </ScrollView>
     );
+=======
+      <Field label="Medicamentos (opcional)" value={medicamentos} onChangeText={setMedicamentos} placeholder="Insulina, metformina, etc." multiline />
+
+      {preview && (
+        <View style={styles.preview}>
+          <Text style={styles.previewTitle}>Prévia do Plano</Text>
+          <Text style={styles.previewLine}>BMR: {preview.bmr} kcal</Text>
+          <Text style={styles.previewLine}>TDEE: {preview.tdee} kcal</Text>
+          <Text style={styles.previewLine}>
+            Meta diária: {preview.macros.kcal} kcal — C:{preview.macros.carbs_g}g · P:{preview.macros.protein_g}g · G:{preview.macros.fat_g}g
+          </Text>
+
+          <View style={{ marginTop: 8 }}>
+            {Object.entries(preview.perMeal).map(([ref, v]) => (
+              <Text key={ref} style={styles.previewLine}>
+                {labelMeal(ref)} → {v.kcal} kcal · C:{v.carbs_g}g · P:{v.protein_g}g · G:{v.fat_g}g
+              </Text>
+            ))}
+          </View>
+
+          <TouchableOpacity
+            style={[styles.saveBtn, { backgroundColor: "#34d399", marginTop: 8 }]}
+            onPress={() => {
+              navigation.navigate("IndiceDiario", { userId, plano: preview });
+            }}
+          >
+            <Text style={styles.saveTxt}>Ir para Índice Diário</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      <TouchableOpacity style={styles.saveBtn} onPress={handleSalvar}>
+        <Text style={styles.saveTxt}>Salvar plano</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+>>>>>>> 0777315ee8ffb68e29175f6f290cf5d835c22ee5
 }
 
 // Funções auxiliares
