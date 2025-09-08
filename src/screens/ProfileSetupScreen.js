@@ -1,8 +1,8 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
-  View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert
+  View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert, ToastAndroid
 } from "react-native";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../config/firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -23,7 +23,6 @@ const GOALS = [
 const MACROS_PCT = { carbs: 0.5, protein: 0.2, fat: 0.3 };
 const MEALS_SPLIT = { cafe: 0.25, almoco: 0.35, jantar: 0.3, lanche: 0.1 };
 
-// ---- HELPERS ----
 function toNumber(v) {
   if (typeof v === "number") return v;
   if (v == null) return NaN;
@@ -32,21 +31,13 @@ function toNumber(v) {
   return Number.isFinite(n) ? n : NaN;
 }
 
-/**
- * Distribui um inteiro `total` entre chaves de `fractions` (obj: {k: frac})
- * Garante que a soma das partes == Math.round(total).
- * Usa floor + distribui resto baseado nas maiores casas decimais.
- */
 function distributeInteger(total, fractions) {
   const roundedTotal = Math.round(total);
   const entries = Object.entries(fractions);
-  // exact shares
   const exact = entries.map(([k, frac]) => ({ k, frac, exact: roundedTotal * frac }));
-  // floor each
   const floored = exact.map(e => Math.floor(e.exact));
   let sumFloored = floored.reduce((s, v) => s + v, 0);
   let remainder = roundedTotal - sumFloored;
-  // fractional parts to decide quem recebe +1
   const fracParts = exact.map((e, i) => ({ idx: i, part: e.exact - Math.floor(e.exact) }));
   fracParts.sort((a, b) => b.part - a.part);
   const allocated = floored.slice();
@@ -56,14 +47,12 @@ function distributeInteger(total, fractions) {
     remainder--;
     i++;
   }
-  // If still remainder (very rare), distribute from start
   i = 0;
   while (remainder > 0) {
     allocated[i % allocated.length] += 1;
     remainder--;
     i++;
   }
-  // Build result map
   const result = {};
   entries.forEach((entry, idx) => {
     result[entry[0]] = allocated[idx];
@@ -71,14 +60,12 @@ function distributeInteger(total, fractions) {
   return result;
 }
 
-// ---- Cálculos ----
 function mifflin({ sexo, pesoKg, alturaCm, idade }) {
   const base = 10 * pesoKg + 6.25 * alturaCm - 5 * idade;
   return sexo === "masculino" ? base + 5 : base - 161;
 }
 
 function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
-  // trata entradas (aceita strings com vírgula)
   const pesoKg = toNumber(peso);
   const alturaCm = toNumber(altura);
   const idadeNum = toNumber(idade);
@@ -89,12 +76,9 @@ function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
   }
 
   const bmrRaw = mifflin({ sexo, pesoKg, alturaCm, idade: idadeNum });
-  const bmr = Math.round(bmrRaw);
   const tdeeRaw = bmrRaw * atividadeNum;
-  const tdee = Math.round(tdeeRaw);
-
   const goalAdj = GOALS.find(g => g.value === objetivo)?.adj ?? 0;
-  const kcal = Math.max(1200, Math.round(tdee + goalAdj));
+  const kcal = Math.max(1200, Math.round(tdeeRaw + goalAdj));
 
   const carbsKcal = kcal * MACROS_PCT.carbs;
   const proteinKcal = kcal * MACROS_PCT.protein;
@@ -107,28 +91,23 @@ function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
     fat_g: Math.round(fatKcal / 9),
   };
 
-  // Distribuir por refeição garantindo soma correta
   const perMealKcal = distributeInteger(kcal, MEALS_SPLIT);
   const perMealCarbs = distributeInteger(macros.carbs_g, MEALS_SPLIT);
   const perMealProtein = distributeInteger(macros.protein_g, MEALS_SPLIT);
   const perMealFat = distributeInteger(macros.fat_g, MEALS_SPLIT);
 
   const perMeal = Object.fromEntries(
-    Object.keys(MEALS_SPLIT).map((key) => ([
-      key,
-      {
-        kcal: perMealKcal[key],
-        carbs_g: perMealCarbs[key],
-        protein_g: perMealProtein[key],
-        fat_g: perMealFat[key],
-      }
-    ]))
+    Object.keys(MEALS_SPLIT).map((key) => ([key, {
+      kcal: perMealKcal[key],
+      carbs_g: perMealCarbs[key],
+      protein_g: perMealProtein[key],
+      fat_g: perMealFat[key],
+    }] ))
   );
 
-  return { bmr, tdee, macros, perMeal };
+  return { bmr: Math.round(bmrRaw), tdee: Math.round(tdeeRaw), macros, perMeal };
 }
 
-// ---- COMPONENTE ----
 export default function ProfileSetupScreen({ navigation, route }) {
   const [sexo, setSexo] = useState("feminino");
   const [idade, setIdade] = useState("");
@@ -147,9 +126,7 @@ export default function ProfileSetupScreen({ navigation, route }) {
     if (!canPreview) return null;
     try {
       return buildPlan({ sexo, peso, altura, idade, atividade, objetivo });
-    } catch (err) {
-      // se entrar aqui, provavelmente inputs inválidos (ex: "70,5" ok; "abc" não)
-      console.warn("buildPlan error:", err.message);
+    } catch {
       return null;
     }
   }, [sexo, idade, peso, altura, atividade, objetivo]);
@@ -160,33 +137,17 @@ export default function ProfileSetupScreen({ navigation, route }) {
       return;
     }
 
-    const perfil = {
-      sexo,
-      idade: toNumber(idade),
-      peso: toNumber(peso),
-      altura: toNumber(altura),
-      atividade: toNumber(atividade),
-      objetivo,
-      tipoDiabetes,
-      medicamentos,
-      updatedAt: Date.now(),
-    };
-
-    let plano;
+    const perfil = { sexo, idade: toNumber(idade), peso: toNumber(peso), altura: toNumber(altura), atividade: toNumber(atividade), objetivo, tipoDiabetes, medicamentos, updatedAt: Date.now() };
     try {
-      plano = buildPlan(perfil);
-    } catch (err) {
-      Alert.alert("Erro", "Valores numéricos inválidos. Verifique os campos.");
-      return;
-    }
+      const plano = buildPlan(perfil);
 
-    try {
       await AsyncStorage.setItem("@user_profile", JSON.stringify(perfil));
       await AsyncStorage.setItem("@nutrition_plan", JSON.stringify(plano));
 
-      await addDoc(collection(db, "profiles"), { userId, perfil, plano, createdAt: Date.now() });
+      await addDoc(collection(db, "profiles"), { userId, perfil, plano, createdAt: serverTimestamp() });
+      await addDoc(collection(db, "users", userId, "historico"), { plano, macros: plano.macros, perMeal: plano.perMeal, createdAt: serverTimestamp() });
 
-      Alert.alert("Pronto!", "Seu plano foi calculado e salvo.");
+      ToastAndroid.show("Plano salvo com sucesso!", ToastAndroid.SHORT);
       navigation.navigate("IndiceDiario", { userId, plano });
     } catch (e) {
       console.error(e);
@@ -214,12 +175,7 @@ export default function ProfileSetupScreen({ navigation, route }) {
       <Text style={styles.label}>Nível de atividade</Text>
       <View style={styles.column}>
         {ACTIVITY.map(a => (
-          <Chip
-            key={a.value}
-            active={atividade === a.value.toString()}
-            onPress={() => setAtividade(a.value.toString())}
-            label={`${a.label}  (x${a.value})`}
-          />
+          <Chip key={a.value} active={atividade === a.value.toString()} onPress={() => setAtividade(a.value.toString())} label={`${a.label} (x${a.value})`} />
         ))}
       </View>
 
@@ -256,12 +212,7 @@ export default function ProfileSetupScreen({ navigation, route }) {
             ))}
           </View>
 
-          <TouchableOpacity
-            style={[styles.saveBtn, { backgroundColor: "#34d399", marginTop: 8 }]}
-            onPress={() => {
-              navigation.navigate("IndiceDiario", { userId, plano: preview });
-            }}
-          >
+          <TouchableOpacity style={[styles.saveBtn, { backgroundColor: "#34d399", marginTop: 8 }]} onPress={() => navigation.navigate("IndiceDiario", { userId, plano: preview })}>
             <Text style={styles.saveTxt}>Ir para Índice Diário</Text>
           </TouchableOpacity>
         </View>
@@ -274,7 +225,6 @@ export default function ProfileSetupScreen({ navigation, route }) {
   );
 }
 
-// Funções auxiliares
 function labelMeal(key) {
   switch (key) {
     case "cafe": return "Café da manhã";
@@ -289,11 +239,7 @@ function Field({ label, ...props }) {
   return (
     <View style={{ marginBottom: 12, flex: 1 }}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput
-        {...props}
-        style={[styles.input, props.multiline && { height: 90, textAlignVertical: "top" }]}
-        placeholderTextColor="#8a8a8a"
-      />
+      <TextInput {...props} style={[styles.input, props.multiline && { height: 90, textAlignVertical: "top" }]} placeholderTextColor="#8a8a8a" />
     </View>
   );
 }
@@ -319,7 +265,7 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: "#1e90ff20", borderColor: "#1e90ff" },
   chipTxt: { fontWeight: "600", color: "#374151" },
   chipTxtActive: { color: "#1e90ff" },
-  preview: { marginTop: 10, backgroundColor: "#f1f5f9", borderRadius: 12, padding: 12 },
+  preview: { marginTop: 10, backgroundColor: "#add5fdff", borderRadius: 12, padding: 12 },
   previewTitle: { fontWeight: "700", marginBottom: 4 },
   previewLine: { fontSize: 14, marginBottom: 2 },
   saveBtn: { marginTop: 12, backgroundColor: "#1e90ff", paddingVertical: 14, borderRadius: 12, alignItems: "center" },

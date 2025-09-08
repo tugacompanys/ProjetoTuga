@@ -6,7 +6,7 @@ import RegisterScreen from "./src/screens/RegisterScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import ProfileSetupScreen from "./src/screens/ProfileSetupScreen";
 import IndiceDiarioScreen from "./src/screens/IndiceDiarioScreen"; // <== IMPORT CORRETO
-//import RegistroDoseScreen from './src/screens/RegistroDoseScreen';
+import RegistroMedicamentoScreen from './src/screens/RegistroMedicamentoScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -43,11 +43,11 @@ export default function App() {
           component={IndiceDiarioScreen}
           options={{ title: "ÍndiceDiario" }} />
 
-        {/* <Stack.Screen
-          name="RegistroDose"
-          component={RegistroDoseScreen}
-          options={{ title: "Registrar Dose" }}
-        /> */}
+         <Stack.Screen
+          name="RegistroMedicamento"
+          component={RegistroMedicamentoScreen}
+          options={{ title: "Registrar Medicamentos" }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

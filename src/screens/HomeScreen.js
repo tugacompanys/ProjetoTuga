@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Linking, Dimensions, StyleSheet, SafeAreaView, Image,
-  View, Text, TouchableOpacity, ScrollView
+  View, Text, TouchableOpacity, ScrollView, navigate,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, { FadeInUp } from "react-native-reanimated";
@@ -25,15 +25,15 @@ const data = [
     onPress: (navigation) => navigation.navigate("Perfil"),
   },
   {
-    title: "DOSE DE INSULINA",
-    description: "Insira as doses aplicadas durante o dia.",
+    title: "AGENDA DE MEDICAMENTOS",
+    description: "Registre seus medicamentos e horários.",
     backgroundColor: "#f0fef5",
     titleColor: "#00796b",
     descriptionColor: "#33691e",
     buttonColor: "#4caf50",
-    buttonText: "registrar dose",
+    buttonText: "Agendar Medicamentos",
     icon: <MaterialCommunityIcons name="needle" size={32} color="#4caf50" />,
-    onPress: () => console.log("Dose clicada!"),
+    onPress: (navigation) => navigation.navigate("RegistroMedicamento")
   },
   {
     title: "ÍNDICE DIÁRIO",
@@ -44,7 +44,7 @@ const data = [
     buttonColor: "#ff9800",
     buttonText: "ver índice",
     icon: <Ionicons name="stats-chart" size={32} color="#ff9800" />,
-    onPress: () => console.log("Índice clicado!"),
+    onPress: (navigation) => navigation.navigate("IndiceDiario"),
   },
 ];
 
@@ -196,6 +196,9 @@ export default function HomeScreen({ route, navigation }) {
               <Text>Meta: {plano.macros.kcal} kcal</Text>
               <Text>Carbo: {plano.macros.carbs_g} g · Prot: {plano.macros.protein_g} g · Gord: {plano.macros.fat_g} g</Text>
               <Text style={{ marginTop: 6, fontWeight: "600" }}>Café da manhã: {plano.perMeal.cafe.kcal} kcal</Text>
+              <Text style={{ marginTop: 6, fontWeight: "600" }}>Almoço: {plano.perMeal.almoco.kcal} kcal</Text>
+              <Text style={{ marginTop: 6, fontWeight: "600" }}>Jantar: {plano.perMeal.jantar.kcal} kcal</Text>
+              <Text style={{ marginTop: 6, fontWeight: "600" }}>Lanche/Ceia: {plano.perMeal.lanche.kcal} kcal</Text>
             </>
           ) : registrosHoje.length === 0 ? (
             <Text>Nenhum registro para hoje.</Text>
