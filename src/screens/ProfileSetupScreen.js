@@ -1,23 +1,23 @@
 import React, { useState, useMemo } from "react";
 import {
-  View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert, ToastAndroid
+  View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert
 } from "react-native";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../config/firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ACTIVITY = [
-  { label: "Sedentário", value: 1.2 },
-  { label: "Leve (1-3x/sem)", value: 1.375 },
-  { label: "Moderado (3-5x/sem)", value: 1.55 },
-  { label: "Intenso (6-7x/sem)", value: 1.725 },
-  { label: "Atleta", value: 1.9 },
+    { label: "Sedentário", value: 1.2 },
+    { label: "Leve (1-3x/sem)", value: 1.375 },
+    { label: "Moderado (3-5x/sem)", value: 1.55 },
+    { label: "Intenso (6-7x/sem)", value: 1.725 },
+    { label: "Atleta", value: 1.9 },
 ];
 
 const GOALS = [
-  { label: "Manter", value: "manter", adj: 0 },
-  { label: "Perder", value: "perder", adj: -300 },
-  { label: "Ganhar", value: "ganhar", adj: 300 },
+    { label: "Manter", value: "manter", adj: 0 },
+    { label: "Perder", value: "perder", adj: -300 },
+    { label: "Ganhar", value: "ganhar", adj: 300 },
 ];
 
 const MACROS_PCT = { carbs: 0.5, protein: 0.2, fat: 0.3 };
@@ -61,11 +61,12 @@ function distributeInteger(total, fractions) {
 }
 
 function mifflin({ sexo, pesoKg, alturaCm, idade }) {
-  const base = 10 * pesoKg + 6.25 * alturaCm - 5 * idade;
-  return sexo === "masculino" ? base + 5 : base - 161;
+    const base = 10 * pesoKg + 6.25 * alturaCm - 5 * idade;
+    return sexo === "masculino" ? base + 5 : base - 161;
 }
 
 function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
+  // trata entradas (aceita strings com vírgula)
   const pesoKg = toNumber(peso);
   const alturaCm = toNumber(altura);
   const idadeNum = toNumber(idade);
@@ -78,19 +79,20 @@ function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
   const bmrRaw = mifflin({ sexo, pesoKg, alturaCm, idade: idadeNum });
   const tdeeRaw = bmrRaw * atividadeNum;
   const goalAdj = GOALS.find(g => g.value === objetivo)?.adj ?? 0;
-  const kcal = Math.max(1200, Math.round(tdeeRaw + goalAdj));
+  const kcal = Math.max(1200, Math.round(tdee + goalAdj));
 
-  const carbsKcal = kcal * MACROS_PCT.carbs;
-  const proteinKcal = kcal * MACROS_PCT.protein;
-  const fatKcal = kcal * MACROS_PCT.fat;
+    const carbsKcal = kcal * MACROS_PCT.carbs;
+    const proteinKcal = kcal * MACROS_PCT.protein;
+    const fatKcal = kcal * MACROS_PCT.fat;
 
-  const macros = {
-    kcal,
-    carbs_g: Math.round(carbsKcal / 4),
-    protein_g: Math.round(proteinKcal / 4),
-    fat_g: Math.round(fatKcal / 9),
-  };
+    const macros = {
+        kcal,
+        carbs_g: Math.round(carbsKcal / 4),
+        protein_g: Math.round(proteinKcal / 4),
+        fat_g: Math.round(fatKcal / 9),
+    };
 
+  // Distribuir por refeição garantindo soma correta
   const perMealKcal = distributeInteger(kcal, MEALS_SPLIT);
   const perMealCarbs = distributeInteger(macros.carbs_g, MEALS_SPLIT);
   const perMealProtein = distributeInteger(macros.protein_g, MEALS_SPLIT);
@@ -105,49 +107,74 @@ function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
     }] ))
   );
 
-  return { bmr: Math.round(bmrRaw), tdee: Math.round(tdeeRaw), macros, perMeal };
+  return { bmr, tdee, macros, perMeal };
 }
 
 export default function ProfileSetupScreen({ navigation, route }) {
-  const [sexo, setSexo] = useState("feminino");
-  const [idade, setIdade] = useState("");
-  const [peso, setPeso] = useState("");
-  const [altura, setAltura] = useState("");
-  const [atividade, setAtividade] = useState(ACTIVITY[0].value.toString());
-  const [objetivo, setObjetivo] = useState("manter");
-  const [tipoDiabetes, setTipoDiabetes] = useState("nenhum");
-  const [medicamentos, setMedicamentos] = useState("");
+    const [sexo, setSexo] = useState("feminino");
+    const [idade, setIdade] = useState("");
+    const [peso, setPeso] = useState("");
+    const [altura, setAltura] = useState("");
+    const [atividade, setAtividade] = useState(ACTIVITY[0].value.toString());
+    const [objetivo, setObjetivo] = useState("manter");
+    const [tipoDiabetes, setTipoDiabetes] = useState("nenhum");
+    const [medicamentos, setMedicamentos] = useState("");
 
-  const userId = route?.params?.user?.uid || "user-test";
+    const userId = route?.params?.user?.uid || "user-test";
 
-  const canPreview = sexo && idade && peso && altura && atividade && objetivo;
+    const canPreview = sexo && idade && peso && altura && atividade && objetivo;
 
-  const preview = useMemo(() => {
-    if (!canPreview) return null;
+    const preview = useMemo(() => {
+    if (!sexo || !idade || !peso || !altura || !atividade || !objetivo) {
+        return null; // só impede se algum campo estiver vazio
+    }
     try {
+<<<<<<< HEAD
+        return buildPlan({ sexo, peso, altura, idade, atividade, objetivo });
+    } catch {
+        return null;
+=======
       return buildPlan({ sexo, peso, altura, idade, atividade, objetivo });
     } catch {
       return null;
+>>>>>>> 0777315ee8ffb68e29175f6f290cf5d835c22ee5
     }
-  }, [sexo, idade, peso, altura, atividade, objetivo]);
+}, [sexo, idade, peso, altura, atividade, objetivo]);
 
-  async function handleSalvar() {
-    if (!canPreview) {
-      Alert.alert("Campos obrigatórios", "Preencha peso, altura, idade, sexo e atividade.");
+
+    async function handleSalvar() {
+        if (!canPreview) {
+            Alert.alert("Campos obrigatórios", "Preencha peso, altura, idade, sexo e atividade.");
+            return;
+        }
+
+    const perfil = {
+      sexo,
+      idade: toNumber(idade),
+      peso: toNumber(peso),
+      altura: toNumber(altura),
+      atividade: toNumber(atividade),
+      objetivo,
+      tipoDiabetes,
+      medicamentos,
+      updatedAt: Date.now(),
+    };
+
+    let plano;
+    try {
+      plano = buildPlan(perfil);
+    } catch (err) {
+      Alert.alert("Erro", "Valores numéricos inválidos. Verifique os campos.");
       return;
     }
 
-    const perfil = { sexo, idade: toNumber(idade), peso: toNumber(peso), altura: toNumber(altura), atividade: toNumber(atividade), objetivo, tipoDiabetes, medicamentos, updatedAt: Date.now() };
     try {
-      const plano = buildPlan(perfil);
-
       await AsyncStorage.setItem("@user_profile", JSON.stringify(perfil));
       await AsyncStorage.setItem("@nutrition_plan", JSON.stringify(plano));
 
-      await addDoc(collection(db, "profiles"), { userId, perfil, plano, createdAt: serverTimestamp() });
-      await addDoc(collection(db, "users", userId, "historico"), { plano, macros: plano.macros, perMeal: plano.perMeal, createdAt: serverTimestamp() });
+      await addDoc(collection(db, "profiles"), { userId, perfil, plano, createdAt: Date.now() });
 
-      ToastAndroid.show("Plano salvo com sucesso!", ToastAndroid.SHORT);
+      Alert.alert("Pronto!", "Seu plano foi calculado e salvo.");
       navigation.navigate("IndiceDiario", { userId, plano });
     } catch (e) {
       console.error(e);
@@ -159,40 +186,91 @@ export default function ProfileSetupScreen({ navigation, route }) {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Seu Perfil</Text>
 
-      <Text style={styles.label}>Sexo</Text>
-      <View style={styles.row}>
-        {["feminino", "masculino"].map(opt => (
-          <Chip key={opt} active={sexo === opt} onPress={() => setSexo(opt)} label={opt} />
+            <Text style={styles.label}>Sexo</Text>
+            <View style={styles.row}>
+                {["feminino", "masculino"].map(opt => (
+                    <Chip key={opt} active={sexo === opt} onPress={() => setSexo(opt)} label={opt} />
+                ))}
+            </View>
+
+            <View style={styles.grid}>
+                <Field label="Idade" value={idade} onChangeText={setIdade} placeholder="anos" keyboardType="numeric" />
+                <Field label="Peso" value={peso} onChangeText={setPeso} placeholder="kg" keyboardType="numeric" />
+                <Field label="Altura" value={altura} onChangeText={setAltura} placeholder="cm" keyboardType="numeric" />
+            </View>
+
+      <Text style={styles.label}>Nível de atividade</Text>
+      <View style={styles.column}>
+        {ACTIVITY.map(a => (
+          <Chip
+            key={a.value}
+            active={atividade === a.value.toString()}
+            onPress={() => setAtividade(a.value.toString())}
+            label={`${a.label}  (x${a.value})`}
+          />
         ))}
       </View>
 
+            <Text style={styles.label}>Objetivo</Text>
+            <View style={styles.row}>
+                {GOALS.map(g => (
+                    <Chip key={g.value} active={objetivo === g.value} onPress={() => setObjetivo(g.value)} label={g.label} />
+                ))}
+            </View>
+
+            <Text style={styles.label}>Tipo de diabetes</Text>
+            <View style={styles.rowWrap}>
+                {["nenhum", "tipo 1", "tipo 2", "gestacional", "outro"].map(t => (
+                    <Chip key={t} active={tipoDiabetes === t} onPress={() => setTipoDiabetes(t)} label={t} />
+                ))}
+            </View>
+
+<<<<<<< HEAD
+            <Field label="Medicamentos (opcional)" value={medicamentos} onChangeText={setMedicamentos} placeholder="Insulina, metformina, etc." multiline />
+=======
       <View style={styles.grid}>
         <Field label="Idade" value={idade} onChangeText={setIdade} placeholder="anos" keyboardType="numeric" />
         <Field label="Peso" value={peso} onChangeText={setPeso} placeholder="kg (ex: 72 ou 72,5)" keyboardType="numeric" />
         <Field label="Altura" value={altura} onChangeText={setAltura} placeholder="cm (ex: 175)" keyboardType="numeric" />
       </View>
+>>>>>>> 0777315ee8ffb68e29175f6f290cf5d835c22ee5
 
-      <Text style={styles.label}>Nível de atividade</Text>
-      <View style={styles.column}>
-        {ACTIVITY.map(a => (
-          <Chip key={a.value} active={atividade === a.value.toString()} onPress={() => setAtividade(a.value.toString())} label={`${a.label} (x${a.value})`} />
-        ))}
-      </View>
+            {preview && (
+                <View style={styles.preview}>
+                    <Text style={styles.previewTitle}>Prévia do Plano</Text>
+                    <Text style={styles.previewLine}>BMR: {preview.bmr} kcal</Text>
+                    <Text style={styles.previewLine}>TDEE: {preview.tdee} kcal</Text>
+                    <Text style={styles.previewLine}>
+                        Meta diária: {preview.macros.kcal} kcal — C:{preview.macros.carbs_g}g · P:{preview.macros.protein_g}g · G:{preview.macros.fat_g}g
+                    </Text>
 
-      <Text style={styles.label}>Objetivo</Text>
-      <View style={styles.row}>
-        {GOALS.map(g => (
-          <Chip key={g.value} active={objetivo === g.value} onPress={() => setObjetivo(g.value)} label={g.label} />
-        ))}
-      </View>
+                    <View style={{ marginTop: 8 }}>
+                        {Object.entries(preview.perMeal).map(([ref, v]) => (
+                            <Text key={ref} style={styles.previewLine}>
+                                {labelMeal(ref)} → {v.kcal} kcal · C:{v.carbs_g}g · P:{v.protein_g}g · G:{v.fat_g}g
+                            </Text>
+                        ))}
+                    </View>
 
-      <Text style={styles.label}>Tipo de diabetes</Text>
-      <View style={styles.rowWrap}>
-        {["nenhum", "tipo 1", "tipo 2", "gestacional", "outro"].map(t => (
-          <Chip key={t} active={tipoDiabetes === t} onPress={() => setTipoDiabetes(t)} label={t} />
-        ))}
-      </View>
+                    {/* Botão de navegação direto */}
+                    <TouchableOpacity
+                        style={[styles.saveBtn, { backgroundColor: "#34d399", marginTop: 8 }]}
+                        onPress={() => {
+                            navigation.navigate("IndiceDiario", { userId, plano: preview });
+                        }}
+                    >
+                        <Text style={styles.saveTxt}>Ir para Índice Diário</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
 
+<<<<<<< HEAD
+            <TouchableOpacity style={styles.saveBtn} onPress={handleSalvar}>
+                <Text style={styles.saveTxt}>Salvar plano</Text>
+            </TouchableOpacity>
+        </ScrollView>
+    );
+=======
       <Field label="Medicamentos (opcional)" value={medicamentos} onChangeText={setMedicamentos} placeholder="Insulina, metformina, etc." multiline />
 
       {preview && (
@@ -223,33 +301,38 @@ export default function ProfileSetupScreen({ navigation, route }) {
       </TouchableOpacity>
     </ScrollView>
   );
+>>>>>>> 0777315ee8ffb68e29175f6f290cf5d835c22ee5
 }
 
 function labelMeal(key) {
-  switch (key) {
-    case "cafe": return "Café da manhã";
-    case "almoco": return "Almoço";
-    case "jantar": return "Jantar";
-    case "lanche": return "Lanche/Ceia";
-    default: return key;
-  }
+    switch (key) {
+        case "cafe": return "Café da manhã";
+        case "almoco": return "Almoço";
+        case "jantar": return "Jantar";
+        case "lanche": return "Lanche/Ceia";
+        default: return key;
+    }
 }
 
 function Field({ label, ...props }) {
   return (
     <View style={{ marginBottom: 12, flex: 1 }}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput {...props} style={[styles.input, props.multiline && { height: 90, textAlignVertical: "top" }]} placeholderTextColor="#8a8a8a" />
+      <TextInput
+        {...props}
+        style={[styles.input, props.multiline && { height: 90, textAlignVertical: "top" }]}
+        placeholderTextColor="#8a8a8a"
+      />
     </View>
   );
 }
 
 function Chip({ label, active, onPress }) {
-  return (
-    <TouchableOpacity onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
-      <Text style={[styles.chipTxt, active && styles.chipTxtActive]}>{label}</Text>
-    </TouchableOpacity>
-  );
+    return (
+        <TouchableOpacity onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
+            <Text style={[styles.chipTxt, active && styles.chipTxtActive]}>{label}</Text>
+        </TouchableOpacity>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -265,7 +348,7 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: "#1e90ff20", borderColor: "#1e90ff" },
   chipTxt: { fontWeight: "600", color: "#374151" },
   chipTxtActive: { color: "#1e90ff" },
-  preview: { marginTop: 10, backgroundColor: "#add5fdff", borderRadius: 12, padding: 12 },
+  preview: { marginTop: 10, backgroundColor: "#f1f5f9", borderRadius: 12, padding: 12 },
   previewTitle: { fontWeight: "700", marginBottom: 4 },
   previewLine: { fontSize: 14, marginBottom: 2 },
   saveBtn: { marginTop: 12, backgroundColor: "#1e90ff", paddingVertical: 14, borderRadius: 12, alignItems: "center" },
