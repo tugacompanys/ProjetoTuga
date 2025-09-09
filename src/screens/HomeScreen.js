@@ -69,9 +69,7 @@ const noticias = [
 const dicas = ["Beba 2L de água hoje 💧", "Faça 15 min de caminhada 🚶‍♂️", "Evite alimentos muito açucarados 🍬"];
 
 const registrosHoje = [
-  { glicemia: 98, insulina: 4 },
-  { glicemia: 110, insulina: 6 },
-  { glicemia: 102, insulina: 4 },
+  
 ];
 
 // Vídeos do YouTube
@@ -137,7 +135,8 @@ export default function HomeScreen({ route, navigation }) {
           </Animated.View>
         </TouchableOpacity>
       )}
-
+      
+      {/* Conteúdo principal */}
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
         {/* Carrossel de ações */}
         <View style={styles.carouselContainer}>
@@ -169,24 +168,6 @@ export default function HomeScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* Notícias */}
-        <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 24, fontWeight: "bold", marginLeft: 20, marginBottom: 10 }}>Notícias & Curiosidades</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20 }}>
-            {noticias.map((item, index) => (
-              <View key={index} style={[styles.carouselCard, { backgroundColor: "#1e90ff", width: 250, marginBottom: 40 }]}>
-                <Text style={{ fontWeight: "bold", color: "#fff", marginBottom: 5, fontSize: 18 }}>{item.title}</Text>
-                <Text style={{ color: "#fff", marginBottom: 10 }}>{item.description}</Text>
-                <TouchableOpacity
-                  style={{ backgroundColor: "#fff", paddingVertical: 5, paddingHorizontal: 10, borderRadius: 10 }}
-                  onPress={() => Linking.openURL(item.url)}
-                >
-                  <Text style={{ color: "#1e90ff", fontWeight: "bold" }}>Ler mais</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
-        </Animated.View>
 
         {/* Resumo diário */}
         <View style={[styles.card, { backgroundColor: "#fff" }]}>
@@ -211,30 +192,26 @@ export default function HomeScreen({ route, navigation }) {
           )}
         </View>
 
-        {/* Mini gráfico */}
-        <Animated.View entering={FadeInUp.delay(200)} style={[styles.card, { backgroundColor: "#fff" }]}>
-          <Text style={styles.cardTitle}>Últimos 7 dias</Text>
-          <LineChart
-            data={{
-              labels: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"],
-              datasets: [{ data: [90, 110, 100, 105, 98, 120, 95] }],
-            }}
-            width={screenWidth - 40}
-            height={200}
-            yAxisSuffix=" mg/dL"
-            chartConfig={{
-              backgroundColor: "#fff",
-              backgroundGradientFrom: "#fff",
-              backgroundGradientTo: "#fff",
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(0, 128, 255, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(0,0,0, ${opacity})`,
-              style: { borderRadius: 16 },
-              propsForDots: { r: "5", strokeWidth: "2", stroke: "#1e90ff" },
-            }}
-            style={{ borderRadius: 16 }}
-          />
+        {/* Notícias */}
+        <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 20 }}>
+          <Text style={{ fontSize: 24, fontWeight: "bold", marginLeft: 20, marginBottom: 10 }}>Notícias & Curiosidades</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20 }}>
+            {noticias.map((item, index) => (
+              <View key={index} style={[styles.carouselCard, { backgroundColor: "#1e90ff", width: 250, marginBottom: 40 }]}>
+                <Text style={{ fontWeight: "bold", color: "#fff", marginBottom: 5, fontSize: 18 }}>{item.title}</Text>
+                <Text style={{ color: "#fff", marginBottom: 10 }}>{item.description}</Text>
+                <TouchableOpacity
+                  style={{ backgroundColor: "#fff", paddingVertical: 5, paddingHorizontal: 10, borderRadius: 10 }}
+                  onPress={() => Linking.openURL(item.url)}
+                >
+                  <Text style={{ color: "#1e90ff", fontWeight: "bold" }}>Ler mais</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
         </Animated.View>
+
+
 
         {/* Dicas */}
         <Animated.View entering={FadeInUp.delay(300)}>
