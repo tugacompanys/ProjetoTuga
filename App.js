@@ -9,6 +9,9 @@ import IndiceDiarioScreen from "./src/screens/IndiceDiarioScreen"; // <== IMPORT
 import RegistroMedicamentoScreen from './src/screens/RegistroMedicamentoScreen';
 import EditarPerfil from "./src/screens/EditarPerfil";
 import Configurações from "./src/screens/Configuracoes";
+import Glicemia from "./src/screens/Glicemia";
+import Refeicao from "./src/screens/Refeicao";
+import Exercicio from "./src/screens/Exercicio";
 
 const Stack = createNativeStackNavigator();
 
@@ -62,7 +65,25 @@ export default function App() {
           component={Configurações}
           options={{ title: "Configurações" }}
         />
-        
+
+        <Stack.Screen
+          name="Glicemia"
+          component={Glicemia}
+          options={{title: "Glicemia"}}
+        />
+
+        <Stack.Screen
+         name="Refeicao"
+         component={Refeicao}
+         options={{title: "Refeicao"}}
+        />
+
+        <Stack.Screen 
+        name="Exercicio"
+        component={Exercicio}
+        options={{title: "Exercicio"}}
+        />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

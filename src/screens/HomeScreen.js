@@ -8,6 +8,8 @@ import Animated, { FadeInUp } from "react-native-reanimated";
 import YoutubePlayer from "react-native-youtube-iframe";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as vectorIcons from "@expo/vector-icons";
+
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -199,13 +201,24 @@ export default function HomeScreen({ route, navigation }) {
           <Text style={styles.cardTitle}>Resumo Diário</Text>
           {plano ? (
             <>
-              <Text>Meta: {plano.macros.kcal} kcal</Text>
-              <Text>Carbo: {plano.macros.carbs_g} g · Prot: {plano.macros.protein_g} g · Gord: {plano.macros.fat_g} g</Text>
-              <Text style={{ marginTop: 6, fontWeight: "600" }}>Café da manhã: {plano.perMeal.cafe.kcal} kcal</Text>
-              <Text style={{ marginTop: 6, fontWeight: "600" }}>Almoço: {plano.perMeal.almoco.kcal} kcal</Text>
-              <Text style={{ marginTop: 6, fontWeight: "600" }}>Jantar: {plano.perMeal.jantar.kcal} kcal</Text>
-              <Text style={{ marginTop: 6, fontWeight: "600" }}>Lanche/Ceia: {plano.perMeal.lanche.kcal} kcal</Text>
-            </>
+            <Text>Meta: {plano.macros.kcal} kcal</Text>
+            <Text>
+              Carbo: {plano.macros.carbs_g} g · Prot: {plano.macros.protein_g} g · Gord: {plano.macros.fat_g} g
+            </Text>
+            <Text style={{ marginTop: 6, fontWeight: "600" }}>
+              Café da manhã: {plano.perMeal.cafe.kcal} kcal
+            </Text>
+            <Text style={{ marginTop: 6, fontWeight: "600" }}>
+              Almoço: {plano.perMeal.almoco.kcal} kcal
+            </Text>
+            <Text style={{ marginTop: 6, fontWeight: "600" }}>
+              Jantar: {plano.perMeal.jantar.kcal} kcal
+            </Text>
+            <Text style={{ marginTop: 6, fontWeight: "600" }}>
+              Lanche/Ceia: {plano.perMeal.lanche.kcal} kcal
+            </Text>
+          </>
+          
           ) : registrosHoje.length === 0 ? (
             <Text>Nenhum registro para hoje.</Text>
           ) : (
@@ -306,15 +319,25 @@ export default function HomeScreen({ route, navigation }) {
           <Ionicons name="home-outline" size={24} color="#00c47c" />
           <Text style={[styles.footerText, { color: "#00c47c" }]}>Início</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.footerItem}>
+        
+        <TouchableOpacity 
+          style={styles.footerItem}
+          onPress={() => navigation.navigate("Glicemia")}>
           <Ionicons name="water-outline" size={24} color="#00bcd4" />
           <Text style={[styles.footerText, { color: "#00bcd4" }]}>Glicemia</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.footerItem}>
+
+
+        <TouchableOpacity 
+          style={styles.footerItem}
+          onPress={() => navigation.navigate("Refeicao")}>
           <MaterialCommunityIcons name="silverware-fork-knife" size={24} color="#d17d6b" />
           <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.footerItem}>
+
+        <TouchableOpacity 
+          style={styles.footerItem}
+          onPress={() => navigation.navigate("Exercicio")}>
           <Ionicons name="barbell-outline" size={24} color="#7c6e7f" />
           <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
         </TouchableOpacity>
@@ -323,7 +346,7 @@ export default function HomeScreen({ route, navigation }) {
   );
 }
 
-// Styles (mesmo que você já tinha)
+// Styles 
 const styles = StyleSheet.create({
   container: { backgroundColor: "#fff", flex: 1 },
   header: {
