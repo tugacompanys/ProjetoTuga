@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Linking, Dimensions, StyleSheet, SafeAreaView, Image,
-  View, Text, TouchableOpacity, ScrollView, navigate,
+  View, Text, TouchableOpacity, ScrollView, navigate, BackHandler
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, { FadeInUp } from "react-native-reanimated";
@@ -68,7 +68,7 @@ const noticias = [
 const dicas = ["Beba 2L de água hoje 💧", "Faça 15 min de caminhada 🚶‍♂️", "Evite alimentos muito açucarados 🍬"];
 
 const registrosHoje = [
-  
+
 ];
 
 // Vídeos do YouTube
@@ -109,33 +109,59 @@ export default function HomeScreen({ route, navigation }) {
       {menuAberto && (
         <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={() => setMenuAberto(false)}>
           <Animated.View entering={FadeInUp} style={styles.menu}>
-            <TouchableOpacity style={styles.menuItem}>
-              <Ionicons name="person-outline" size={20} color="#000" />
-              <Text style={styles.menuText}>Editar Perfil</Text>
-            </TouchableOpacity>
+
+            {/* Opção de Editar Perfil */}
             <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
                 setMenuAberto(false);
-                navigation.replace("Login");
+                navigation.navigate("EditarPerfil");
+              }}
+            >
+              <Ionicons name="person-outline" size={20} color="#000" />
+              <Text style={styles.menuText}>Trocar Perfil</Text>
+            </TouchableOpacity>
+
+            {/* Opção de Trocar conta */}
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuAberto(false);
+                navigation.navigate("Login");
               }}
             >
               <Ionicons name="swap-horizontal-outline" size={20} color="#000" />
               <Text style={styles.menuText}>Trocar Conta</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
-              <Ionicons name="settings-outline" size={20} color="#000" />
-              <Text style={styles.menuText}>Configurações</Text>
+
+            {/* Opção de Configurações */}
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuAberto(false);
+                navigation.navigate("Configurações");
+                }}
+              >
+                <Ionicons name="settings-outline" size={20} color="#000" />
+                <Text style={styles.menuText}>Configurações</Text>
+              </TouchableOpacity>
+
+              {/* Opção de Sair */}
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                setMenuAberto(false);
+                BackHandler.exitApp(); // Fecha o aplicativo
+                }}
+              >
+                <Ionicons name="exit-outline" size={20} color="red" />
+                <Text style={[styles.menuText, { color: "red" }]}>Sair</Text>
+              </TouchableOpacity>
+              </Animated.View>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
-              <Ionicons name="exit-outline" size={20} color="red" />
-              <Text style={[styles.menuText, { color: "red" }]}>Sair</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </TouchableOpacity>
-      )}
-      
-      {/* Conteúdo principal */}
+            )}
+
+            {/* Conteúdo principal */}
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
         {/* Carrossel de ações */}
         <View style={styles.carouselContainer}>

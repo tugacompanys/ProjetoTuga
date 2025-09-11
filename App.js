@@ -7,6 +7,8 @@ import HomeScreen from "./src/screens/HomeScreen";
 import ProfileSetupScreen from "./src/screens/ProfileSetupScreen";
 import IndiceDiarioScreen from "./src/screens/IndiceDiarioScreen"; // <== IMPORT CORRETO
 import RegistroMedicamentoScreen from './src/screens/RegistroMedicamentoScreen';
+import EditarPerfil from "./src/screens/EditarPerfil";
+import Configurações from "./src/screens/Configuracoes";
 
 const Stack = createNativeStackNavigator();
 
@@ -48,6 +50,19 @@ export default function App() {
           component={RegistroMedicamentoScreen}
           options={{ title: "Registrar Medicamentos" }}
         />
+
+        <Stack.Screen
+          name="EditarPerfil"
+          component={EditarPerfil}
+          options={{ title: "Editar Perfil" }}
+        />
+
+        <Stack.Screen
+          name="Configurações"
+          component={Configurações}
+          options={{ title: "Configurações" }}
+        />
+        
       </Stack.Navigator>
     </NavigationContainer>
   );
