@@ -121,7 +121,7 @@ export default function HomeScreen({ route, navigation }) {
               }}
             >
               <Ionicons name="person-outline" size={20} color="#000" />
-              <Text style={styles.menuText}>Trocar Perfil</Text>
+              <Text style={styles.menuText}>Editar Perfil</Text>
             </TouchableOpacity>
 
             {/* Opção de Trocar conta */}
@@ -142,28 +142,28 @@ export default function HomeScreen({ route, navigation }) {
               onPress={() => {
                 setMenuAberto(false);
                 navigation.navigate("Configurações");
-                }}
-              >
-                <Ionicons name="settings-outline" size={20} color="#000" />
-                <Text style={styles.menuText}>Configurações</Text>
-              </TouchableOpacity>
+              }}
+            >
+              <Ionicons name="settings-outline" size={20} color="#000" />
+              <Text style={styles.menuText}>Configurações</Text>
+            </TouchableOpacity>
 
-              {/* Opção de Sair */}
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => {
+            {/* Opção de Sair */}
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
                 setMenuAberto(false);
                 BackHandler.exitApp(); // Fecha o aplicativo
-                }}
-              >
-                <Ionicons name="exit-outline" size={20} color="red" />
-                <Text style={[styles.menuText, { color: "red" }]}>Sair</Text>
-              </TouchableOpacity>
-              </Animated.View>
+              }}
+            >
+              <Ionicons name="exit-outline" size={20} color="red" />
+              <Text style={[styles.menuText, { color: "red" }]}>Sair</Text>
             </TouchableOpacity>
-            )}
+          </Animated.View>
+        </TouchableOpacity>
+      )}
 
-            {/* Conteúdo principal */}
+      {/* Conteúdo principal */}
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
         {/* Carrossel de ações */}
         <View style={styles.carouselContainer}>
