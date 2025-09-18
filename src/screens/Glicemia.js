@@ -93,146 +93,152 @@ export default function Glicemia() {
   };
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <Text style={styles.titulo}>📊 Controle de Glicemia</Text>
+    <View style={styles.container}>
+      <Text style={styles.titulo}>📊 Controle de Glicemia</Text>
 
-        {/* Campo de input */}
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Digite o valor da glicemia (mg/dL)"
-            placeholderTextColor="#aaa"
-            keyboardType="numeric"
-            value={valor}
-            onChangeText={setValor}
-          />
-          <TouchableOpacity style={styles.botao} onPress={salvarGlicemia}>
-            <Text style={styles.botaoTexto}>Salvar</Text>
-          </TouchableOpacity>
-        </View>
+      {/* Campo de input */}
+      <ScrollView>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Digite o valor da glicemia (mg/dL)"
+          placeholderTextColor="#aaa"
+          keyboardType="numeric"
+          value={valor}
+          onChangeText={setValor}
+        />
+        <TouchableOpacity style={styles.botao} onPress={salvarGlicemia}>
+          <Text style={styles.botaoTexto}>Salvar</Text>
+        </TouchableOpacity>
+      </View>
 
-        {/* Botão resetar tudo */}
-        {registros.length > 0 && (
-          <TouchableOpacity style={styles.botaoReset} onPress={resetarTudo}>
-            <Text style={styles.botaoResetTexto}>Resetar Tudo</Text>
-          </TouchableOpacity>
-        )}
+      {/* Botão resetar tudo */}
+      {registros.length > 0 && (
+        <TouchableOpacity style={styles.botaoReset} onPress={resetarTudo}>
+          <Text style={styles.botaoResetTexto}>Resetar Tudo</Text>
+        </TouchableOpacity>
+      )}
+      </ScrollView>
 
-        {/* Gráfico */}
-        {registros.length > 0 && (
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: "timing", duration: 600 }}
-          >
-            <ScrollView horizontal showsHorizontalScrollIndicator>
-              <View style={{ paddingHorizontal: 20 }}>
-                <LineChart
-                  data={{
-                    labels: registros.map((r) =>
-                      new Date(r.data.seconds * 1000).toLocaleDateString()
-                    ),
-                    datasets: [{ data: registros.map((r) => r.valor) }],
-                  }}
-                  width={Math.max(largura, registros.length * 80 + 40)}
-                  height={240}
+      {/* Gráfico */}
+      {registros.length > 0 && (
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: "timing", duration: 600 }}
+        >
+          <ScrollView horizontal showsHorizontalScrollIndicator>
+            <View style={{ paddingHorizontal: 20 }}>
+              <LineChart
+                data={{
+                  labels: registros.map((r) =>
+                    new Date(r.data.seconds * 1000).toLocaleDateString()
+                  ),
+                  datasets: [{ data: registros.map((r) => r.valor) }],
+                }}
+                width={Math.max(largura, registros.length * 80 + 40)}
+                height={240}
 
-                  fromZero={false}
-                  segments={() => 0}
-                  chartConfig={{
-                    backgroundGradientFrom: "#f0f4f7",
-                    backgroundGradientTo: "#dceefc",
-                    decimalPlaces: 0,
-                    color: (opacity = 1) => `rgba(34, 128, 176, ${opacity})`,
-                    labelColor: (opacity = 1) => `rgba(0,0,0,${opacity})`,
-                    propsForDots: { r: "0" },
-                    propsForBackgroundLines: { strokeDasharray: "" },
-                  }}
-                  bezier
-                  style={styles.grafico}
-                  decorator={() =>
-                    registros.map((r, i) => {
-                      const chartHeight = 240 - 20; // altura interna do gráfico
-                      const chartWidth = Math.max(largura, registros.length * 80 + 40); // largura total
-                      const x = (i * chartWidth) / registros.length; // posição horizontal do ponto
-                      const y = getYPos(r.valor, chartHeight); // posição vertical do ponto
-                      return (
-                        <View
-                          key={i}
-                          style={{
-
-
-                          }}
-                        />
-                      );
-                    })
-                  }
-
-                />
-              </View>
-            </ScrollView>
-
-            {/* Labels fixos do lado */}
-            <View
-              style={{
-                position: "absolute",
-                left: 0,
-                top: 20,
-                height: 200,
-                justifyContent: "space-between",
-              }}
-            >
-              <Text>130 mg/dL</Text>
-              <Text>90 mg/dL</Text>
-              <Text>70 mg/dL</Text>
+                fromZero={false}
+                segments={() => 0}
+                chartConfig={{
+                  backgroundGradientFrom: "#f0f4f7",
+                  backgroundGradientTo: "#dceefc",
+                  decimalPlaces: 0,
+                  color: (opacity = 1) => `rgba(34, 128, 176, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(0,0,0,${opacity})`,
+                  propsForDots: { r: "0" },
+                  propsForBackgroundLines: { strokeDasharray: "" },
+                }}
+                bezier
+                style={styles.grafico}
+                decorator={() =>
+                  registros.map((r, i) => {
+                    const chartHeight = 240 - 20; // altura interna do gráfico
+                    const chartWidth = Math.max(largura, registros.length * 80 + 40); // largura total
+                    const x = (i * chartWidth) / registros.length; // posição horizontal do ponto
+                    const y = getYPos(r.valor, chartHeight); // posição vertical do ponto
+                    return (
+                      <View
+                        key={r.id}
+                        style={{
+                          position: "absolute",
+                          left: x + 20,
+                          top: y + 10,
+                          width: 12,
+                          height: 12,
+                          borderRadius: 6,
+                          backgroundColor: getDotColor(r.valor),
+                          borderWidth: 2,
+                          borderColor: "#fff",
+                        }}
+                      />
+                    );
+                  })
+                }
+              />
             </View>
+          </ScrollView>
 
-            {/* Legenda vertical */}
-            <View style={[styles.legendaContainer, { margin: 20 }]}>
-              <View style={styles.legendaItem}>
-                <View style={[styles.legendaCor, { backgroundColor: "#22c55e" }]} />
-                <Text>Normal (90-120 mg/dL)</Text>
-              </View>
-              <View style={styles.legendaItem}>
-                <View style={[styles.legendaCor, { backgroundColor: "#3b82f6" }]} />
-                <Text>Abaixo (&lt;90 mg/dL)</Text>
-              </View>
-              <View style={styles.legendaItem}>
-                <View style={[styles.legendaCor, { backgroundColor: "#ef4444" }]} />
-                <Text>Acima (&gt;120 mg/dL)</Text>
-              </View>
+          {/* Labels fixos do lado */}
+          <View
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 20,
+              height: 200,
+              justifyContent: "space-between",
+            }}
+          >
+            <Text>130 mg/dL</Text>
+            <Text>90 mg/dL</Text>
+            <Text>70 mg/dL</Text>
+          </View>
+
+          {/* Legenda vertical */}
+          <View style={styles.legendaContainer}>
+            <View style={styles.legendaItem}>
+              <View style={[styles.legendaCor, { backgroundColor: "#22c55e" }]} />
+              <Text>Normal (90-120 mg/dL)</Text>
+            </View>
+            <View style={styles.legendaItem}>
+              <View style={[styles.legendaCor, { backgroundColor: "#3b82f6" }]} />
+              <Text>Abaixo (&lt;90 mg/dL)</Text>
+            </View>
+            <View style={styles.legendaItem}>
+              <View style={[styles.legendaCor, { backgroundColor: "#ef4444" }]} />
+              <Text>Acima (&gt;120 mg/dL)</Text>
+            </View>
+          </View>
+        </MotiView>
+      )}
+
+      {/* Histórico animado */}
+      <FlatList
+        data={registros.slice().reverse()}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item, index }) => (
+          <MotiView
+            from={{ opacity: 0, translateX: -50 }}
+            animate={{ opacity: 1, translateX: 0 }}
+            transition={{ type: "timing", duration: 400, delay: index * 100 }}
+          >
+            <View style={styles.card}>
+              <Text style={styles.cardValor}>{item.valor} mg/dL</Text>
+              <Text style={styles.cardData}>
+                {new Date(item.data.seconds * 1000).toLocaleString()}
+              </Text>
+              <TouchableOpacity
+                style={styles.botaoRemover}
+                onPress={() => removerRegistro(item.id)}
+              >
+                <Text style={styles.botaoRemoverTexto}>❌ Remover</Text>
+              </TouchableOpacity>
             </View>
           </MotiView>
         )}
-
-        {/* Histórico animado */}
-        <FlatList
-          data={registros.slice().reverse()}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item, index }) => (
-            <MotiView
-              from={{ opacity: 0, translateX: -50 }}
-              animate={{ opacity: 1, translateX: 0 }}
-              transition={{ type: "timing", duration: 400, delay: index * 100 }}
-            >
-              <View style={styles.card}>
-                <Text style={styles.cardValor}>{item.valor} mg/dL</Text>
-                <Text style={styles.cardData}>
-                  {new Date(item.data.seconds * 1000).toLocaleString()}
-                </Text>
-                <TouchableOpacity
-                  style={styles.botaoRemover}
-                  onPress={() => removerRegistro(item.id)}
-                >
-                  <Text style={styles.botaoRemoverTexto}>❌ Remover</Text>
-                </TouchableOpacity>
-              </View>
-            </MotiView>
-          )}
-        />
-      </View>
-    </ScrollView>
+      />
+    </View>
   );
 }
 
