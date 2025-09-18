@@ -98,26 +98,26 @@ export default function Glicemia() {
 
       {/* Campo de input */}
       <ScrollView>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite o valor da glicemia (mg/dL)"
-          placeholderTextColor="#aaa"
-          keyboardType="numeric"
-          value={valor}
-          onChangeText={setValor}
-        />
-        <TouchableOpacity style={styles.botao} onPress={salvarGlicemia}>
-          <Text style={styles.botaoTexto}>Salvar</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Digite o valor da glicemia (mg/dL)"
+            placeholderTextColor="#aaa"
+            keyboardType="numeric"
+            value={valor}
+            onChangeText={setValor}
+          />
+          <TouchableOpacity style={styles.botao} onPress={salvarGlicemia}>
+            <Text style={styles.botaoTexto}>Salvar</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Botão resetar tudo */}
-      {registros.length > 0 && (
-        <TouchableOpacity style={styles.botaoReset} onPress={resetarTudo}>
-          <Text style={styles.botaoResetTexto}>Resetar Tudo</Text>
-        </TouchableOpacity>
-      )}
+        {/* Botão resetar tudo */}
+        {registros.length > 0 && (
+          <TouchableOpacity style={styles.botaoReset} onPress={resetarTudo}>
+            <Text style={styles.botaoResetTexto}>Resetar Tudo</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       {/* Gráfico */}
@@ -151,7 +151,7 @@ export default function Glicemia() {
                   propsForBackgroundLines: { strokeDasharray: "" },
                 }}
                 bezier
-                style={styles.grafico}
+                style={styles.grafico }
                 decorator={() =>
                   registros.map((r, i) => {
                     const chartHeight = 240 - 20; // altura interna do gráfico
@@ -196,7 +196,7 @@ export default function Glicemia() {
           </View>
 
           {/* Legenda vertical */}
-          <View style={styles.legendaContainer}>
+          <View style={[styles.legendaContainer, { marginBottom: 20, marginTop: 20 }]}>
             <View style={styles.legendaItem}>
               <View style={[styles.legendaCor, { backgroundColor: "#22c55e" }]} />
               <Text>Normal (90-120 mg/dL)</Text>
