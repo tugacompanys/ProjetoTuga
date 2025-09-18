@@ -27,19 +27,33 @@
     [F] Decidir formato: gráfico, tabela ou registro manual
 
 - **Fazer Registro**
+<<<<<<< Updated upstream
     [x] Criar formulário de registro de glicemia, carboidratos e insulina 
     [x] Conectar com Firebase para salvar os dados 
     [o] Criar histórico de carboidratos 
     [x] Navegação direta para Índice Diário após registro 
     [o] Gráfico de consumo de carboidratos integrado ao Índice Diário 
+=======
+    [x] Criar formulário de registro de glicemia, carboidratos e insulina
+    [o] Conectar com Firebase para salvar os dados
+    [x] Criar histórico de carboidratos
+    [x] Navegação direta para Índice Diário após registro
+    [o] Gráfico de consumo de carboidratos integrado ao Índice Diário
+>>>>>>> Stashed changes
 
 ## 🚧 Doing / FAZENDO NESTE MOMENTO
 - [x] Integração inicial do Firebase para registro e histórico
 - [x] Criar formulário de registro de glicemia, carboidratos e insulina
 - [x] Conectar com Firebase para salvar os dados
+<<<<<<< Updated upstream
 - [O] Criar histórico de carboidratos 
 - [x] Navegação direta para Índice Diário após registro
 - [O] Gráfico de consumo de carboidratos integrado ao Índice Diário 
+=======
+- [x] Criar histórico de carboidratos
+- [x] Navegação direta para Índice Diário após registro
+- [O] Gráfico de consumo de carboidratos integrado ao Índice Diário
+>>>>>>> Stashed changes
 
 
 ## ✅ Done

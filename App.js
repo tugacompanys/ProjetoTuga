@@ -12,10 +12,14 @@ import Configurações from "./src/screens/Configuracoes";
 import Glicemia from "./src/screens/Glicemia";
 import Refeicao from "./src/screens/Refeicao";
 import Exercicio from "./src/screens/Exercicio";
+import { corrigirIcone } from "./corrigirIcone";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  // roda só uma vez quando abrir
+  corrigirIcone();
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Splash">

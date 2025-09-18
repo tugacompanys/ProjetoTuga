@@ -10,38 +10,38 @@ export default function LoginScreen({ navigation }) {
   const [mostrarSenha, setMostrarSenha] = useState(false); // ✅ Estado para mostrar/ocultar senha
 
   const handleLogin = async () => {
-  if (!email || !senha) {
-    alert("⚠️ Preencha todos os campos para continuar.");
-    return;
-  }
-
-  try {
-    await signInWithEmailAndPassword(auth, email, senha);
-    navigation.navigate("HomeScreen", { user: auth.currentUser });
-  } catch (error) {
-    let mensagemErro = "❗ Ocorreu um erro inesperado. Tente novamente.";
-
-    switch (error.code) {
-      case "auth/invalid-email":
-        mensagemErro = "📧 O e-mail informado é inválido.";
-        break;
-      case "auth/user-disabled":
-        mensagemErro = "🚫 Esta conta foi desativada.";
-        break;
-      case "auth/user-not-found":
-        mensagemErro = "❌ Nenhuma conta encontrada com este e-mail.";
-        break;
-      case "auth/wrong-password":
-        mensagemErro = "🔒 Senha incorreta. Verifique e tente novamente.";
-        break;
-      default:
-        mensagemErro = "❗ Erro ao entrar. Verifique os dados e tente novamente.";
-        break;
+    if (!email || !senha) {
+      alert("⚠️ Preencha todos os campos para continuar.");
+      return;
     }
 
-    alert(mensagemErro);
-  }
-};
+    try {
+      await signInWithEmailAndPassword(auth, email, senha);
+      navigation.navigate("HomeScreen", { user: auth.currentUser });
+    } catch (error) {
+      let mensagemErro = "❗ Ocorreu um erro inesperado. Tente novamente.";
+
+      switch (error.code) {
+        case "auth/invalid-email":
+          mensagemErro = "📧 O e-mail informado é inválido.";
+          break;
+        case "auth/user-disabled":
+          mensagemErro = "🚫 Esta conta foi desativada.";
+          break;
+        case "auth/user-not-found":
+          mensagemErro = "❌ Nenhuma conta encontrada com este e-mail.";
+          break;
+        case "auth/wrong-password":
+          mensagemErro = "🔒 Senha incorreta. Verifique e tente novamente.";
+          break;
+        default:
+          mensagemErro = "❗ Erro ao entrar. Verifique os dados e tente novamente.";
+          break;
+      }
+
+      alert(mensagemErro);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -61,33 +61,33 @@ export default function LoginScreen({ navigation }) {
       </View>
 
       <View style={styles.inputContainer}>
-  <Ionicons name="lock-closed-outline" size={20} color="#000" />
-  <TextInput
-    style={styles.input}
-    placeholder="Digite sua senha"
-    secureTextEntry={!mostrarSenha} // alterna a visibilidade
-    onChangeText={setSenha}
-    value={senha}
-  />
-  <TouchableOpacity
-    style={styles.eyeButton}
-    onPress={() => setMostrarSenha(!mostrarSenha)}
-  >
-    <Ionicons
-      name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
-      size={20}
-      color="#000"
-    />
-  </TouchableOpacity>
-</View>
+        <Ionicons name="lock-closed-outline" size={20} color="#000" />
+        <TextInput
+          style={styles.input}
+          placeholder="Digite sua senha"
+          secureTextEntry={!mostrarSenha} // alterna a visibilidade
+          onChangeText={setSenha}
+          value={senha}
+        />
+        <TouchableOpacity
+          style={styles.eyeButton}
+          onPress={() => setMostrarSenha(!mostrarSenha)}
+        >
+          <Ionicons
+            name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
+            size={20}
+            color="#000"
+          />
+        </TouchableOpacity>
+      </View>
 
-      
+
 
       <TouchableOpacity onPress={() => alert('Esqueci a senha clicado')}>
         <Text style={styles.forgot}>Esqueci a senha</Text>
       </TouchableOpacity>
-      
-      
+
+
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
@@ -193,8 +193,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   eyeButton: {
-  position: 'absolute',
-  right: 10,
-  padding: 5,
-},
+    position: 'absolute',
+    right: 10,
+    padding: 5,
+  },
 });

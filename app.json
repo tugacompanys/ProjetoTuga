@@ -4,11 +4,11 @@
     "slug": "appmygluco",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/tugacriança.png",          
+    "icon": "./assets/tugacriança.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/tugacriança.png",       
+      "image": "./assets/tugacriança.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,13 +17,18 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/tugacriança.png", 
+        "foregroundImage": "./assets/tugacriança.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/tugacriança.png"
+    },
+    "install": {
+      "exclude": [
+        "./assets/tugacriança.png"
+      ]
     }
   }
 }
