@@ -9,6 +9,8 @@ import {
   Dimensions,
   Alert,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import {
   collection,
@@ -23,11 +25,11 @@ import {
 import { db, auth } from "../config/firebaseConfig";
 import { LineChart } from "react-native-chart-kit";
 import { MotiView } from "moti";
+import { Circle, Text as SvgText } from "react-native-svg";
 
 export default function Glicemia() {
   const [valor, setValor] = useState("");
   const [registros, setRegistros] = useState([]);
-
   const largura = Dimensions.get("window").width - 40;
 
   useEffect(() => {
@@ -44,19 +46,14 @@ export default function Glicemia() {
 
   const salvarGlicemia = async () => {
     if (!valor) return;
+
     await addDoc(collection(db, "users", auth.currentUser.uid, "glicemia"), {
       valor: Number(valor),
       data: new Date(),
     });
-    setValor("");
-  };
 
-  const removerRegistro = async (id) => {
-    try {
-      await deleteDoc(doc(db, "users", auth.currentUser.uid, "glicemia", id));
-    } catch (error) {
-      console.log("Erro ao remover:", error);
-    }
+    setValor("");
+    Alert.alert("Sucesso", "Registro salvo com sucesso!");
   };
 
   const resetarTudo = async () => {
@@ -73,152 +70,137 @@ export default function Glicemia() {
               doc(db, "users", auth.currentUser.uid, "glicemia", docSnap.id)
             );
           });
+          setValor("");
         },
       },
     ]);
   };
 
-  // Determina cor do ponto
   const getDotColor = (valor) => {
-    if (valor < 90) return "#3b82f6"; // azul
-    if (valor > 120) return "#ef4444"; // vermelho
-    return "#22c55e"; // verde
-  };
-
-  // Converte valor glicemia para posição y no gráfico
-  const getYPos = (valor, height) => {
-    const max = 130;
-    const min = 70;
-    return ((max - valor) / (max - min)) * height;
+    if (valor < 90) return "#3b82f6"; // azul (baixo)
+    if (valor > 120) return "#ef4444"; // vermelho (alto)
+    return "#22c55e"; // verde (normal)
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>📊 Controle de Glicemia</Text>
 
-      {/* Campo de input */}
-      <ScrollView>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Digite o valor da glicemia (mg/dL)"
-            placeholderTextColor="#aaa"
-            keyboardType="numeric"
-            value={valor}
-            onChangeText={setValor}
-          />
-          <TouchableOpacity style={styles.botao} onPress={salvarGlicemia}>
-            <Text style={styles.botaoTexto}>Salvar</Text>
-          </TouchableOpacity>
-        </View>
 
-        {/* Botão resetar tudo */}
-        {registros.length > 0 && (
-          <TouchableOpacity style={styles.botaoReset} onPress={resetarTudo}>
-            <Text style={styles.botaoResetTexto}>Resetar Tudo</Text>
-          </TouchableOpacity>
-        )}
-      </ScrollView>
-
-      {/* Gráfico */}
-      {registros.length > 0 && (
-        <MotiView
-          from={{ opacity: 0, translateY: 20 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          transition={{ type: "timing", duration: 600 }}
-        >
-          <ScrollView horizontal showsHorizontalScrollIndicator>
-            <View style={{ paddingHorizontal: 20 }}>
-              <LineChart
-                data={{
-                  labels: registros.map((r) =>
-                    new Date(r.data.seconds * 1000).toLocaleDateString()
-                  ),
-                  datasets: [{ data: registros.map((r) => r.valor) }],
-                }}
-                width={Math.max(largura, registros.length * 80 + 40)}
-                height={240}
-
-                fromZero={false}
-                segments={() => 0}
-                chartConfig={{
-                  backgroundGradientFrom: "#f0f4f7",
-                  backgroundGradientTo: "#dceefc",
-                  decimalPlaces: 0,
-                  color: (opacity = 1) => `rgba(34, 128, 176, ${opacity})`,
-                  labelColor: (opacity = 1) => `rgba(0,0,0,${opacity})`,
-                  propsForDots: { r: "0" },
-                  propsForBackgroundLines: { strokeDasharray: "" },
-                }}
-                bezier
-                style={styles.grafico }
-                decorator={() =>
-                  registros.map((r, i) => {
-                    const chartHeight = 240 - 20; // altura interna do gráfico
-                    const chartWidth = Math.max(largura, registros.length * 80 + 40); // largura total
-                    const x = (i * chartWidth) / registros.length; // posição horizontal do ponto
-                    const y = getYPos(r.valor, chartHeight); // posição vertical do ponto
-                    return (
-                      <View
-                        key={r.id}
-                        style={{
-                          position: "absolute",
-                          left: x + 20,
-                          top: y + 10,
-                          width: 12,
-                          height: 12,
-                          borderRadius: 6,
-                          backgroundColor: getDotColor(r.valor),
-                          borderWidth: 2,
-                          borderColor: "#fff",
-                        }}
-                      />
-                    );
-                  })
-                }
-              />
-            </View>
-          </ScrollView>
-
-          {/* Labels fixos do lado */}
-          <View
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 20,
-              height: 200,
-              justifyContent: "space-between",
-            }}
-          >
-            <Text>130 mg/dL</Text>
-            <Text>90 mg/dL</Text>
-            <Text>70 mg/dL</Text>
-          </View>
-
-          {/* Legenda vertical */}
-          <View style={[styles.legendaContainer, { marginBottom: 20, marginTop: 20 }]}>
-            <View style={styles.legendaItem}>
-              <View style={[styles.legendaCor, { backgroundColor: "#22c55e" }]} />
-              <Text>Normal (90-120 mg/dL)</Text>
-            </View>
-            <View style={styles.legendaItem}>
-              <View style={[styles.legendaCor, { backgroundColor: "#3b82f6" }]} />
-              <Text>Abaixo (&lt;90 mg/dL)</Text>
-            </View>
-            <View style={styles.legendaItem}>
-              <View style={[styles.legendaCor, { backgroundColor: "#ef4444" }]} />
-              <Text>Acima (&gt;120 mg/dL)</Text>
-            </View>
-          </View>
-        </MotiView>
-      )}
-
-      {/* Histórico animado */}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
       <FlatList
         data={registros.slice().reverse()}
         keyExtractor={(item) => item.id}
+        ListHeaderComponent={
+          <>
+            <Text style={styles.titulo}>📊 Controle de Glicemia</Text>
+
+            {/* Texto de instruções */}
+            <Text style={styles.instrucoes}>
+              Nesta tela você pode registrar seus níveis de glicemia diários. {"\n"}
+              • Digite o valor e pressione "Salvar" para adicionar um registro.{"\n"}
+              • Os registros aparecem abaixo em ordem cronológica.{"\n"}
+              • O gráfico mostra a evolução, com cores indicando: azul (baixo), verde (normal), vermelho (alto).{"\n"}
+              • Pressione "❌ Remover" para excluir um registro ou "Resetar Tudo" para apagar todos.
+            </Text>
+
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Digite o valor da glicemia (mg/dL)"
+                placeholderTextColor="#aaa"
+                keyboardType="numeric"
+                value={valor}
+                onChangeText={setValor}
+              />
+              <TouchableOpacity style={styles.botao} onPress={salvarGlicemia}>
+                <Text style={styles.botaoTexto}>Salvar</Text>
+              </TouchableOpacity>
+            </View>
+
+            {registros.length > 0 && (
+              <TouchableOpacity style={styles.botaoReset} onPress={resetarTudo}>
+                <Text style={styles.botaoResetTexto}>Resetar Tudo</Text>
+              </TouchableOpacity>
+            )}
+
+            {registros.length > 0 && (
+              <MotiView
+                from={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: "timing", duration: 600 }}
+              >
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View style={{ paddingHorizontal: 20 }}>
+                    <LineChart
+                      data={{
+                        labels: registros.map((r) =>
+                          new Date(r.data.seconds * 1000).toLocaleDateString()
+                        ),
+                        datasets: [{ data: registros.map((r) => r.valor) }],
+                      }}
+                      width={Math.max(largura, registros.length * 80 + 40)}
+                      height={240}
+                      chartConfig={{
+                        backgroundGradientFrom: "#f0f4f7",
+                        backgroundGradientTo: "#dceefc",
+                        decimalPlaces: 0,
+                        color: (opacity = 1) =>
+                          `rgba(34, 128, 176, ${opacity})`,
+                        labelColor: (opacity = 1) =>
+                          `rgba(0,0,0,${opacity})`,
+                        propsForDots: { r: "0" },
+                        propsForBackgroundLines: { strokeDasharray: "" },
+                      }}
+                      bezier
+                      style={styles.grafico}
+                      decorator={({ width, height, data }) => {
+                        const chartHeight = height - 40;
+                        const chartWidth = width - 60;
+                        const max = Math.max(...data);
+                        const min = Math.min(...data);
+
+                        return registros.map((r, i) => {
+                          const stepX = chartWidth / (registros.length - 1 || 1);
+                          const x = i * stepX + 30;
+                          const y = ((max - r.valor) / (max - min)) * chartHeight + 20;
+
+                          return (
+                            <React.Fragment key={`frag-${r.id}`}>
+                              <Circle
+                                cx={x}
+                                cy={y}
+                                r={6}
+                                fill={getDotColor(r.valor)}
+                                stroke="#fff"
+                                strokeWidth={2}
+                              />
+                              {/* Número colorido sobre o ponto */}
+                              <SvgText
+                                x={x}
+                                y={y - 12}
+                                fontSize="12"
+                                fill={getDotColor(r.valor)}
+                                fontWeight="bold"
+                                textAnchor="middle"
+                              >
+                                {r.valor}
+                              </SvgText>
+                            </React.Fragment>
+                          );
+                        });
+                      }}
+                    />
+                  </View>
+                </ScrollView>
+              </MotiView>
+            )}
+          </>
+        }
         renderItem={({ item, index }) => (
           <MotiView
+            key={item.id}
             from={{ opacity: 0, translateX: -50 }}
             animate={{ opacity: 1, translateX: 0 }}
             transition={{ type: "timing", duration: 400, delay: index * 100 }}
@@ -238,7 +220,7 @@ export default function Glicemia() {
           </MotiView>
         )}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -279,9 +261,6 @@ const styles = StyleSheet.create({
   },
   botaoResetTexto: { color: "#fff", fontWeight: "bold" },
   grafico: { marginVertical: 20, borderRadius: 16 },
-  legendaContainer: { flexDirection: "column", marginTop: 10 },
-  legendaItem: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
-  legendaCor: { width: 16, height: 16, borderRadius: 8, marginRight: 6 },
   card: {
     padding: 15,
     backgroundColor: "#fff",
@@ -302,4 +281,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   botaoRemoverTexto: { color: "#fff", fontWeight: "bold" },
+
+  instrucoes: {
+    fontSize: 16,
+    margin: 5,
+    padding: 10,
+    color: "#555",
+    marginBottom: 15,
+    lineHeight: 20,
+    textAlign: "justify",
+  }
 });
