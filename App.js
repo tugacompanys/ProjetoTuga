@@ -52,7 +52,7 @@ export default function App() {
           component={IndiceDiarioScreen}
           options={{ title: "ÍndiceDiario" }} />
 
-         <Stack.Screen
+        <Stack.Screen
           name="RegistroMedicamento"
           component={RegistroMedicamentoScreen}
           options={{ title: "Registrar Medicamentos" }}
@@ -73,19 +73,19 @@ export default function App() {
         <Stack.Screen
           name="Glicemia"
           component={Glicemia}
-          options={{title: "Glicemia"}}
+          options={{ title: "Glicemia" }}
         />
 
         <Stack.Screen
-         name="Refeicao"
-         component={Refeicao}
-         options={{title: "Refeicao"}}
+          name="Refeicao"
+          component={Refeicao}
+          options={{ title: "Refeicao" }}
         />
 
-        <Stack.Screen 
-        name="Exercicio"
-        component={Exercicio}
-        options={{title: "Exercicio"}}
+        <Stack.Screen
+          name="Exercicio"
+          component={Exercicio}
+          options={{ title: "Exercicio" }}
         />
 
       </Stack.Navigator>
