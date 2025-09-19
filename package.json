@@ -21,7 +21,10 @@
     "expo-notifications": "~0.32.11",
     "expo-status-bar": "~3.0.8",
     "firebase": "^12.2.1",
+<<<<<<< Updated upstream
     "moti": "^0.30.0",
+=======
+>>>>>>> Stashed changes
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.4",
@@ -31,7 +34,11 @@
     "react-native-reanimated-carousel": "^4.0.3",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
+<<<<<<< Updated upstream
     "react-native-svg": "^15.12.1",
+=======
+    "react-native-svg": "15.12.1",
+>>>>>>> Stashed changes
     "react-native-toast-message": "^2.3.3",
     "react-native-web": "^0.21.0",
     "react-native-web-webview": "^1.0.2",
