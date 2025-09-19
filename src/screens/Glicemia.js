@@ -25,7 +25,7 @@ import {
 import { db, auth } from "../config/firebaseConfig";
 import { LineChart } from "react-native-chart-kit";
 import { MotiView } from "moti";
-import { Circle, Text as SvgText } from "react-native-svg";
+import Svg, { Circle, Text as SvgText } from "react-native-svg"; // <--- alteração aqui
 
 export default function Glicemia() {
   const [valor, setValor] = useState("");
@@ -56,6 +56,21 @@ export default function Glicemia() {
     Alert.alert("Sucesso", "Registro salvo com sucesso!");
   };
 
+  const removerRegistro = async (id) => {
+    Alert.alert("Confirmar", "Deseja apagar este registro?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Apagar",
+        style: "destructive",
+        onPress: async () => {
+          await deleteDoc(
+            doc(db, "users", auth.currentUser.uid, "glicemia", id)
+          );
+        },
+      },
+    ]);
+  };
+
   const resetarTudo = async () => {
     Alert.alert("Confirmar", "Deseja realmente apagar todos os registros?", [
       { text: "Cancelar", style: "cancel" },
@@ -77,32 +92,27 @@ export default function Glicemia() {
   };
 
   const getDotColor = (valor) => {
-    if (valor < 90) return "#3b82f6"; // azul (baixo)
-    if (valor > 120) return "#ef4444"; // vermelho (alto)
-    return "#22c55e"; // verde (normal)
+    if (valor < 90) return "#3b82f6"; // azul
+    if (valor > 120) return "#ef4444"; // vermelho
+    return "#22c55e"; // verde
   };
 
   return (
-
-
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <FlatList
-        data={registros.slice().reverse()}
-        keyExtractor={(item) => item.id}
+        data={[]} 
         ListHeaderComponent={
           <>
             <Text style={styles.titulo}>📊 Controle de Glicemia</Text>
 
-            {/* Texto de instruções */}
             <Text style={styles.instrucoes}>
               Nesta tela você pode registrar seus níveis de glicemia diários. {"\n"}
-              • Digite o valor e pressione "Salvar" para adicionar um registro.{"\n"}
-              • Os registros aparecem abaixo em ordem cronológica.{"\n"}
-              • O gráfico mostra a evolução, com cores indicando: azul (baixo), verde (normal), vermelho (alto).{"\n"}
-              • Pressione "❌ Remover" para excluir um registro ou "Resetar Tudo" para apagar todos.
+              • Digite o valor e pressione "Salvar".{"\n"}
+              • O gráfico mostra a evolução, com cores: azul (baixo), verde (normal), vermelho (alto).{"\n"}
+              • Use "❌ Remover" para excluir um registro ou "Resetar Tudo" para apagar todos.
             </Text>
 
             <View style={styles.inputContainer}>
@@ -125,6 +135,7 @@ export default function Glicemia() {
               </TouchableOpacity>
             )}
 
+            {/* Gráfico */}
             {registros.length > 0 && (
               <MotiView
                 from={{ opacity: 0, translateY: 20 }}
@@ -136,7 +147,10 @@ export default function Glicemia() {
                     <LineChart
                       data={{
                         labels: registros.map((r) =>
-                          new Date(r.data.seconds * 1000).toLocaleDateString()
+                          new Date(r.data.seconds * 1000).toLocaleDateString("pt-BR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                          })
                         ),
                         datasets: [{ data: registros.map((r) => r.valor) }],
                       }}
@@ -146,79 +160,73 @@ export default function Glicemia() {
                         backgroundGradientFrom: "#f0f4f7",
                         backgroundGradientTo: "#dceefc",
                         decimalPlaces: 0,
-                        color: (opacity = 1) =>
-                          `rgba(34, 128, 176, ${opacity})`,
-                        labelColor: (opacity = 1) =>
-                          `rgba(0,0,0,${opacity})`,
-                        propsForDots: { r: "0" },
-                        propsForBackgroundLines: { strokeDasharray: "" },
+                        color: (opacity = 1) => `rgba(34, 128, 176, ${opacity})`,
+                        labelColor: (opacity = 1) => `rgba(0,0,0,${opacity})`,
+                        propsForDots: { r: "6", fill: "#fff" },
                       }}
                       bezier
                       style={styles.grafico}
-                      decorator={({ width, height, data }) => {
-                        const chartHeight = height - 40;
-                        const chartWidth = width - 60;
-                        const max = Math.max(...data);
-                        const min = Math.min(...data);
-
-                        return registros.map((r, i) => {
-                          const stepX = chartWidth / (registros.length - 1 || 1);
-                          const x = i * stepX + 30;
-                          const y = ((max - r.valor) / (max - min)) * chartHeight + 20;
-
-                          return (
-                            <React.Fragment key={`frag-${r.id}`}>
-                              <Circle
-                                cx={x}
-                                cy={y}
-                                r={6}
-                                fill={getDotColor(r.valor)}
-                                stroke="#fff"
-                                strokeWidth={2}
-                              />
-                              {/* Número colorido sobre o ponto */}
-                              <SvgText
-                                x={x}
-                                y={y - 12}
-                                fontSize="12"
-                                fill={getDotColor(r.valor)}
-                                fontWeight="bold"
-                                textAnchor="middle"
-                              >
-                                {r.valor}
-                              </SvgText>
-                            </React.Fragment>
-                          );
-                        });
+                      renderDotContent={({ x, y, index }) => {
+                        const r = registros[index];
+                        return (
+                          <Svg>
+                            <Circle
+                              cx={x}
+                              cy={y}
+                              r={6}
+                              fill={getDotColor(r.valor)}
+                              stroke="#fff"
+                              strokeWidth={2}
+                            />
+                            <SvgText
+                              x={x}
+                              y={y - 12}
+                              fontSize="12"
+                              fill={getDotColor(r.valor)}
+                              fontWeight="bold"
+                              textAnchor="middle"
+                            >
+                              {r.valor}
+                            </SvgText>
+                          </Svg>
+                        );
                       }}
                     />
                   </View>
                 </ScrollView>
               </MotiView>
             )}
+
+            {/* Cards de histórico */}
+            {registros.length > 0 && (
+              <View style={{ maxHeight: 300, marginTop: 10 }}>
+                <ScrollView nestedScrollEnabled={true}>
+                  {registros.slice().reverse().map((item, index) => (
+                    <MotiView
+                      key={item.id}
+                      from={{ opacity: 0, translateX: -50 }}
+                      animate={{ opacity: 1, translateX: 0 }}
+                      transition={{ type: "timing", duration: 400, delay: index * 100 }}
+                    >
+                      <View style={styles.card}>
+                        <Text style={styles.cardValor}>{item.valor} mg/dL</Text>
+                        <Text style={styles.cardData}>
+                          {new Date(item.data.seconds * 1000).toLocaleString()}
+                        </Text>
+                        <TouchableOpacity
+                          style={styles.botaoRemover}
+                          onPress={() => removerRegistro(item.id)}
+                        >
+                          <Text style={styles.botaoRemoverTexto}>❌ Remover</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </MotiView>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
           </>
         }
-        renderItem={({ item, index }) => (
-          <MotiView
-            key={item.id}
-            from={{ opacity: 0, translateX: -50 }}
-            animate={{ opacity: 1, translateX: 0 }}
-            transition={{ type: "timing", duration: 400, delay: index * 100 }}
-          >
-            <View style={styles.card}>
-              <Text style={styles.cardValor}>{item.valor} mg/dL</Text>
-              <Text style={styles.cardData}>
-                {new Date(item.data.seconds * 1000).toLocaleString()}
-              </Text>
-              <TouchableOpacity
-                style={styles.botaoRemover}
-                onPress={() => removerRegistro(item.id)}
-              >
-                <Text style={styles.botaoRemoverTexto}>❌ Remover</Text>
-              </TouchableOpacity>
-            </View>
-          </MotiView>
-        )}
       />
     </KeyboardAvoidingView>
   );
@@ -281,7 +289,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   botaoRemoverTexto: { color: "#fff", fontWeight: "bold" },
-
   instrucoes: {
     fontSize: 16,
     margin: 5,
@@ -290,5 +297,5 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     lineHeight: 20,
     textAlign: "justify",
-  }
+  },
 });
