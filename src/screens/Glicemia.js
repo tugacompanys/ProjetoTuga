@@ -47,14 +47,24 @@ export default function Glicemia() {
   const salvarGlicemia = async () => {
     if (!valor) return;
 
-    await addDoc(collection(db, "users", auth.currentUser.uid, "glicemia"), {
-      valor: Number(valor),
-      data: new Date(),
-    });
+    // 🔹 Limpa o input primeiro
+    const valorAtual = valor;   // guarda antes de limpar
+    setValor("");               // limpa imediatamente
 
-    setValor("");
-    Alert.alert("Sucesso", "Registro salvo com sucesso!");
+    try {
+      await addDoc(collection(db, "users", auth.currentUser.uid, "glicemia"), {
+        valor: Number(valorAtual),
+        data: new Date(),
+      });
+
+      Alert.alert("Sucesso", "Registro salvo com sucesso!");
+    } catch (error) {
+      // Se der erro, restaura o valor digitado
+      setValor(valorAtual);
+      Alert.alert("Erro", "Não foi possível salvar o registro.");
+    }
   };
+
 
   const removerRegistro = async (id) => {
     Alert.alert("Confirmar", "Deseja apagar este registro?", [
@@ -146,7 +156,7 @@ export default function Glicemia() {
                 transition={{ type: "timing", duration: 600 }}
               >
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={{ paddingHorizontal: 20  }}>
+                  <View style={{ paddingHorizontal: 20 }}>
                     <LineChart
                       data={{
                         labels: registros.map((r) =>
@@ -174,7 +184,7 @@ export default function Glicemia() {
                       renderDotContent={({ x, y, index }) => {
                         const r = registros[index];
                         return (
-                          <Svg>
+                          <Svg key={r.id || index}>
                             <Circle
                               cx={x}
                               cy={y}
