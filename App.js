@@ -73,7 +73,7 @@ export default function App() {
         <Stack.Screen
           name="Glicemia"
           component={Glicemia}
-          options={{ title: "Glicemia" }}
+          options={{ title: "Glicemia", headerShown: false}}
         />
 
         <Stack.Screen

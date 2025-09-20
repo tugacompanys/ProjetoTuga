@@ -103,17 +103,19 @@ export default function Glicemia() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <FlatList
-        data={[]} 
+        data={[]}
         ListHeaderComponent={
           <>
             <Text style={styles.titulo}>📊 Controle de Glicemia</Text>
 
             <Text style={styles.instrucoes}>
-              Nesta tela você pode registrar seus níveis de glicemia diários. {"\n"}
-              • Digite o valor e pressione "Salvar".{"\n"}
-              • O gráfico mostra a evolução, com cores: azul (baixo), verde (normal), vermelho (alto).{"\n"}
-              • Use "❌ Remover" para excluir um registro ou "Resetar Tudo" para apagar todos.
+              Nesta tela você pode registrar seus níveis de glicemia diários e você poderá acompanhar seu histórico de informações logo abaixo.
+              {"\n"}{"\n"}
+              • Digite o valor {"\n"}
+              • Pressione "Salvar"
             </Text>
+
+
 
             <View style={styles.inputContainer}>
               <TextInput
@@ -124,6 +126,7 @@ export default function Glicemia() {
                 value={valor}
                 onChangeText={setValor}
               />
+
               <TouchableOpacity style={styles.botao} onPress={salvarGlicemia}>
                 <Text style={styles.botaoTexto}>Salvar</Text>
               </TouchableOpacity>
@@ -143,21 +146,23 @@ export default function Glicemia() {
                 transition={{ type: "timing", duration: 600 }}
               >
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={{ paddingHorizontal: 20 }}>
+                  <View style={{ paddingHorizontal: 20  }}>
                     <LineChart
                       data={{
                         labels: registros.map((r) =>
                           new Date(r.data.seconds * 1000).toLocaleDateString("pt-BR", {
                             day: "2-digit",
                             month: "2-digit",
+                            year: "2-digit",
                           })
                         ),
                         datasets: [{ data: registros.map((r) => r.valor) }],
                       }}
                       width={Math.max(largura, registros.length * 80 + 40)}
-                      height={240}
+                      height={260}
+                      yAxisSuffix="/dL"
                       chartConfig={{
-                        backgroundGradientFrom: "#f0f4f7",
+                        backgroundGradientFrom: "#acd7fa59",
                         backgroundGradientTo: "#dceefc",
                         decimalPlaces: 0,
                         color: (opacity = 1) => `rgba(34, 128, 176, ${opacity})`,
@@ -175,7 +180,7 @@ export default function Glicemia() {
                               cy={y}
                               r={6}
                               fill={getDotColor(r.valor)}
-                              stroke="#fff"
+                              stroke="#0e0b0bff"
                               strokeWidth={2}
                             />
                             <SvgText
@@ -196,6 +201,14 @@ export default function Glicemia() {
                 </ScrollView>
               </MotiView>
             )}
+
+            <Text style={{ fontSize: 15, marginBottom: 10 }}>
+              🔴 Vermelho: Acima do normal (&gt; 120 mg/dL){"\n"}
+              🟢 Verde: Normal (90 - 120 mg/dL){"\n"}
+              🔵 Azul: Abaixo do normal (&lt; 90 mg/dL){"\n"}
+            </Text>
+
+            <Text style={{ fontWeight: "bold", margin: 55 - 10 - 30 - 10, fontSize: 30 }}> Histórico </Text>
 
             {/* Cards de histórico */}
             {registros.length > 0 && (
@@ -232,12 +245,13 @@ export default function Glicemia() {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#f0f4f7" },
   titulo: {
     fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 10,
     color: "#227FB0",
     textAlign: "center",
   },
@@ -266,6 +280,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignSelf: "flex-end",
     marginBottom: 10,
+    marginTop: 10,
   },
   botaoResetTexto: { color: "#fff", fontWeight: "bold" },
   grafico: { marginVertical: 20, borderRadius: 16 },
