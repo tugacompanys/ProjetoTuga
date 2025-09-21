@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import {
   Linking, Dimensions, StyleSheet, SafeAreaView, Image,
-  View, Text, TouchableOpacity, ScrollView, navigate, BackHandler
+  View, Text, TouchableOpacity, ScrollView, BackHandler
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import YoutubePlayer from "react-native-youtube-iframe";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as vectorIcons from "@expo/vector-icons";
-
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -68,12 +66,7 @@ const noticias = [
 ];
 
 const dicas = ["Beba 2L de água hoje 💧", "Faça 15 min de caminhada 🚶‍♂️", "Evite alimentos muito açucarados 🍬"];
-
-const registrosHoje = [
-
-];
-
-// Vídeos do YouTube
+const registrosHoje = [];
 const videos = [
   { id: "AnF8j2MLkH4", title: "Exercícios recomendados para diabéticos" },
   { id: "LRfH7Tz3rtI", title: "Café com bolinho Barato para DIABÉTICOS" },
@@ -86,15 +79,23 @@ export default function HomeScreen({ route, navigation }) {
   const [videoId, setVideoId] = useState(null);
   const [plano, setPlano] = useState(null);
 
-  const nome = route?.params?.user?.displayName ?? "Usuário";
+  // 👇 Agora o estado está correto
+  const [nome, setNome] = useState("Usuário");
 
+  // 👇 Busca do nome no foco da tela
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", async () => {
-      const p = await AsyncStorage.getItem("@nutrition_plan");
-      setPlano(p ? JSON.parse(p) : null);
+      const storedName = await AsyncStorage.getItem("@user_name");
+      if (storedName) {
+        setNome(storedName);
+      } else {
+        // Caso venha do login com params
+        const paramName = route?.params?.user?.displayName;
+        if (paramName) setNome(paramName);
+      }
     });
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, route?.params]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -106,7 +107,7 @@ export default function HomeScreen({ route, navigation }) {
         <Text style={styles.headerText}>Bem-vindo, {nome}! ✌</Text>
         <View style={{ width: 28 }} />
       </View>
-
+      
       {/* Menu lateral */}
       {menuAberto && (
         <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={() => setMenuAberto(false)}>
