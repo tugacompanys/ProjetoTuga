@@ -38,6 +38,7 @@ import Animated, { FadeInUp } from "react-native-reanimated";
 export default function Glicemia() {
   const [valor, setValor] = useState("");
   const [salvando, setSalvando] = useState(false);
+  const [resetando, setResetando] = useState(false);
   const [menuAberto, setMenuAberto] = useState(false);
   const [registros, setRegistros] = useState([]);
   const largura = Dimensions.get("window").width - 40;
@@ -58,8 +59,7 @@ export default function Glicemia() {
   const salvarGlicemia = async () => {
     if (!valor) return;
     const valorAtual = valor;
-    setValor(""); // Limpa imediatamente
-
+    setValor("");
     try {
       await addDoc(collection(db, "users", auth.currentUser.uid, "glicemia"), {
         valor: Number(valorAtual),
@@ -72,40 +72,40 @@ export default function Glicemia() {
     }
   };
 
-  const removerRegistro = async (id) => {
-    Alert.alert("Confirmar", "Deseja apagar este registro?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Apagar",
-        style: "destructive",
-        onPress: async () => {
-          await deleteDoc(
-            doc(db, "users", auth.currentUser.uid, "glicemia", id)
-          );
-        },
-      },
-    ]);
+  const removerRegistro = async (id) => {      // ✅ NOVO BLOCO
+    try {
+      await deleteDoc(doc(db, "users", auth.currentUser.uid, "glicemia", id));
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível remover este registro.");
+    }
   };
 
-  const resetarTudo = async () => {
+  const resetarTudo = async () => {            // ✅ MANTER APENAS ESTA VERSÃO
     Alert.alert("Confirmar", "Deseja realmente apagar todos os registros?", [
       { text: "Cancelar", style: "cancel" },
       {
         text: "Apagar tudo",
         style: "destructive",
         onPress: async () => {
-          const q = collection(db, "users", auth.currentUser.uid, "glicemia");
-          const snapshot = await getDocs(q);
-          snapshot.forEach(async (docSnap) => {
-            await deleteDoc(
-              doc(db, "users", auth.currentUser.uid, "glicemia", docSnap.id)
+          try {
+            setResetando(true);
+            const q = collection(db, "users", auth.currentUser.uid, "glicemia");
+            const snapshot = await getDocs(q);
+            const promises = snapshot.docs.map((docSnap) =>
+              deleteDoc(doc(db, "users", auth.currentUser.uid, "glicemia", docSnap.id))
             );
-          });
-          setValor("");
+            await Promise.all(promises);
+            setValor("");
+          } catch (error) {
+            Alert.alert("Erro", "Não foi possível apagar os registros.");
+          } finally {
+            setResetando(false);
+          }
         },
       },
     ]);
   };
+
 
   const getDotColor = (valor) => {
     if (valor < 90) return "#3b82f6"; // azul
@@ -213,6 +213,7 @@ export default function Glicemia() {
 
               {registros.length > 0 && (
                 <TouchableOpacity style={styles.botaoReset} onPress={resetarTudo}>
+                  <Ionicons name="reload-outline" size={20} color="#ffffffff" fontWeight="900"/>
                   <Text style={styles.botaoResetTexto}>Resetar Tudo</Text>
                 </TouchableOpacity>
               )}
@@ -385,7 +386,7 @@ const styles = StyleSheet.create({
   inputContainer: { flexDirection: "row", marginBottom: 20, alignItems: "center" },
   input: {
     flex: 1,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: "#ccc",
     padding: 12,
     borderRadius: 12,
@@ -393,7 +394,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     fontSize: 16,
     marginLeft: 10,
-    marginRight: 10
   },
   // Menu lateral
   menuOverlay: {
@@ -428,11 +428,11 @@ const styles = StyleSheet.create({
   },
   menuText: { fontSize: 16, fontWeight: "500" },
 
-  botao: { backgroundColor: "#227FB0", paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12, elevation: 3, marginLeft: 10, marginRight: 10 },
+  botao: { backgroundColor: "#227FB0", paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12, elevation: 3, marginRight: 10 },
   botaoTexto: { color: "#fff", fontWeight: "bold" },
   botaoReset: { backgroundColor: "#f87171", padding: 10, borderRadius: 8, alignSelf: "flex-end", marginTop: 10, marginRight: 10 },
   botaoResetTexto: { color: "#fff", fontWeight: "bold" },
-  grafico: { marginVertical: 20, borderRadius: 16 },
+  grafico: { marginVertical: 10, borderRadius: 16 },
   card: { padding: 15, backgroundColor: "#fff", borderRadius: 12, marginBottom: 12, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 6, elevation: 2, marginLeft: 10, marginRight: 10 },
   cardValor: { fontSize: 18, fontWeight: "bold", color: "#227FB0" },
   cardData: { fontSize: 14, color: "#555", marginTop: 4 },
