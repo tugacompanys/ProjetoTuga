@@ -5,8 +5,8 @@ import LoginScreen from "./src/screens/LoginScreen";
 import RegisterScreen from "./src/screens/RegisterScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import ProfileSetupScreen from "./src/screens/ProfileSetupScreen";
-import IndiceDiarioScreen from "./src/screens/IndiceDiarioScreen"; // <== IMPORT CORRETO
-import RegistroMedicamentoScreen from './src/screens/RegistroMedicamentoScreen';
+import IndiceDiarioScreen from "./src/screens/IndiceDiarioScreen";
+import RegistroMedicamentoScreen from "./src/screens/RegistroMedicamentoScreen";
 import EditarPerfil from "./src/screens/EditarPerfil";
 import Configurações from "./src/screens/Configuracoes";
 import Glicemia from "./src/screens/Glicemia";
@@ -22,72 +22,86 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Splash">
+      <Stack.Navigator
+        initialRouteName="Splash"
+        // 🔑 CONFIGURAÇÃO GLOBAL DE TRANSIÇÃO
+        screenOptions={{
+          headerShown: false,
+          animation: "slide_from_right", // 👉 Transição padrão para todas as telas
+          gestureEnabled: true,          // Permite arrastar para voltar (iOS e Android)
+        }}
+      >
         <Stack.Screen
           name="Splash"
           component={SplashScreen}
-          options={{ headerShown: false }}
+          // aqui podemos sobrescrever caso precise
+          options={{ animation: "fade" }} // Exemplo: splash com fade
         />
 
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen
           name="Register"
           component={RegisterScreen}
-          options={{ title: "Registrar" }}
+          options={{ headerShown: true, title: "Registrar" }}
         />
+
         <Stack.Screen
           name="HomeScreen"
           component={HomeScreen}
-          options={{ title: "Início", headerShown: false }}
+          options={{ headerShown: false }}
         />
-        <Stack.Screen name="Perfil"
-          component={ProfileSetupScreen}
-          options={{ title: "Seu plano" }} />
 
-        <Stack.Screen name="IndiceDiario"
+        <Stack.Screen
+          name="Perfil"
+          component={ProfileSetupScreen}
+          options={{ headerShown: true, title: "Seu plano" }}
+        />
+
+        <Stack.Screen
+          name="IndiceDiario"
           component={IndiceDiarioScreen}
-          options={{ title: "ÍndiceDiario" }} />
+          options={{ headerShown: true, title: "Índice Diário" }}
+        />
 
         <Stack.Screen
           name="RegistroMedicamento"
           component={RegistroMedicamentoScreen}
-          options={{ title: "Registrar Medicamentos" }}
+          options={{ headerShown: true, title: "Registrar Medicamentos" }}
         />
 
         <Stack.Screen
           name="EditarPerfil"
           component={EditarPerfil}
-          options={{ title: "Editar Perfil" }}
+          options={{ headerShown: true, title: "Editar Perfil" }}
         />
 
         <Stack.Screen
           name="Configurações"
           component={Configurações}
-          options={{ title: "Configurações" }}
+          options={{ headerShown: true, title: "Configurações" }}
         />
 
         <Stack.Screen
           name="Glicemia"
           component={Glicemia}
-          options={{ title: "Glicemia", headerShown: false, animation: "ios_from_right" }}
+          // 👉 aqui mantemos uma animação específica se quiser diferente
+          options={{
+            headerShown: false,
+            animation: "slide_from_right",
+          }}
         />
 
         <Stack.Screen
           name="Refeicao"
           component={Refeicao}
-          options={{ title: "Refeicao" }}
+          options={{ headerShown: true, title: "Refeição" }}
         />
 
         <Stack.Screen
           name="Exercicio"
           component={Exercicio}
-          options={{ title: "Exercicio" }}
+          options={{ headerShown: true, title: "Exercício" }}
         />
-
       </Stack.Navigator>
     </NavigationContainer>
   );

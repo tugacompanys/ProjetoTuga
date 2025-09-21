@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; // ✅ único import de React
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import {
   Platform,
   StatusBar,
   SafeAreaView,
+  BackHandler,
+  ActivityIndicator,
 } from "react-native";
 import {
   collection,
@@ -28,12 +30,15 @@ import { db, auth } from "../config/firebaseConfig";
 import { LineChart } from "react-native-chart-kit";
 import { MotiView } from "moti";
 import Svg, { Circle, Text as SvgText } from "react-native-svg";
-import { Ionicons } from "@expo/vector-icons";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+// ✅ Import correto do Animated / FadeInUp
+import Animated, { FadeInUp } from "react-native-reanimated";
 
 export default function Glicemia() {
   const [valor, setValor] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  const [menuAberto, setMenuAberto] = useState(false);
   const [registros, setRegistros] = useState([]);
   const largura = Dimensions.get("window").width - 40;
   const navigation = useNavigation();
@@ -116,15 +121,75 @@ export default function Glicemia() {
       >
         <FlatList
           data={[]}
+          contentContainerStyle={{ paddingBottom: 80 }} // 🔑 Espaço extra p/ a TabBar
           ListHeaderComponent={
             <>
               <View style={styles.header}>
                 <TouchableOpacity onPress={() => setMenuAberto(!menuAberto)}>
-                  <Ionicons name="menu-outline" size={28} color="#fff" />
+                  <Ionicons name="menu-outline" size={28} color="#fff" bottom="10" right="10" />
                 </TouchableOpacity>
                 <Text style={styles.headerText}>📊 Controle de Glicemia</Text>
                 <View style={{ width: 28 }} />
               </View>
+
+              {/* Menu lateral */}
+              {menuAberto && (
+                <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={() => setMenuAberto(false)}>
+                  <Animated.View entering={FadeInUp} style={styles.menu}>
+
+                    {/* Opção de Editar Perfil */}
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => {
+                        setMenuAberto(false);
+                        navigation.navigate("EditarPerfil");
+                      }}
+                    >
+                      <Ionicons name="person-outline" size={20} color="#000" />
+                      <Text style={styles.menuText}>Editar Perfil</Text>
+                    </TouchableOpacity>
+
+                    {/* Opção de Trocar conta */}
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => {
+                        setMenuAberto(false);
+                        navigation.navigate("Login");
+                      }}
+                    >
+                      <Ionicons name="swap-horizontal-outline" size={20} color="#000" />
+                      <Text style={styles.menuText}>Trocar Conta</Text>
+                    </TouchableOpacity>
+
+                    {/* Opção de Configurações */}
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => {
+                        setMenuAberto(false);
+                        navigation.navigate("Configurações");
+                      }}
+                    >
+                      <Ionicons name="settings-outline" size={20} color="#000" />
+                      <Text style={styles.menuText}>Configurações</Text>
+                    </TouchableOpacity>
+
+                    {/* Opção de Sair */}
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => {
+                        setMenuAberto(false);
+                        BackHandler.exitApp(); // Fecha o aplicativo
+                      }}
+                    >
+                      <Ionicons name="exit-outline" size={20} color="red" />
+                      <Text style={[styles.menuText, { color: "red" }]}>Sair</Text>
+                    </TouchableOpacity>
+                  </Animated.View>
+                </TouchableOpacity>
+              )}
+
+
+
 
               <Text style={styles.instrucoes}>
                 Registre seus níveis de glicemia e acompanhe com o gráfico e o histórico abaixo.
@@ -174,7 +239,6 @@ export default function Glicemia() {
                         width={Math.max(largura, registros.length * 80 + 40)}
                         height={260}
                         yAxisSuffix="/dL"
-                        yAxisLabel="mg/"
                         chartConfig={{
                           backgroundGradientFrom: "#acd7fa59",
                           backgroundGradientTo: "#dceefc",
@@ -216,13 +280,13 @@ export default function Glicemia() {
                 </MotiView>
               )}
 
-              <Text style={{ fontSize: 15, marginBottom: 10 }}>
-                🔴 Maior que 120 = Hiperglicemia {"\n"}
+              <Text style={{ fontSize: 15, marginBottom: 10, padding: 10, marginLeft: 10 }}>
+                🔴 Maior que 120 = Acima da média {"\n"}
                 🟢 Entre 90-120 = Equilibrado {"\n"}
-                🔵 Menor que 90 = Hipoglicemia
+                🔵 Menor que 90 = Abaixo da média
               </Text>
 
-              <Text style={{ fontWeight: "bold", fontSize: 24, marginTop: 20 }}>
+              <Text style={{ fontWeight: "bold", fontSize: 24, marginTop: 20, marginLeft: 20 }}>
                 Histórico
               </Text>
 
@@ -306,6 +370,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f0f4f7",
+    bottom: 12
   },
   header: {
     backgroundColor: "#1e90ff",
@@ -316,7 +381,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 10 : 10,
     paddingBottom: 12,
   },
-  headerText: { fontSize: 20, fontWeight: "bold", color: "#fff" },
+  headerText: { fontSize: 20, fontWeight: "bold", color: "#fff", bottom: 12 },
   inputContainer: { flexDirection: "row", marginBottom: 20, alignItems: "center" },
   input: {
     flex: 1,
@@ -327,13 +392,48 @@ const styles = StyleSheet.create({
     marginRight: 10,
     backgroundColor: "#fff",
     fontSize: 16,
+    marginLeft: 10,
+    marginRight: 10
   },
-  botao: { backgroundColor: "#227FB0", paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12, elevation: 3 },
+  // Menu lateral
+  menuOverlay: {
+    position: "absolute",
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.36)",
+    justifyContent: "flex-start",
+    alignItems: "right",
+    paddingTop: 50,
+    zIndex: 998,
+  },
+  menu: {
+    marginTop: 10,
+    marginRight: 10,
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 10,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    zIndex: 999,
+    width: 220,
+  },
+  menuItem: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  menuText: { fontSize: 16, fontWeight: "500" },
+
+  botao: { backgroundColor: "#227FB0", paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12, elevation: 3, marginLeft: 10, marginRight: 10 },
   botaoTexto: { color: "#fff", fontWeight: "bold" },
-  botaoReset: { backgroundColor: "#f87171", padding: 10, borderRadius: 8, alignSelf: "flex-end", marginBottom: 10, marginTop: 10 },
+  botaoReset: { backgroundColor: "#f87171", padding: 10, borderRadius: 8, alignSelf: "flex-end", marginTop: 10, marginRight: 10 },
   botaoResetTexto: { color: "#fff", fontWeight: "bold" },
   grafico: { marginVertical: 20, borderRadius: 16 },
-  card: { padding: 15, backgroundColor: "#fff", borderRadius: 12, marginBottom: 12, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 6, elevation: 2 },
+  card: { padding: 15, backgroundColor: "#fff", borderRadius: 12, marginBottom: 12, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 6, elevation: 2, marginLeft: 10, marginRight: 10 },
   cardValor: { fontSize: 18, fontWeight: "bold", color: "#227FB0" },
   cardData: { fontSize: 14, color: "#555", marginTop: 4 },
   botaoRemover: { marginTop: 8, backgroundColor: "#ef4444", paddingVertical: 6, borderRadius: 8, alignItems: "center" },
@@ -341,7 +441,7 @@ const styles = StyleSheet.create({
   instrucoes: { fontSize: 16, margin: 5, padding: 10, color: "#555", marginBottom: 15, lineHeight: 20, textAlign: "justify" },
   footer: {
     position: "absolute",
-    bottom: 0,
+    bottom: -10,
     left: 0,
     right: 0,
     flexDirection: "row",

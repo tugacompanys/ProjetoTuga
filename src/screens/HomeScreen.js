@@ -316,7 +316,7 @@ export default function HomeScreen({ route, navigation }) {
       {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity style={styles.footerItem}>
-          <Ionicons name="water-outline" size={24} color="#00c47c"backgroundColor="#a1fddc77" />
+          <Ionicons name="home-outline" size={24} color="#00c47c"backgroundColor="#a1fddc77" />
           <Text style={[styles.footerText, { color: "#00c47c", backgroundColor: "#a1fddc77", fontWeight: "900", fontSize: 14 }]}>Início</Text>
         </TouchableOpacity>
 
@@ -349,7 +349,7 @@ export default function HomeScreen({ route, navigation }) {
 }
 
 // Styles 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: { backgroundColor: "#fff", flex: 1 },
   header: {
     backgroundColor: "#1e90ff",
