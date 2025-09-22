@@ -88,14 +88,14 @@ export default function Glicemia() {
         style: "destructive",
         onPress: async () => {
           try {
-            setResetando(true);
+            setResetando(true); // ✅ Ativa spinner
             const q = collection(db, "users", auth.currentUser.uid, "glicemia");
             const snapshot = await getDocs(q);
             const promises = snapshot.docs.map((docSnap) =>
               deleteDoc(doc(db, "users", auth.currentUser.uid, "glicemia", docSnap.id))
             );
             await Promise.all(promises);
-            setValor("");
+            setValor(""); // Limpa input
           } catch (error) {
             Alert.alert("Erro", "Não foi possível apagar os registros.");
           } finally {
@@ -427,6 +427,21 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   menuText: { fontSize: 16, fontWeight: "500" },
+
+  resetButton: {
+    backgroundColor: '#d9534f',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  resetButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  
 
   botao: { backgroundColor: "#227FB0", paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12, elevation: 3, marginRight: 10 },
   botaoTexto: { color: "#fff", fontWeight: "bold" },

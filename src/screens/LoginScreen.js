@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
@@ -7,7 +7,8 @@ import { auth } from "../config/firebaseConfig";
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [mostrarSenha, setMostrarSenha] = useState(false); // ✅ Estado para mostrar/ocultar senha
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [loading, setLoading] = useState(false); // ✅ Estado para loading
 
   const handleLogin = async () => {
     if (!email || !senha) {
@@ -15,9 +16,16 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
+    setLoading(true); // ✅ inicia o loop
+
     try {
       await signInWithEmailAndPassword(auth, email, senha);
       navigation.navigate("HomeScreen", { user: auth.currentUser });
+      // 🔴 Deixa o spinner visível por 1 segundo
+setTimeout(() => {
+  navigation.navigate("HomeScreen", { user: auth.currentUser });
+  setLoading(false);
+}, 1000);
     } catch (error) {
       let mensagemErro = "❗ Ocorreu um erro inesperado. Tente novamente.";
 
@@ -34,12 +42,11 @@ export default function LoginScreen({ navigation }) {
         case "auth/wrong-password":
           mensagemErro = "🔒 Senha incorreta. Verifique e tente novamente.";
           break;
-        default:
-          mensagemErro = "❗ Erro ao entrar. Verifique os dados e tente novamente.";
-          break;
       }
 
       alert(mensagemErro);
+    } finally {
+      setLoading(false); // ✅ para o loop
     }
   };
 
@@ -65,7 +72,7 @@ export default function LoginScreen({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Digite sua senha"
-          secureTextEntry={!mostrarSenha} // alterna a visibilidade
+          secureTextEntry={!mostrarSenha}
           onChangeText={setSenha}
           value={senha}
         />
@@ -81,15 +88,20 @@ export default function LoginScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-
-
       <TouchableOpacity onPress={() => alert('Esqueci a senha clicado')}>
         <Text style={styles.forgot}>Esqueci a senha</Text>
       </TouchableOpacity>
 
-
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Entrar</Text>
+      <TouchableOpacity 
+        style={[styles.button, loading && { opacity: 0.7 }]} 
+        onPress={handleLogin} 
+        disabled={loading} // ✅ desabilita enquanto carrega
+      >
+        {loading ? (
+          <ActivityIndicator size="small" color="#000" /> // ✅ spinner
+        ) : (
+          <Text style={styles.buttonText}>Entrar</Text>
+        )}
       </TouchableOpacity>
 
       <View style={styles.registerContainer}>
