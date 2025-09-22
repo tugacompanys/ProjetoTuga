@@ -40,17 +40,15 @@ export default function EditarPerfil() {
             <Text style={[styles.footerText, { color: "#009eb3" }]}>Glicemia</Text>
           </TouchableOpacity>
 
+          
           <TouchableOpacity
             style={styles.footerItem}
             onPress={() => navigation.navigate("Refeicao")}
           >
-            <MaterialCommunityIcons
-              name="silverware-fork-knife"
-              size={24}
-              color="#d17d6b"
-            />
-            <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
+            <MaterialCommunityIcons name="silverware-fork-knife" size={28} color="#d17d6b" backgroundColor="#eebf8a65"/>
+            <Text style={[styles.footerText, { color: "#d17d6b", backgroundColor: "#eebf8a65", fontWeight: "bold", fontSize: 14 }]}>Refeição</Text>
           </TouchableOpacity>
+
 
           <TouchableOpacity
             style={styles.footerItem}
@@ -66,6 +64,12 @@ export default function EditarPerfil() {
 }
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: "#f0f4f7" },
+  container: {
+    flex: 1,
+    backgroundColor: "#f0f4f7",
+    bottom: 12
+  },
   footer: {
     position: "absolute",
     bottom: 0, // ✅ Corrigido para ficar colado na parte de baixo

@@ -56,8 +56,8 @@ export default function EditarPerfil() {
             style={styles.footerItem}
             onPress={() => navigation.navigate("Exercicio")}
           >
-            <Ionicons name="barbell-outline" size={24} color="#7c6e7f" />
-            <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
+            <Ionicons name="barbell-outline" size={28} color="#7c6e7f" backgroundColor="#7c6e7f2e"/>
+            <Text style={[styles.footerText, { color: "#7c6e7f", backgroundColor: "#7c6e7f2e", fontWeight: "900", fontSize: 14 }]}>Exercícios</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -66,6 +66,12 @@ export default function EditarPerfil() {
 }
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: "#f0f4f7" },
+  container: {
+    flex: 1,
+    backgroundColor: "#f0f4f7",
+    bottom: 12
+  },
   footer: {
     position: "absolute",
     bottom: 0, // ✅ Corrigido para ficar colado na parte de baixo
@@ -76,7 +82,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: 1,
     borderTopColor: "#ddd",
-    backgroundColor: "#fff",
+    backgroundColor: "fff",
     borderRadius: 20,
   },
   footerItem: {

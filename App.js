@@ -94,13 +94,13 @@ export default function App() {
         <Stack.Screen
           name="Refeicao"
           component={Refeicao}
-          options={{ headerShown: true, title: "Refeição" }}
+          options={{ headerShown: false, title: "Refeição" }}
         />
 
         <Stack.Screen
           name="Exercicio"
           component={Exercicio}
-          options={{ headerShown: true, title: "Exercício" }}
+          options={{ headerShown: false, title: "Exercício" }}
         />
       </Stack.Navigator>
     </NavigationContainer>

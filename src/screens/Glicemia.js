@@ -337,7 +337,7 @@ export default function Glicemia() {
             style={styles.footerItem}
             onPress={() => navigation.navigate("Glicemia")}
           >
-            <Ionicons name="water-outline" size={24} color="#009eb3ff" backgroundColor="#b9ffff8e" />
+            <Ionicons name="water-outline" size={28} color="#009eb3ff" backgroundColor="#b9ffff8e" />
             <Text style={[styles.footerText, { color: "#009eb3ff", backgroundColor: "#b9ffffdc", fontWeight: "900", fontSize: 14 }]}>Glicemia</Text>
           </TouchableOpacity>
 
