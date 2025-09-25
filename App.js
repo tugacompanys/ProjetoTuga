@@ -87,14 +87,14 @@ export default function App() {
           // 👉 aqui mantemos uma animação específica se quiser diferente
           options={{
             headerShown: false,
-            animation: "slide_from_right",
+            title: "Glicemia"
           }}
         />
 
         <Stack.Screen
           name="Refeicao"
           component={Refeicao}
-          options={{ headerShown: false, title: "Refeição" }}
+          options={{ headerShown: false, title: "Refeição"}}
         />
 
         <Stack.Screen

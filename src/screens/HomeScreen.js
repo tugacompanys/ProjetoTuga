@@ -113,18 +113,6 @@ export default function HomeScreen({ route, navigation }) {
         <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={() => setMenuAberto(false)}>
           <Animated.View entering={FadeInUp} style={styles.menu}>
 
-            {/* Opção de Editar Perfil */}
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => {
-                setMenuAberto(false);
-                navigation.navigate("EditarPerfil");
-              }}
-            >
-              <Ionicons name="person-outline" size={20} color="#000" />
-              <Text style={styles.menuText}>Editar Perfil</Text>
-            </TouchableOpacity>
-
             {/* Opção de Trocar conta */}
             <TouchableOpacity
               style={styles.menuItem}
