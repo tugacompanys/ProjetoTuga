@@ -29,6 +29,9 @@
       "exclude": [
         "./assets/tugacriança.png"
       ]
-    }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

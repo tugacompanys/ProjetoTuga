@@ -1,59 +1,97 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  Image, ActivityIndicator, Alert
+} from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { signInWithEmailAndPassword } from "firebase/auth";
+import * as LocalAuthentication from 'expo-local-authentication';
+import * as SecureStore from 'expo-secure-store';
 import { auth } from "../config/firebaseConfig";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [loading, setLoading] = useState(false); // ✅ Estado para loading
+  const [loading, setLoading] = useState(false);
+
+  // ✅ Checa biometria ao abrir a tela
+  useEffect(() => {
+    checarBiometria();
+  }, []);
+
+  const checarBiometria = async () => {
+    try {
+      const usarBiometria = await SecureStore.getItemAsync('usarBiometria');
+      if (usarBiometria === 'true') {
+        const compat = await LocalAuthentication.hasHardwareAsync();
+        const cadastrado = await LocalAuthentication.isEnrolledAsync();
+
+        if (compat && cadastrado) {
+          const result = await LocalAuthentication.authenticateAsync({
+            promptMessage: 'Autentique-se para entrar',
+            fallbackLabel: 'Usar senha'
+          });
+
+          if (result.success) {
+            const emailSalvo = await SecureStore.getItemAsync('email');
+            const senhaSalva = await SecureStore.getItemAsync('senha');
+
+            if (emailSalvo && senhaSalva) {
+              setLoading(true);
+              await signInWithEmailAndPassword(auth, emailSalvo, senhaSalva);
+              navigation.navigate("HomeScreen", { user: auth.currentUser });
+              setLoading(false);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.log('Erro biometria:', err);
+    }
+  };
 
   const handleLogin = async () => {
     if (!email || !senha) {
-      alert("⚠️ Preencha todos os campos para continuar.");
+      Alert.alert("⚠️ Campos obrigatórios", "Preencha todos os campos para continuar.");
       return;
     }
 
-    setLoading(true); // ✅ inicia o loop
-
+    setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, senha);
-      navigation.navigate("HomeScreen", { user: auth.currentUser });
-      // 🔴 Deixa o spinner visível por 1 segundo
-setTimeout(() => {
-  navigation.navigate("HomeScreen", { user: auth.currentUser });
-  setLoading(false);
-}, 1000);
-    } catch (error) {
-      let mensagemErro = "❗ Ocorreu um erro inesperado. Tente novamente.";
 
-      switch (error.code) {
-        case "auth/invalid-email":
-          mensagemErro = "📧 O e-mail informado é inválido.";
-          break;
-        case "auth/user-disabled":
-          mensagemErro = "🚫 Esta conta foi desativada.";
-          break;
-        case "auth/user-not-found":
-          mensagemErro = "❌ Nenhuma conta encontrada com este e-mail.";
-          break;
-        case "auth/wrong-password":
-          mensagemErro = "🔒 Senha incorreta. Verifique e tente novamente.";
-          break;
+      // ✅ Se biometria estiver ativada nas configurações, salva credenciais
+      const usarBiometria = await SecureStore.getItemAsync('usarBiometria');
+      if (usarBiometria === 'true') {
+        await SecureStore.setItemAsync('email', email);
+        await SecureStore.setItemAsync('senha', senha);
       }
 
-      alert(mensagemErro);
-    } finally {
-      setLoading(false); // ✅ para o loop
+      // spinner 1s para UX
+      setTimeout(() => {
+        navigation.navigate("HomeScreen", { user: auth.currentUser });
+        setLoading(false);
+      }, 1000);
+    } catch (error) {
+      let msg = "❗ Ocorreu um erro inesperado. Tente novamente.";
+      switch (error.code) {
+        case "auth/invalid-email":   msg = "📧 E-mail inválido."; break;
+        case "auth/user-disabled":   msg = "🚫 Conta desativada."; break;
+        case "auth/user-not-found":  msg = "❌ Conta não encontrada."; break;
+        case "auth/wrong-password":  msg = "🔒 Senha incorreta."; break;
+      }
+      Alert.alert("Erro", msg);
+      setLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
       <Image source={require('../../assets/tugacriança.png')} style={styles.logo} resizeMode="contain" />
-      <Text style={styles.appName}><Text style={{ fontWeight: 'bold' }}>MY</Text> <Text style={{ color: '#00aaff' }}>GLUCO</Text></Text>
+      <Text style={styles.appName}>
+        <Text style={{ fontWeight: 'bold' }}>MY</Text> <Text style={{ color: '#00aaff' }}>GLUCO</Text>
+      </Text>
       <Text style={styles.welcome}>Seja Bem-Vindo</Text>
 
       <View style={styles.inputContainer}>
@@ -88,20 +126,17 @@ setTimeout(() => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity onPress={() => alert('Esqueci a senha clicado')}>
+      <TouchableOpacity onPress={() => Alert.alert('Recuperação', 'Função em desenvolvimento')}>
         <Text style={styles.forgot}>Esqueci a senha</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity 
-        style={[styles.button, loading && { opacity: 0.7 }]} 
-        onPress={handleLogin} 
-        disabled={loading} // ✅ desabilita enquanto carrega
+      <TouchableOpacity
+        style={[styles.button, loading && { opacity: 0.7 }]}
+        onPress={handleLogin}
+        disabled={loading}
       >
-        {loading ? (
-          <ActivityIndicator size="small" color="#000" /> // ✅ spinner
-        ) : (
-          <Text style={styles.buttonText}>Entrar</Text>
-        )}
+        {loading ? <ActivityIndicator size="small" color="#000" /> :
+          <Text style={styles.buttonText}>Entrar</Text>}
       </TouchableOpacity>
 
       <View style={styles.registerContainer}>
@@ -132,81 +167,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 80,
   },
-  logo: {
-    width: 160,
-    height: 160,
-  },
-  appName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginTop: 10,
-  },
-  welcome: {
-    color: '#6a4a4a',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 10,
-  },
+  logo: { width: 160, height: 160 },
+  appName: { fontSize: 28, fontWeight: 'bold', marginTop: 10 },
+  welcome: { color: '#6a4a4a', fontSize: 18, fontWeight: 'bold', marginTop: 10 },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#a0a0a0',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    marginTop: 20,
-    width: '100%',
-    backgroundColor: '#fff',
+    flexDirection: 'row', alignItems: 'center',
+    borderWidth: 1, borderColor: '#a0a0a0',
+    borderRadius: 10, paddingHorizontal: 10,
+    marginTop: 20, width: '100%', backgroundColor: '#fff',
   },
-  input: {
-    flex: 1,
-    paddingVertical: 10,
-    marginLeft: 10,
-  },
-  forgot: {
-    color: '#a44',
-    alignSelf: 'flex-end',
-    marginTop: 10,
-  },
+  input: { flex: 1, paddingVertical: 10, marginLeft: 10 },
+  forgot: { color: '#a44', alignSelf: 'flex-end', marginTop: 10 },
   button: {
-    backgroundColor: '#00ff0dff',
-    borderRadius: 20,
-    marginTop: 20,
-    paddingHorizontal: 40,
-    paddingVertical: 10,
-    elevation: 3,
-    shadowColor: '#081b03ff',
-    shadowOpacity: 0.6,
-    shadowRadius: 10,
+    backgroundColor: '#00ff0dff', borderRadius: 20,
+    marginTop: 20, paddingHorizontal: 40, paddingVertical: 10,
+    elevation: 3, shadowColor: '#081b03ff', shadowOpacity: 0.6, shadowRadius: 10,
   },
-  buttonText: {
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  registerContainer: {
-    flexDirection: 'row',
-    marginTop: 20,
-  },
-  register: {
-    color: '#a44',
-    fontWeight: 'bold',
-  },
-  or: {
-    marginTop: 10,
-    fontWeight: 'bold',
-  },
-  socialText: {
-    marginTop: 5,
-  },
+  buttonText: { fontWeight: 'bold', color: '#000' },
+  registerContainer: { flexDirection: 'row', marginTop: 20 },
+  register: { color: '#a44', fontWeight: 'bold' },
+  or: { marginTop: 10, fontWeight: 'bold' },
+  socialText: { marginTop: 5 },
   socialIcons: {
-    flexDirection: 'row',
-    marginTop: 10,
-    width: '60%',
-    justifyContent: 'space-around',
+    flexDirection: 'row', marginTop: 10,
+    width: '60%', justifyContent: 'space-around',
   },
-  eyeButton: {
-    position: 'absolute',
-    right: 10,
-    padding: 5,
-  },
+  eyeButton: { position: 'absolute', right: 10, padding: 5 },
 });

@@ -105,7 +105,7 @@ export default function Glicemia() {
       },
     ]);
   };
-
+  
 
   const getDotColor = (valor) => {
     if (valor < 90) return "#3b82f6"; // azul

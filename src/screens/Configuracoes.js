@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert, Linking } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import * as SecureStore from "expo-secure-store";
 
 export default function Configuracoes() {
   const navigation = useNavigation();
@@ -13,7 +14,21 @@ export default function Configuracoes() {
 
   const toggleNotificacoes = () => setNotificacoesAtivas(!notificacoesAtivas);
   const toggleTema = () => setTemaEscuro(!temaEscuro);
-  const toggleLoginBiometrico = () => setLoginBiometrico(!loginBiometrico);
+
+  // Quando o usuário ativar/desativar:
+  const toggleBiometria = async () => {
+    const valorAtual = await SecureStore.getItemAsync('usarBiometria');
+    const novoValor = valorAtual === 'true' ? 'false' : 'true';
+    await SecureStore.setItemAsync('usarBiometria', novoValor);
+  
+    if (novoValor === 'false') {
+      // Remove credenciais salvas para segurança
+      await SecureStore.deleteItemAsync('email');
+      await SecureStore.deleteItemAsync('senha');
+    }
+  };
+  
+  
 
   const handleExcluirConta = () => {
     Alert.alert(
@@ -28,9 +43,11 @@ export default function Configuracoes() {
 
   const handleAbrirLink = (url) => Linking.openURL(url);
 
+  
+
   return (
     <ScrollView style={styles.container}>
-      
+
       {/* Seção: Conta & Perfil */}
       <Text style={styles.secaoTitulo}>⚙️ Conta & Perfil</Text>
 
@@ -101,7 +118,7 @@ export default function Configuracoes() {
         <Text style={styles.itemTexto}>Política de Privacidade / Termos</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.item, {marginBottom: 30}]} onPress={() => Alert.alert("Versão 1.0.0\nEquipe MyGluco")}>
+      <TouchableOpacity style={[styles.item, { marginBottom: 30 }]} onPress={() => Alert.alert("Versão 1.0.0\nEquipe MyGluco")}>
         <Ionicons name="information-circle-outline" size={24} color="#000" />
         <Text style={styles.itemTexto}>Sobre o App</Text>
       </TouchableOpacity>
@@ -132,7 +149,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 10,
     marginBottom: 8,
-    elevation: 2,
+    elevation: 5,
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 4,
