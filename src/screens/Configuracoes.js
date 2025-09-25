@@ -1,5 +1,14 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert, Linking } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
+  Alert,
+  Linking,
+} from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
@@ -12,23 +21,41 @@ export default function Configuracoes() {
   const [temaEscuro, setTemaEscuro] = useState(false);
   const [loginBiometrico, setLoginBiometrico] = useState(false);
 
+  // 🔑 Carrega a preferência salva de biometria ao abrir a tela
+  useEffect(() => {
+    const carregarPreferenciaBiometria = async () => {
+      try {
+        const valorSalvo = await SecureStore.getItemAsync("usarBiometria");
+        if (valorSalvo !== null) {
+          setLoginBiometrico(valorSalvo === "true");
+        }
+      } catch (err) {
+        console.log("Erro ao carregar biometria:", err);
+      }
+    };
+    carregarPreferenciaBiometria();
+  }, []);
+
   const toggleNotificacoes = () => setNotificacoesAtivas(!notificacoesAtivas);
   const toggleTema = () => setTemaEscuro(!temaEscuro);
 
-  // Quando o usuário ativar/desativar:
+  // ✅ Ativar/Desativar biometria e salvar no SecureStore
   const toggleBiometria = async () => {
-    const valorAtual = await SecureStore.getItemAsync('usarBiometria');
-    const novoValor = valorAtual === 'true' ? 'false' : 'true';
-    await SecureStore.setItemAsync('usarBiometria', novoValor);
-  
-    if (novoValor === 'false') {
-      // Remove credenciais salvas para segurança
-      await SecureStore.deleteItemAsync('email');
-      await SecureStore.deleteItemAsync('senha');
+    try {
+      const novoValor = !loginBiometrico;
+      setLoginBiometrico(novoValor);
+      await SecureStore.setItemAsync("usarBiometria", novoValor ? "true" : "false");
+
+      if (!novoValor) {
+        // Se o usuário desliga, removemos as credenciais salvas
+        await SecureStore.deleteItemAsync("email");
+        await SecureStore.deleteItemAsync("senha");
+      }
+    } catch (err) {
+      console.log("Erro ao salvar biometria:", err);
+      Alert.alert("Erro", "Não foi possível alterar a configuração de biometria.");
     }
   };
-  
-  
 
   const handleExcluirConta = () => {
     Alert.alert(
@@ -36,18 +63,19 @@ export default function Configuracoes() {
       "Deseja realmente excluir sua conta? Todos os dados serão perdidos.",
       [
         { text: "Cancelar", style: "cancel" },
-        { text: "Excluir", style: "destructive", onPress: () => Alert.alert("Conta excluída") },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: () => Alert.alert("Conta excluída"),
+        },
       ]
     );
   };
 
   const handleAbrirLink = (url) => Linking.openURL(url);
 
-  
-
   return (
     <ScrollView style={styles.container}>
-
       {/* Seção: Conta & Perfil */}
       <Text style={styles.secaoTitulo}>⚙️ Conta & Perfil</Text>
 
@@ -92,7 +120,7 @@ export default function Configuracoes() {
       <View style={styles.item}>
         <MaterialCommunityIcons name="fingerprint" size={24} color="#000" />
         <Text style={styles.itemTexto}>Login Biométrico</Text>
-        <Switch value={loginBiometrico} onValueChange={toggleLoginBiometrico} />
+        <Switch value={loginBiometrico} onValueChange={toggleBiometria} />
       </View>
 
       <TouchableOpacity style={styles.item} onPress={() => Alert.alert("Configurar tempo de sessão")}>
@@ -118,11 +146,13 @@ export default function Configuracoes() {
         <Text style={styles.itemTexto}>Política de Privacidade / Termos</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.item, { marginBottom: 30 }]} onPress={() => Alert.alert("Versão 1.0.0\nEquipe MyGluco")}>
+      <TouchableOpacity
+        style={[styles.item, { marginBottom: 30 }]}
+        onPress={() => Alert.alert("Versão 1.0.0\nEquipe MyGluco")}
+      >
         <Ionicons name="information-circle-outline" size={24} color="#000" />
         <Text style={styles.itemTexto}>Sobre o App</Text>
       </TouchableOpacity>
-
     </ScrollView>
   );
 }

@@ -3,7 +3,7 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   Image, ActivityIndicator, Alert
 } from 'react-native';
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
@@ -15,39 +15,50 @@ export default function LoginScreen({ navigation }) {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Checa biometria ao abrir a tela
+  // Estado biometria
+  const [dispositivoCompat, setDispositivoCompat] = useState(false);
+
   useEffect(() => {
-    checarBiometria();
+    checarCompatibilidadeBiometria();
   }, []);
 
-  const checarBiometria = async () => {
+  const checarCompatibilidadeBiometria = async () => {
     try {
-      const usarBiometria = await SecureStore.getItemAsync('usarBiometria');
-      if (usarBiometria === 'true') {
-        const compat = await LocalAuthentication.hasHardwareAsync();
-        const cadastrado = await LocalAuthentication.isEnrolledAsync();
+      const compat = await LocalAuthentication.hasHardwareAsync();
+      const cadastrado = await LocalAuthentication.isEnrolledAsync();
+      const credEmail = await SecureStore.getItemAsync('email');
+      const credSenha = await SecureStore.getItemAsync('senha');
 
-        if (compat && cadastrado) {
-          const result = await LocalAuthentication.authenticateAsync({
-            promptMessage: 'Autentique-se para entrar',
-            fallbackLabel: 'Usar senha'
-          });
+      // Botão biometria só aparece se hardware compatível, biometria cadastrada e credenciais salvas
+      setDispositivoCompat(compat && cadastrado && credEmail && credSenha);
+    } catch (err) {
+      console.log('Erro ao checar biometria:', err);
+    }
+  };
 
-          if (result.success) {
-            const emailSalvo = await SecureStore.getItemAsync('email');
-            const senhaSalva = await SecureStore.getItemAsync('senha');
+  const autenticarBiometria = async () => {
+    try {
+      const credEmail = await SecureStore.getItemAsync('email');
+      const credSenha = await SecureStore.getItemAsync('senha');
 
-            if (emailSalvo && senhaSalva) {
-              setLoading(true);
-              await signInWithEmailAndPassword(auth, emailSalvo, senhaSalva);
-              navigation.navigate("HomeScreen", { user: auth.currentUser });
-              setLoading(false);
-            }
-          }
-        }
+      if (!credEmail || !credSenha) {
+        Alert.alert("⚠️ Nenhuma credencial salva", "Faça login manual primeiro para ativar biometria.");
+        return;
+      }
+
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Autentique-se para entrar',
+        fallbackLabel: 'Usar senha',
+      });
+
+      if (result.success) {
+        setLoading(true);
+        await signInWithEmailAndPassword(auth, credEmail, credSenha);
+        navigation.navigate("HomeScreen");
+        setLoading(false);
       }
     } catch (err) {
-      console.log('Erro biometria:', err);
+      console.log('Erro autenticação biométrica:', err);
     }
   };
 
@@ -61,16 +72,16 @@ export default function LoginScreen({ navigation }) {
     try {
       await signInWithEmailAndPassword(auth, email, senha);
 
-      // ✅ Se biometria estiver ativada nas configurações, salva credenciais
-      const usarBiometria = await SecureStore.getItemAsync('usarBiometria');
-      if (usarBiometria === 'true') {
-        await SecureStore.setItemAsync('email', email);
-        await SecureStore.setItemAsync('senha', senha);
-      }
+      // Salva credenciais para biometria
+      await SecureStore.setItemAsync('email', email);
+      await SecureStore.setItemAsync('senha', senha);
+      await SecureStore.setItemAsync('usarBiometria', 'true');
 
-      // spinner 1s para UX
+      // Ativa o botão de biometria após primeiro login
+      setDispositivoCompat(true);
+
       setTimeout(() => {
-        navigation.navigate("HomeScreen", { user: auth.currentUser });
+        navigation.navigate("HomeScreen");
         setLoading(false);
       }, 1000);
     } catch (error) {
@@ -114,15 +125,8 @@ export default function LoginScreen({ navigation }) {
           onChangeText={setSenha}
           value={senha}
         />
-        <TouchableOpacity
-          style={styles.eyeButton}
-          onPress={() => setMostrarSenha(!mostrarSenha)}
-        >
-          <Ionicons
-            name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
-            size={20}
-            color="#000"
-          />
+        <TouchableOpacity style={styles.eyeButton} onPress={() => setMostrarSenha(!mostrarSenha)}>
+          <Ionicons name={mostrarSenha ? "eye-off-outline" : "eye-outline"} size={20} color="#000" />
         </TouchableOpacity>
       </View>
 
@@ -138,6 +142,14 @@ export default function LoginScreen({ navigation }) {
         {loading ? <ActivityIndicator size="small" color="#000" /> :
           <Text style={styles.buttonText}>Entrar</Text>}
       </TouchableOpacity>
+
+      {/* Botão biometria visível se o dispositivo for compatível e credenciais salvas */}
+      {dispositivoCompat && (
+        <TouchableOpacity style={styles.bioButton} onPress={autenticarBiometria}>
+          <MaterialIcons name="fingerprint" size={34} color="#00aaff" />
+          <Text style={styles.bioText}>Entrar com biometria</Text>
+        </TouchableOpacity>
+      )}
 
       <View style={styles.registerContainer}>
         <Text>Não tem uma conta? </Text>
@@ -160,7 +172,7 @@ export default function LoginScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 20,
+    paddingTop: 0,
     paddingHorizontal: 20,
     flex: 1,
     backgroundColor: '#f4efef',
@@ -184,6 +196,17 @@ const styles = StyleSheet.create({
     elevation: 3, shadowColor: '#081b03ff', shadowOpacity: 0.6, shadowRadius: 10,
   },
   buttonText: { fontWeight: 'bold', color: '#000' },
+  bioButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+    backgroundColor: '#fff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    elevation: 2,
+  },
+  bioText: { marginLeft: 10, fontWeight: '600', color: '#00aaff' },
   registerContainer: { flexDirection: 'row', marginTop: 20 },
   register: { color: '#a44', fontWeight: 'bold' },
   or: { marginTop: 10, fontWeight: 'bold' },
