@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from "react";
 import {
-  Linking, Dimensions, StyleSheet, SafeAreaView, Image,
-  View, Text, TouchableOpacity, ScrollView, BackHandler
+  Linking,
+  Dimensions,
+  StyleSheet,
+  SafeAreaView,
+  Image,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  BackHandler,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
-import Animated, { FadeInUp } from "react-native-reanimated";
+import Animated, { FadeInUp, SlideInLeft } from "react-native-reanimated";
 import YoutubePlayer from "react-native-youtube-iframe";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LinearGradient } from "expo-linear-gradient";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -32,7 +41,7 @@ const data = [
     buttonColor: "#4caf50",
     buttonText: "Agendar Medicamentos",
     icon: <MaterialCommunityIcons name="needle" size={32} color="#4caf50" />,
-    onPress: (navigation) => navigation.navigate("RegistroMedicamento")
+    onPress: (navigation) => navigation.navigate("RegistroMedicamento"),
   },
   {
     title: "ÍNDICE DIÁRIO",
@@ -50,23 +59,32 @@ const data = [
 const noticias = [
   {
     title: "Controle da glicemia",
-    description: "Aprenda 5 dicas práticas para manter sua glicemia estável e saudável. mantenha um estilo de vida equilibrado.",
+    description:
+      "Aprenda 5 dicas práticas para manter sua glicemia estável e saudável. mantenha um estilo de vida equilibrado.",
     url: "https://natcofarma.com/controle-de-glicemia/natcofarma",
   },
   {
     title: "Alimentação saudável",
-    description: "Descubra alimentos que ajudam no controle da diabetes e dicas de receitas saudáveis para o seu dia a dia.",
+    description:
+      "Descubra alimentos que ajudam no controle da diabetes e dicas de receitas saudáveis para o seu dia a dia.",
     url: "https://aworsaude.com.br/dieta-para-diabetes",
   },
   {
     title: "O que é Diabetes, e quais são os tipos?",
-    description: "Veja quais tipos de diabetes existem e como cada um afeta o corpo.",
+    description:
+      "Veja quais tipos de diabetes existem e como cada um afeta o corpo.",
     url: "https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/d/diabetes",
   },
 ];
 
-const dicas = ["Beba 2L de água hoje 💧", "Faça 15 min de caminhada 🚶‍♂️", "Evite alimentos muito açucarados 🍬"];
+const dicas = [
+  "Beba 2L de água hoje 💧",
+  "Faça 15 min de caminhada 🚶‍♂️",
+  "Evite alimentos muito açucarados 🍬",
+];
+
 const registrosHoje = [];
+
 const videos = [
   { id: "AnF8j2MLkH4", title: "Exercícios recomendados para diabéticos" },
   { id: "LRfH7Tz3rtI", title: "Café com bolinho Barato para DIABÉTICOS" },
@@ -78,18 +96,14 @@ export default function HomeScreen({ route, navigation }) {
   const [menuAberto, setMenuAberto] = useState(false);
   const [videoId, setVideoId] = useState(null);
   const [plano, setPlano] = useState(null);
-
-  // 👇 Agora o estado está correto
   const [nome, setNome] = useState("Usuário");
 
-  // 👇 Busca do nome no foco da tela
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", async () => {
       const storedName = await AsyncStorage.getItem("@user_name");
       if (storedName) {
         setNome(storedName);
       } else {
-        // Caso venha do login com params
         const paramName = route?.params?.user?.displayName;
         if (paramName) setNome(paramName);
       }
@@ -107,54 +121,70 @@ export default function HomeScreen({ route, navigation }) {
         <Text style={styles.headerText}>Bem-vindo, {nome}! ✌</Text>
         <View style={{ width: 28 }} />
       </View>
-      
-      {/* Menu lateral */}
+
+      {/* Menu deslizante */}
       {menuAberto && (
-        <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={() => setMenuAberto(false)}>
-          <Animated.View entering={FadeInUp} style={styles.menu}>
-
-            {/* Opção de Trocar conta */}
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => {
-                setMenuAberto(false);
-                navigation.navigate("Login");
-              }}
+        <TouchableOpacity
+          style={styles.menuOverlay}
+          activeOpacity={1}
+          onPress={() => setMenuAberto(false)}
+        >
+          <Animated.View
+            entering={SlideInLeft.duration(300)}
+            style={[styles.menuContainer, { width: screenWidth * 0.8 }]}
+          >
+            <LinearGradient
+              colors={["#1e90ff", "#00bfff"]}
+              style={styles.menuGradient}
             >
-              <Ionicons name="swap-horizontal-outline" size={20} color="#000" />
-              <Text style={styles.menuText}>Trocar Conta</Text>
-            </TouchableOpacity>
+              <View style={styles.menuHeader}>
+                <Image
+                  source={{ uri: "https://i.pravatar.cc/150?img=47" }}
+                  style={styles.avatar}
+                />
+                <Text style={styles.username}>{nome}</Text>
+              </View>
 
-            {/* Opção de Configurações */}
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => {
-                setMenuAberto(false);
-                navigation.navigate("Configurações");
-              }}
-            >
-              <Ionicons name="settings-outline" size={20} color="#000" />
-              <Text style={styles.menuText}>Configurações</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  setMenuAberto(false);
+                  navigation.navigate("Login");
+                }}
+              >
+                <Ionicons name="swap-horizontal-outline" size={22} color="#fff" />
+                <Text style={styles.menuText}>Trocar Conta</Text>
+              </TouchableOpacity>
 
-            {/* Opção de Sair */}
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => {
-                setMenuAberto(false);
-                BackHandler.exitApp(); // Fecha o aplicativo
-              }}
-            >
-              <Ionicons name="exit-outline" size={20} color="red" />
-              <Text style={[styles.menuText, { color: "red" }]}>Sair</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  setMenuAberto(false);
+                  navigation.navigate("Configurações");
+                }}
+              >
+                <Ionicons name="settings-outline" size={22} color="#fff" />
+                <Text style={styles.menuText}>Configurações</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.menuItem, { marginTop: "auto" }]}
+                onPress={() => {
+                  setMenuAberto(false);
+                  BackHandler.exitApp();
+                }}
+              >
+                <Ionicons name="exit-outline" size={22} color="#ff4d4d" />
+                <Text style={[styles.menuText, { color: "#ff4d4d" }]}>Sair</Text>
+              </TouchableOpacity>
+            </LinearGradient>
           </Animated.View>
         </TouchableOpacity>
       )}
 
       {/* Conteúdo principal */}
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-        {/* Carrossel de ações */}
+        {/* Carrossel principal */}
         <View style={styles.carouselContainer}>
           <Carousel
             loop
@@ -184,8 +214,7 @@ export default function HomeScreen({ route, navigation }) {
           </View>
         </View>
 
-
-        {/* Resumo diário */}
+        {/* Resumo Diário */}
         <View style={[styles.card, { backgroundColor: "#fff" }]}>
           <Text style={styles.cardTitle}>Resumo Diário</Text>
           {plano ? (
@@ -207,7 +236,6 @@ export default function HomeScreen({ route, navigation }) {
                 Lanche/Ceia: {plano.perMeal.lanche.kcal} kcal
               </Text>
             </>
-
           ) : registrosHoje.length === 0 ? (
             <Text>Nenhum registro para hoje.</Text>
           ) : (
@@ -221,11 +249,15 @@ export default function HomeScreen({ route, navigation }) {
 
         {/* Notícias */}
         <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 24, fontWeight: "bold", marginLeft: 20, marginBottom: 10 }}>Notícias & Curiosidades</Text>
+          <Text style={{ fontSize: 24, fontWeight: "bold", marginLeft: 20, marginBottom: 10 }}>
+            Notícias & Curiosidades
+          </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20 }}>
             {noticias.map((item, index) => (
-              <View key={index} style={[styles.carouselCard, { backgroundColor: "#1e90ff", width: 250, marginBottom: 40 }]}>
-                <Text style={{ fontWeight: "bold", color: "#fff", marginBottom: 5, fontSize: 18 }}>{item.title}</Text>
+              <View key={index} style={[styles.carouselCard, { backgroundColor: "#1e90ff", width: 250 }]}>
+                <Text style={{ fontWeight: "bold", color: "#fff", marginBottom: 5, fontSize: 18 }}>
+                  {item.title}
+                </Text>
                 <Text style={{ color: "#fff", marginBottom: 10 }}>{item.description}</Text>
                 <TouchableOpacity
                   style={{ backgroundColor: "#fff", paddingVertical: 5, paddingHorizontal: 10, borderRadius: 10 }}
@@ -238,20 +270,18 @@ export default function HomeScreen({ route, navigation }) {
           </ScrollView>
         </Animated.View>
 
-
-
         {/* Dicas */}
-        <Animated.View entering={FadeInUp.delay(300)}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.carousel}>
+        <Animated.View entering={FadeInUp.delay(300)} style={{ marginTop: 20 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dicasCarousel}>
             {dicas.map((dica, index) => (
-              <View key={index} style={styles.carouselCard}>
-                <Text style={styles.carouselText}>{dica}</Text>
+              <View key={index} style={styles.dicasCard}>
+                <Text style={styles.dicasText}>{dica}</Text>
               </View>
             ))}
           </ScrollView>
         </Animated.View>
 
-        {/* Vídeos recomendados */}
+        {/* Vídeos */}
         <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 20 }}>
           <Text style={styles.sectionTitle}>🎥 Vídeos Recomendados</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20, marginBottom: 20 }}>
@@ -261,42 +291,33 @@ export default function HomeScreen({ route, navigation }) {
                 onPress={() => setVideoId(video.id)}
                 style={[styles.videoCard, { width: screenWidth * 0.6 }]}
               >
-                <Image source={{ uri: `https://img.youtube.com/vi/${video.id}/hqdefault.jpg` }} style={styles.thumbnail} />
-                <Text style={styles.videoTitle} numberOfLines={2}>{
-                  video.title
-                }</Text>
+                <Image
+                  source={{ uri: `https://img.youtube.com/vi/${video.id}/hqdefault.jpg` }}
+                  style={styles.thumbnail}
+                />
+                <Text style={styles.videoTitle} numberOfLines={2}>
+                  {video.title}
+                </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
         </Animated.View>
 
-        {/* Player do vídeo */}
+        {/* Player */}
         {videoId && (
-          <View
-            style={{
-              marginHorizontal: 20,
-              marginVertical: 10,
-              borderRadius: 12,
-              overflow: 'hidden',
-            }}
-          >
-            <YoutubePlayer
-              height={220}
-              play={true}
-              videoId={videoId}
-              webViewProps={{ allowsFullscreenVideo: true }}
-            />
+          <View style={{ marginHorizontal: 20, marginVertical: 10, borderRadius: 12, overflow: "hidden" }}>
+            <YoutubePlayer height={220} play={true} videoId={videoId} webViewProps={{ allowsFullscreenVideo: true }} />
             <TouchableOpacity
               style={{
-                backgroundColor: '#e40000ff',
+                backgroundColor: "#e40000ff",
                 padding: 10,
                 borderRadius: 8,
                 marginTop: 10,
-                alignItems: 'center',
+                alignItems: "center",
               }}
               onPress={() => setVideoId(null)}
             >
-              <Text style={{ color: '#fff', fontWeight: 'bold' }}>Fechar</Text>
+              <Text style={{ color: "#fff", fontWeight: "bold" }}>Fechar</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -305,41 +326,31 @@ export default function HomeScreen({ route, navigation }) {
       {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity style={styles.footerItem}>
-          <Ionicons name="home-outline" size={24} color="#00c47c"backgroundColor="#a1fddc77" />
-          <Text style={[styles.footerText, { color: "#00c47c", backgroundColor: "#a1fddc77", fontWeight: "900", fontSize: 14 }]}>Início</Text>
+          <Ionicons name="home-outline" size={24} color="#00c47c" />
+          <Text style={[styles.footerText, { color: "#00c47c", fontWeight: "900", fontSize: 14 }]}>
+            Início
+          </Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.footerItem}
-          onPress={() => navigation.navigate("Glicemia")}>
+        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate("Glicemia")}>
           <Ionicons name="water-outline" size={24} color="#00bcd4" />
           <Text style={[styles.footerText, { color: "#00bcd4" }]}>Glicemia</Text>
         </TouchableOpacity>
-
-
-        <TouchableOpacity
-          style={styles.footerItem}
-          onPress={() => navigation.navigate("Refeicao")}>
+        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate("Refeicao")}>
           <MaterialCommunityIcons name="silverware-fork-knife" size={24} color="#d17d6b" />
           <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.footerItem}
-          onPress={() => navigation.navigate("Exercicio")}>
+        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate("Exercicio")}>
           <Ionicons name="barbell-outline" size={24} color="#7c6e7f" />
           <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-
-
   );
 }
 
-// Styles 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: { backgroundColor: "#fff", flex: 1 },
+
   header: {
     backgroundColor: "#1e90ff",
     flexDirection: "row",
@@ -350,38 +361,32 @@ export const styles = StyleSheet.create({
   },
   headerText: { fontSize: 20, fontWeight: "bold", color: "#fff" },
 
-  // Menu lateral
   menuOverlay: {
     position: "absolute",
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.36)",
-    justifyContent: "flex-start",
-    alignItems: "right",
-    paddingTop: 50,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    flexDirection: "row",
     zIndex: 998,
   },
-  menu: {
-    marginTop: 10,
-    marginRight: 10,
-    backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 10,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    zIndex: 999,
-    width: 220,
+  menuContainer: {
+    height: "100%",
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+    overflow: "hidden",
+    elevation: 8,
   },
-  menuItem: {
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+  menuGradient: {
+    flex: 1,
+    padding: 20,
   },
-  menuText: { fontSize: 16, fontWeight: "500" },
+  menuHeader: { flexDirection: "row", alignItems: "center", marginBottom: 30 },
+  avatar: { width: 60, height: 60, borderRadius: 30, marginRight: 15, borderWidth: 2, borderColor: "#fff" },
+  username: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  menuItem: { flexDirection: "row", alignItems: "center", paddingVertical: 15, borderBottomWidth: 0.5, borderBottomColor: "rgba(255,255,255,0.3)" },
+  menuText: { marginLeft: 15, color: "#fff", fontSize: 16, fontWeight: "600" },
 
   card: {
     borderRadius: 16,
@@ -397,15 +402,35 @@ export const styles = StyleSheet.create({
     elevation: 3,
   },
   cardTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
-  carousel: { flexDirection: "row", paddingLeft: 10 },
-  carouselCard: {
-    backgroundColor: "#1e90ff",
-    padding: 15,
-    borderRadius: 16,
-    marginRight: 15,
-    minWidth: 200,
+
+  // Dicas
+  dicasCarousel: {
+    flexDirection: "row",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
   },
-  carouselText: { color: "#fff", fontWeight: "bold" },
+  dicasCard: {
+    backgroundColor: "#00cfff",
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 16,
+    marginRight: 12,
+    minWidth: 160,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  dicasText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 14,
+    textAlign: "center",
+  },
+
   carouselContainer: { marginTop: 20, alignItems: "center" },
   iconContainer: { marginBottom: 10 },
   title: { fontSize: 16, fontWeight: "bold", marginBottom: 8, textAlign: "center" },
@@ -416,26 +441,14 @@ export const styles = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#ccc", margin: 4 },
   activeDot: { backgroundColor: "#000" },
 
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: "#ddd",
-    backgroundColor: "#fff",
-  },
+  carouselCard: { backgroundColor: "#1e90ff", padding: 15, borderRadius: 16, marginRight: 15, minWidth: 200 },
+
+  footer: { flexDirection: "row", justifyContent: "space-around", paddingVertical: 12, borderTopWidth: 1, borderTopColor: "#ddd", backgroundColor: "#fff" },
   footerItem: { alignItems: "center" },
   footerText: { fontSize: 12, marginTop: 4, fontWeight: "600" },
 
-  // YouTube
   sectionTitle: { fontSize: 22, fontWeight: "bold", marginBottom: 10, paddingHorizontal: 20 },
-  videoCard: {
-    marginRight: 15,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    overflow: "hidden",
-    elevation: 4,
-  },
+  videoCard: { marginRight: 15, backgroundColor: "#fff", borderRadius: 12, overflow: "hidden", elevation: 4 },
   thumbnail: { width: "100%", height: 120 },
   videoTitle: { fontSize: 14, fontWeight: "600", padding: 8 },
 });
