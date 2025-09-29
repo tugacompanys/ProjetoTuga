@@ -1,180 +1,136 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
-  Linking, Dimensions, StyleSheet, SafeAreaView, Image,
-  View, Text, TouchableOpacity, ScrollView, BackHandler
+  View,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  StyleSheet,
 } from "react-native";
-import Carousel from "react-native-reanimated-carousel";
-import Animated, { FadeInUp, SlideInLeft } from "react-native-reanimated";
-import YoutubePlayer from "react-native-youtube-iframe";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LinearGradient } from "expo-linear-gradient"; // ADICIONADO
+import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient"
 
-const { width: screenWidth } = Dimensions.get("window");
-
-// ... Seus arrays data, noticias, dicas, registrosHoje, videos permanecem iguais ...
-
-export default function HomeScreen({ route, navigation }) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [menuAberto, setMenuAberto] = useState(false);
-  const [videoId, setVideoId] = useState(null);
-  const [plano, setPlano] = useState(null);
-  const [nome, setNome] = useState("Usuário");
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", async () => {
-      const storedName = await AsyncStorage.getItem("@user_name");
-      if (storedName) setNome(storedName);
-      else if (route?.params?.user?.displayName) setNome(route.params.user.displayName);
-    });
-    return unsubscribe;
-  }, [navigation, route?.params]);
+export default function EditarPerfil() {
+  const navigation = useNavigation();
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => setMenuAberto(!menuAberto)}>
-          <Ionicons name="menu-outline" size={28} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Bem-vindo, {nome}! ✌</Text>
-        <View style={{ width: 28 }} />
-      </View>
-
-      {/* ===== MENU LATERAL ESTILIZADO ===== */}
-      {menuAberto && (
+    // ======== TAB BAR ESTILIZADA ========
+    <View style={styles.footerWrapper}>
+      <LinearGradient
+        colors={["#ffffffcc", "#f8f8f8ee"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.footer}
+      >
         <TouchableOpacity
-          style={styles.menuOverlay}
-          activeOpacity={1}
-          onPress={() => setMenuAberto(false)}
+          style={styles.footerItem}
+          onPress={() => navigation.navigate("HomeScreen")}
         >
-          <Animated.View
-            entering={SlideInLeft.duration(300)}
-            style={[styles.menuContainer, { width: screenWidth * 0.8 }]}
-          >
-            <LinearGradient
-              colors={["#1e90ff", "#00bfff"]}
-              style={styles.menuGradient}
-            >
-              {/* Header do menu */}
-              <View style={styles.menuHeader}>
-                <Image
-                  source={{ uri: "https://i.pravatar.cc/150?img=47" }}
-                  style={styles.avatar}
-                />
-                <Text style={styles.username}>{nome}</Text>
-              </View>
-
-              {/* Itens de navegação */}
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => {
-                  setMenuAberto(false);
-                  navigation.navigate("Login");
-                }}
-              >
-                <Ionicons name="swap-horizontal-outline" size={22} color="#fff" />
-                <Text style={styles.menuText}>Trocar Conta</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => {
-                  setMenuAberto(false);
-                  navigation.navigate("Configurações");
-                }}
-              >
-                <Ionicons name="settings-outline" size={22} color="#fff" />
-                <Text style={styles.menuText}>Configurações</Text>
-              </TouchableOpacity>
-
-              {/* Sair */}
-              <TouchableOpacity
-                style={[styles.menuItem, { marginTop: "auto" }]}
-                onPress={() => {
-                  setMenuAberto(false);
-                  BackHandler.exitApp();
-                }}
-              >
-                <Ionicons name="exit-outline" size={22} color="#ff4d4d" />
-                <Text style={[styles.menuText, { color: "#ff4d4d" }]}>Sair</Text>
-              </TouchableOpacity>
-            </LinearGradient>
-          </Animated.View>
+          <Ionicons name="home-outline" size={26} color="#00c47c" />
+          <Text style={[styles.footerText, { color: "#00c47c" }]}>Início</Text>
         </TouchableOpacity>
-      )}
 
-      {/* ===== Conteúdo principal permanece igual ===== */}
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-        {/* Carrossel de ações, Resumo Diário, Notícias, Dicas, Vídeos */}
-        {/* TODO: Colar todo o conteúdo que você já tinha aqui, sem alterações */}
-      </ScrollView>
+        <TouchableOpacity
+          style={[styles.footerItem, styles.activeTab]}
+          onPress={() => navigation.navigate("Glicemia")}
+        >
+          <Ionicons name="water-outline" size={26} color="#00bcd4" />
+          <Text style={[styles.footerText, { color: "#00bcd4" }]}>Glicemia</Text>
+        </TouchableOpacity>
 
-      {/* Footer */}
-      {/* TODO: Manter footer igual */}
-    </SafeAreaView>
+        <TouchableOpacity
+          style={styles.footerItem}
+          onPress={() => navigation.navigate("Refeicao")}
+        >
+          <MaterialCommunityIcons name="silverware-fork-knife" size={26} color="#d17d6b" />
+          <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.footerItem}
+          onPress={() => navigation.navigate("Exercicio")}
+        >
+          <Ionicons name="barbell-outline" size={26} color="#7c6e7f" />
+          <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
+        </TouchableOpacity>
+      </LinearGradient>
+    </View>
   );
 }
 
-// ===== ESTILOS =====
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  header: {
-    backgroundColor: "#1e90ff",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  headerText: { fontSize: 20, fontWeight: "bold", color: "#fff" },
-
-  // Overlay escuro por trás do menu
-  menuOverlay: {
-    position: "absolute",
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    flexDirection: "row",
-    zIndex: 998,
-  },
-
-  // Container do menu
-  menuContainer: {
-    height: "100%",
-    borderTopRightRadius: 20,
-    borderBottomRightRadius: 20,
-    overflow: "hidden",
-    elevation: 8,
-  },
-  menuGradient: {
+  safeArea: { flex: 1, backgroundColor: "#f0f4f7" },
+  container: {
     flex: 1,
-    padding: 20,
+    backgroundColor: "#f0f4f7",
+    bottom: 12
   },
-  menuHeader: {
+  footer: {
+    position: "absolute",
+    bottom: 0, // ✅ Corrigido para ficar colado na parte de baixo
+    left: 0,
+    right: 0,
     flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#ddd",
+    backgroundColor: "#fff",
+    borderRadius: 20,
+  },
+  footerItem: {
     alignItems: "center",
-    marginBottom: 30,
   },
-  avatar: {
-    width: 60, height: 60,
-    borderRadius: 30,
-    marginRight: 15,
-    borderWidth: 2,
-    borderColor: "#fff",
-  },
-  username: { color: "#fff", fontSize: 18, fontWeight: "bold" },
-
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 15,
-    borderBottomWidth: 0.5,
-    borderBottomColor: "rgba(255,255,255,0.3)",
-  },
-  menuText: {
-    marginLeft: 15,
-    color: "#fff",
-    fontSize: 16,
+  footerText: {
+    fontSize: 12,
+    marginTop: 4,
     fontWeight: "600",
   },
+  footerWrapper: {
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  alignItems: "center",
+  justifyContent: "center",
+  paddingHorizontal: 10,
+  paddingBottom: 10, // espaço p/ iPhone com notch
+},
+
+footer: {
+  flexDirection: "row",
+  justifyContent: "space-around",
+  alignItems: "center",
+  width: "95%",
+  paddingVertical: 14,
+  borderRadius: 20,
+  backgroundColor: "#fff",
+  elevation: 8, // sombra Android
+  shadowColor: "#000", // sombra iOS
+  shadowOpacity: 0.1,
+  shadowOffset: { width: 0, height: -2 },
+  shadowRadius: 6,
+},
+
+footerItem: {
+  alignItems: "center",
+  justifyContent: "center",
+  paddingHorizontal: 12,
+},
+
+footerText: {
+  fontSize: 13,
+  marginTop: 4,
+  fontWeight: "700",
+},
+
+activeTab: {
+  backgroundColor: "rgba(0,196,124,0.08)", // leve destaque no item ativo
+  borderRadius: 14,
+  paddingHorizontal: 14,
+  paddingVertical: 6,
+},
+
 });

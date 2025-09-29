@@ -118,7 +118,9 @@ export default function HomeScreen({ route, navigation }) {
         <TouchableOpacity onPress={() => setMenuAberto(!menuAberto)}>
           <Ionicons name="menu-outline" size={28} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Bem-vindo, {nome}! ✌</Text>
+        <Text style={styles.headerText}>
+          Bem-vindo, <Text style={{ fontWeight: "900" }}>{nome}</Text> ✌
+        </Text>
         <View style={{ width: 28 }} />
       </View>
 
@@ -134,7 +136,7 @@ export default function HomeScreen({ route, navigation }) {
             style={[styles.menuContainer, { width: screenWidth * 0.8 }]}
           >
             <LinearGradient
-              colors={["#1e90ff", "#00bfff"]}
+              colors={["#1e90ff", "#b5d8fcff"]}
               style={styles.menuGradient}
             >
               <View style={styles.menuHeader}>
@@ -152,7 +154,11 @@ export default function HomeScreen({ route, navigation }) {
                   navigation.navigate("Login");
                 }}
               >
-                <Ionicons name="swap-horizontal-outline" size={22} color="#fff" />
+                <Ionicons
+                  name="swap-horizontal-outline"
+                  size={22}
+                  color="#fff"
+                />
                 <Text style={styles.menuText}>Trocar Conta</Text>
               </TouchableOpacity>
 
@@ -182,6 +188,7 @@ export default function HomeScreen({ route, navigation }) {
         </TouchableOpacity>
       )}
 
+      
       {/* Conteúdo principal */}
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
         {/* Carrossel principal */}
@@ -284,7 +291,7 @@ export default function HomeScreen({ route, navigation }) {
         {/* Vídeos */}
         <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 20 }}>
           <Text style={styles.sectionTitle}>🎥 Vídeos Recomendados</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20, marginBottom: 20 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20, marginBottom: 20, paddingBottom: 70 }}>
             {videos.map((video, index) => (
               <TouchableOpacity
                 key={index}
@@ -305,7 +312,7 @@ export default function HomeScreen({ route, navigation }) {
 
         {/* Player */}
         {videoId && (
-          <View style={{ marginHorizontal: 20, marginVertical: 10, borderRadius: 12, overflow: "hidden" }}>
+          <View style={{ marginHorizontal: 20, marginVertical: 10, borderRadius: 12, overflow: "hidden"}}>
             <YoutubePlayer height={220} play={true} videoId={videoId} webViewProps={{ allowsFullscreenVideo: true }} />
             <TouchableOpacity
               style={{
@@ -323,33 +330,55 @@ export default function HomeScreen({ route, navigation }) {
         )}
       </ScrollView>
 
+        
+    
       {/* Footer */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerItem}>
-          <Ionicons name="home-outline" size={24} color="#00c47c" />
-          <Text style={[styles.footerText, { color: "#00c47c", fontWeight: "900", fontSize: 14 }]}>
-            Início
-          </Text>
+    <View style={styles.footerWrapper}>
+      <LinearGradient
+        colors={["#ffffffcc", "#f8f8f8ee"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.footer}
+      >
+        <TouchableOpacity
+          style={[styles.footerItem, styles.activeTab]}
+          onPress={() => navigation.navigate("HomeScreen")}
+        >
+          <Ionicons name="home-outline" size={26} color="#00c47c" />
+          <Text style={[styles.footerText, { color: "#00c47c" }]}>Início</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate("Glicemia")}>
-          <Ionicons name="water-outline" size={24} color="#00bcd4" />
+
+        <TouchableOpacity
+          style={styles.footerItem}
+          onPress={() => navigation.navigate("Glicemia")}
+        >
+          <Ionicons name="water-outline" size={26} color="#00bcd4" />
           <Text style={[styles.footerText, { color: "#00bcd4" }]}>Glicemia</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate("Refeicao")}>
-          <MaterialCommunityIcons name="silverware-fork-knife" size={24} color="#d17d6b" />
+
+        <TouchableOpacity
+          style={styles.footerItem}
+          onPress={() => navigation.navigate("Refeicao")}
+        >
+          <MaterialCommunityIcons name="silverware-fork-knife" size={26} color="#d17d6b" />
           <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate("Exercicio")}>
-          <Ionicons name="barbell-outline" size={24} color="#7c6e7f" />
+
+        <TouchableOpacity
+          style={styles.footerItem}
+          onPress={() => navigation.navigate("Exercicio")}
+        >
+          <Ionicons name="barbell-outline" size={26} color="#7c6e7f" />
           <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
+    </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: "#fff", flex: 1 },
+  container: { backgroundColor: "#fff", flex: 1,  },
 
   header: {
     backgroundColor: "#1e90ff",
@@ -410,7 +439,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   dicasCard: {
-    backgroundColor: "#00cfff",
+    backgroundColor: "#1e90ff",
     paddingVertical: 14,
     paddingHorizontal: 18,
     borderRadius: 16,
@@ -443,9 +472,47 @@ const styles = StyleSheet.create({
 
   carouselCard: { backgroundColor: "#1e90ff", padding: 15, borderRadius: 16, marginRight: 15, minWidth: 200 },
 
-  footer: { flexDirection: "row", justifyContent: "space-around", paddingVertical: 12, borderTopWidth: 1, borderTopColor: "#ddd", backgroundColor: "#fff" },
-  footerItem: { alignItems: "center" },
-  footerText: { fontSize: 12, marginTop: 4, fontWeight: "600" },
+footerWrapper: {
+    position: "absolute",
+    letterSpacing: 19,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+  },
+
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "95%",
+    paddingVertical: 14,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: -2 },
+    shadowRadius: 6,
+  },
+
+  footerItem: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+  },
+  footerText: { fontSize: 13, marginTop: 4, fontWeight: "700" },
+
+
+activeTab: {
+  backgroundColor: "#11f09e2c", // leve destaque no item ativo
+  borderRadius: 14,
+  paddingHorizontal: 14,
+  paddingVertical: 6,
+},
 
   sectionTitle: { fontSize: 22, fontWeight: "bold", marginBottom: 10, paddingHorizontal: 20 },
   videoCard: { marginRight: 15, backgroundColor: "#fff", borderRadius: 12, overflow: "hidden", elevation: 4 },
