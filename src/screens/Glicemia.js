@@ -12,7 +12,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   StatusBar,
-  SafeAreaView,
   BackHandler,
   ActivityIndicator,
 } from "react-native";
@@ -34,6 +33,7 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 // ✅ Import correto do Animated / FadeInUp
 import Animated, { FadeInUp } from "react-native-reanimated";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Glicemia() {
   const [valor, setValor] = useState("");

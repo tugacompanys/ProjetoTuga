@@ -3,13 +3,13 @@ import {
   Linking,
   Dimensions,
   StyleSheet,
-  SafeAreaView,
   Image,
   View,
   Text,
   TouchableOpacity,
   ScrollView,
   BackHandler,
+  Modal,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, { FadeInUp, SlideInLeft } from "react-native-reanimated";
@@ -17,6 +17,7 @@ import YoutubePlayer from "react-native-youtube-iframe";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -188,9 +189,9 @@ export default function HomeScreen({ route, navigation }) {
         </TouchableOpacity>
       )}
 
-      
+
       {/* Conteúdo principal */}
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+      <ScrollView contentContainerStyle={{  }}>
         {/* Carrossel principal */}
         <View style={styles.carouselContainer}>
           <Carousel
@@ -291,7 +292,7 @@ export default function HomeScreen({ route, navigation }) {
         {/* Vídeos */}
         <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 20 }}>
           <Text style={styles.sectionTitle}>🎥 Vídeos Recomendados</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20, marginBottom: 20, paddingBottom: 70 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 20, marginBottom: 20, paddingBottom: 100 }}>
             {videos.map((video, index) => (
               <TouchableOpacity
                 key={index}
@@ -311,74 +312,87 @@ export default function HomeScreen({ route, navigation }) {
         </Animated.View>
 
         {/* Player */}
-        {videoId && (
-          <View style={{ marginHorizontal: 20, marginVertical: 10, borderRadius: 12, overflow: "hidden"}}>
-            <YoutubePlayer height={220} play={true} videoId={videoId} webViewProps={{ allowsFullscreenVideo: true }} />
+        <Modal
+          visible={!!videoId}
+          animationType="slide"
+          transparent={true}
+          presentationStyle="fullScreen"
+        >
+          <SafeAreaView style={{ flex: 1, backgroundColor: "#000000da", justifyContent: "center" }}>
+            <YoutubePlayer
+              height={250}
+              play={true}
+              videoId={videoId}
+              webViewProps={{ allowsFullscreenVideo: true }}
+            />
             <TouchableOpacity
               style={{
                 backgroundColor: "#e40000ff",
-                padding: 10,
+                padding: 12,
                 borderRadius: 8,
-                marginTop: 10,
+                marginTop: 20,
                 alignItems: "center",
+                marginHorizontal: 80,
               }}
               onPress={() => setVideoId(null)}
             >
               <Text style={{ color: "#fff", fontWeight: "bold" }}>Fechar</Text>
             </TouchableOpacity>
-          </View>
-        )}
+          </SafeAreaView>
+        </Modal>
       </ScrollView>
 
-        
-    
+
+
+
+
       {/* Footer */}
-    <View style={styles.footerWrapper}>
-      <LinearGradient
-        colors={["#ffffffcc", "#f8f8f8ee"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.footer}
-      >
-        <TouchableOpacity
-          style={[styles.footerItem, styles.activeTab]}
-          onPress={() => navigation.navigate("HomeScreen")}
+      <View style={styles.footerWrapper}>
+        <LinearGradient
+          colors={["#ffffffcc", "#f8f8f8ee"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.footer}
         >
-          <Ionicons name="home-outline" size={26} color="#00c47c" />
-          <Text style={[styles.footerText, { color: "#00c47c" }]}>Início</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.footerItem, styles.activeTab]}
+            onPress={() => navigation.navigate("HomeScreen")}
+          >
+            <Ionicons name="home-outline" size={26} color="#00c47c" />
+            <Text style={[styles.footerText, { color: "#00c47c" }]}>Início</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.footerItem}
-          onPress={() => navigation.navigate("Glicemia")}
-        >
-          <Ionicons name="water-outline" size={26} color="#00bcd4" />
-          <Text style={[styles.footerText, { color: "#00bcd4" }]}>Glicemia</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.footerItem}
+            onPress={() => navigation.navigate("Glicemia")}
+          >
+            <Ionicons name="water-outline" size={26} color="#00bcd4" />
+            <Text style={[styles.footerText, { color: "#00bcd4" }]}>Glicemia</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.footerItem}
-          onPress={() => navigation.navigate("Refeicao")}
-        >
-          <MaterialCommunityIcons name="silverware-fork-knife" size={26} color="#d17d6b" />
-          <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.footerItem}
+            onPress={() => navigation.navigate("Refeicao")}
+          >
+            <MaterialCommunityIcons name="silverware-fork-knife" size={26} color="#d17d6b" />
+            <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.footerItem}
-          onPress={() => navigation.navigate("Exercicio")}
-        >
-          <Ionicons name="barbell-outline" size={26} color="#7c6e7f" />
-          <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
-        </TouchableOpacity>
-      </LinearGradient>
-    </View>
+          <TouchableOpacity
+            style={styles.footerItem}
+            onPress={() => navigation.navigate("Exercicio")}
+          >
+            <Ionicons name="barbell-outline" size={26} color="#7c6e7f" />
+            <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
+          </TouchableOpacity>
+        </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: "#fff", flex: 1,  },
+  container: { backgroundColor: "#fff", flex: 1 },
 
   header: {
     backgroundColor: "#1e90ff",
@@ -472,7 +486,7 @@ const styles = StyleSheet.create({
 
   carouselCard: { backgroundColor: "#1e90ff", padding: 15, borderRadius: 16, marginRight: 15, minWidth: 200 },
 
-footerWrapper: {
+  footerWrapper: {
     position: "absolute",
     letterSpacing: 19,
     bottom: 0,
@@ -497,6 +511,7 @@ footerWrapper: {
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: -2 },
     shadowRadius: 6,
+
   },
 
   footerItem: {
@@ -507,15 +522,15 @@ footerWrapper: {
   footerText: { fontSize: 13, marginTop: 4, fontWeight: "700" },
 
 
-activeTab: {
-  backgroundColor: "#11f09e2c", // leve destaque no item ativo
-  borderRadius: 14,
-  paddingHorizontal: 14,
-  paddingVertical: 6,
-},
+  activeTab: {
+    backgroundColor: "#11f09e2c", // leve destaque no item ativo
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
 
   sectionTitle: { fontSize: 22, fontWeight: "bold", marginBottom: 10, paddingHorizontal: 20 },
-  videoCard: { marginRight: 15, backgroundColor: "#fff", borderRadius: 12, overflow: "hidden", elevation: 4 },
+  videoCard: { marginRight: 15, backgroundColor: "#fff", borderRadius: 12, overflow: "hidden", elevation: 4, },
   thumbnail: { width: "100%", height: 120 },
   videoTitle: { fontSize: 14, fontWeight: "600", padding: 8 },
 });
