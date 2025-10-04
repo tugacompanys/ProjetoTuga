@@ -34,6 +34,7 @@ import { useNavigation } from "@react-navigation/native";
 // ✅ Import correto do Animated / FadeInUp
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from "expo-linear-gradient"
 
 export default function Glicemia() {
   const [valor, setValor] = useState("");
@@ -105,7 +106,7 @@ export default function Glicemia() {
       },
     ]);
   };
-  
+
 
   const getDotColor = (valor) => {
     if (valor < 90) return "#3b82f6"; // azul
@@ -121,7 +122,7 @@ export default function Glicemia() {
       >
         <FlatList
           data={[]}
-          contentContainerStyle={{ paddingBottom: 80 }} // 🔑 Espaço extra p/ a TabBar
+          contentContainerStyle={{ paddingBottom: 90 }} // 🔑 Espaço extra p/ a TabBar
           ListHeaderComponent={
             <>
               <View style={styles.header}>
@@ -198,7 +199,7 @@ export default function Glicemia() {
 
               {registros.length > 0 && (
                 <TouchableOpacity style={styles.botaoReset} onPress={resetarTudo}>
-                  <Ionicons name="reload-outline" size={20} color="#ffffffff" fontWeight="900"/>
+                  <Ionicons name="reload-outline" size={20} color="#ffffffff" fontWeight="900" />
                   <Text style={styles.botaoResetTexto}>Resetar Tudo</Text>
                 </TouchableOpacity>
               )}
@@ -222,7 +223,7 @@ export default function Glicemia() {
                           ),
                           datasets: [{ data: registros.map((r) => r.valor) }],
                         }}
-                        width={Math.max(largura, registros.length * 80 + 40)}
+                        width={Math.max(largura, registros.length * 80 + 40, )}
                         height={260}
                         yAxisSuffix="/dL"
                         chartConfig={{
@@ -234,7 +235,7 @@ export default function Glicemia() {
                           propsForDots: { r: "6", fill: "#fff" },
                         }}
                         bezier
-                        style={styles.grafico}
+                        style={[styles.grafico, {}]}
                         renderDotContent={({ x, y, index }) => {
                           const r = registros[index];
                           return (
@@ -309,55 +310,65 @@ export default function Glicemia() {
         />
 
         {/* TAB BAR FIXA */}
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.footerItem}
-            onPress={() => navigation.navigate("HomeScreen")}
+        <View style={styles.footerWrapper}>
+          <LinearGradient
+            colors={["#ffffffcc", "#f5f4fcee"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.footer}
           >
-            <Ionicons name="home-outline" size={24} color="#00c47c" />
-            <Text style={[styles.footerText, { color: "#00c47c" }]}>Início</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.footerItem}
+              onPress={() => navigation.navigate("HomeScreen")}
+            >
+              <Ionicons name="home-outline" size={26} color="#00c47c" />
+              <Text style={[styles.footerText, { color: "#00c47c" }]}>Início</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.footerItem}
-            onPress={() => navigation.navigate("Glicemia")}
-          >
-            <Ionicons name="water-outline" size={28} color="#009eb3ff" backgroundColor="#b9ffff8e" />
-            <Text style={[styles.footerText, { color: "#009eb3ff", backgroundColor: "#b9ffffdc", fontWeight: "900", fontSize: 14 }]}>Glicemia</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.footerItem, styles.activeTab]}
+              onPress={() => navigation.navigate("Glicemia")}
+            >
+              <Ionicons name="water-outline" size={26} color="#00bcd4" />
+              <Text style={[styles.footerText, { color: "#00bcd4" }]}>Glicemia</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.footerItem}
-            onPress={() => navigation.navigate("Refeicao")}
-          >
-            <MaterialCommunityIcons
-              name="silverware-fork-knife"
-              size={24}
-              color="#d17d6b"
-            />
-            <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.footerItem]}
+              onPress={() => navigation.navigate("Refeicao")}
+            >
+              <MaterialCommunityIcons name="silverware-fork-knife" size={26} color="#d17d6b" />
+              <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.footerItem}
-            onPress={() => navigation.navigate("Exercicio")}
-          >
-            <Ionicons name="barbell-outline" size={24} color="#7c6e7f" />
-            <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.footerItem}
+              onPress={() => navigation.navigate("Exercicio")}
+            >
+              <Ionicons name="barbell-outline" size={26} color="#7c6e7f" />
+              <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
+            </TouchableOpacity>
+          </LinearGradient>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
+
+
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#f0f4f7" },
+
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#f0f4f7"
+  },
+
   container: {
     flex: 1,
     backgroundColor: "#f0f4f7",
-    bottom: 12
   },
+
   header: {
     backgroundColor: "#1e90ff",
     flexDirection: "row",
@@ -366,9 +377,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 10 : 10,
     paddingBottom: 12,
+    bottom: 12
   },
-  headerText: { fontSize: 20, fontWeight: "bold", color: "#fff", bottom: 12 },
-  inputContainer: { flexDirection: "row", marginBottom: 20, alignItems: "center" },
+
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    bottom: 12
+  },
+
+  inputContainer: {
+    flexDirection: "row",
+    marginBottom: 20,
+    alignItems: "center"
+  },
+
   input: {
     flex: 1,
     borderWidth: 2,
@@ -380,6 +404,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 10,
   },
+
   // Menu lateral
   menuOverlay: {
     position: "absolute",
@@ -390,6 +415,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     zIndex: 998,
   },
+  
   menu: {
     marginTop: 10,
     marginRight: 10,
@@ -403,6 +429,7 @@ const styles = StyleSheet.create({
     zIndex: 999,
     width: 220,
   },
+
   menuItem: {
     paddingVertical: 10,
     borderBottomWidth: 1,
@@ -411,7 +438,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  menuText: { fontSize: 16, fontWeight: "500" },
+
+  menuText: {
+    fontSize: 16,
+    fontWeight: "500"
+  },
 
   resetButton: {
     backgroundColor: '#d9534f',
@@ -426,32 +457,132 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  
 
-  botao: { backgroundColor: "#227FB0", paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12, elevation: 3, marginRight: 10 },
-  botaoTexto: { color: "#fff", fontWeight: "bold" },
-  botaoReset: { backgroundColor: "#f87171", padding: 10, borderRadius: 8, alignSelf: "flex-end", marginTop: 10, marginRight: 10 },
-  botaoResetTexto: { color: "#fff", fontWeight: "bold" },
-  grafico: { marginVertical: 10, borderRadius: 16 },
-  card: { padding: 15, backgroundColor: "#fff", borderRadius: 12, marginBottom: 12, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 6, elevation: 2, marginLeft: 10, marginRight: 10 },
-  cardValor: { fontSize: 18, fontWeight: "bold", color: "#227FB0" },
-  cardData: { fontSize: 14, color: "#555", marginTop: 4 },
-  botaoRemover: { marginTop: 8, backgroundColor: "#ef4444", paddingVertical: 6, borderRadius: 8, alignItems: "center" },
-  botaoRemoverTexto: { color: "#fff", fontWeight: "bold" },
-  instrucoes: { fontSize: 16, margin: 5, padding: 10, color: "#555", marginBottom: 15, lineHeight: 20, textAlign: "justify" },
-  footer: {
+
+  botao: {
+    backgroundColor: "#227FB0",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    elevation: 3,
+    marginRight: 10
+  },
+
+  botaoTexto: {
+    color: "#fff",
+    fontWeight: "bold"
+  },
+
+  botaoReset: {
+    backgroundColor: "#f87171",
+    padding: 10,
+    borderRadius: 8,
+    alignSelf: "flex-end",
+    marginTop: 10,
+    marginRight: 10
+  },
+
+  botaoResetTexto: {
+    color: "#fff",
+    fontWeight: "bold"
+  },
+
+  grafico: {
+    marginVertical: 10,
+    borderRadius: 16
+  },
+
+  card: {
+    padding: 15,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 2,
+    marginLeft: 10,
+    marginRight: 10
+  },
+
+  cardValor: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#227FB0"
+  },
+
+  cardData: {
+    fontSize: 14,
+    color: "#555",
+    marginTop: 4
+  },
+
+  botaoRemover: {
+    marginTop: 8,
+    backgroundColor: "#ef4444",
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignItems: "center"
+  },
+
+  botaoRemoverTexto: {
+    color: "#fff",
+    fontWeight: "bold"
+  },
+
+  instrucoes: {
+    fontSize: 16,
+    margin: 5,
+    padding: 10,
+    color: "#555",
+    marginBottom: 15,
+    lineHeight: 20,
+    textAlign: "justify"
+  },
+
+  footerWrapper: {
     position: "absolute",
-    bottom: -10,
+    bottom: 0,
     left: 0,
     right: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    paddingBottom: 10, // espaço p/ iPhone com notch
+  },
+
+  footer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: "#ddd",
-    backgroundColor: "#fff",
+    alignItems: "center",
+    width: "95%",
+    paddingVertical: 14,
     borderRadius: 20,
+    backgroundColor: "#fff",
+    elevation: 8, // sombra Android
+    shadowColor: "#000", // sombra iOS
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: -2 },
+    shadowRadius: 6,
   },
-  footerItem: { alignItems: "center" },
-  footerText: { fontSize: 12, marginTop: 4, fontWeight: "600" },
+
+  footerItem: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+  },
+
+  footerText: {
+    fontSize: 13,
+    marginTop: 4,
+    fontWeight: "700",
+  },
+
+  activeTab: {
+    backgroundColor: "rgba(0, 134, 196, 0.08)", // leve destaque no item ativo
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+
 });
