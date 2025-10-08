@@ -402,6 +402,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
   },
+  
   headerText: { fontSize: 20, fontWeight: "bold", color: "#fff" },
 
   menuOverlay: {

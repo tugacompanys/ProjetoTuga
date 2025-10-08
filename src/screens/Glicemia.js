@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; // ✅ único import de React
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import {
   Platform,
   StatusBar,
   BackHandler,
-  ActivityIndicator,
+  Image,
 } from "react-native";
 import {
   collection,
@@ -31,20 +31,20 @@ import { MotiView } from "moti";
 import Svg, { Circle, Text as SvgText } from "react-native-svg";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-// ✅ Import correto do Animated / FadeInUp
-import Animated, { FadeInUp } from "react-native-reanimated";
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from "expo-linear-gradient"
+import Animated, { SlideInLeft } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Glicemia() {
   const [valor, setValor] = useState("");
-  const [salvando, setSalvando] = useState(false);
-  const [resetando, setResetando] = useState(false);
   const [menuAberto, setMenuAberto] = useState(false);
+  const [nome, setNome] = useState("Usuário");
   const [registros, setRegistros] = useState([]);
-  const largura = Dimensions.get("window").width - 40;
+  const { width: screenWidth } = Dimensions.get("window");
+  const largura = screenWidth - 40;
   const navigation = useNavigation();
 
+  // 🔹 Buscar dados de glicemia do Firestore
   useEffect(() => {
     const q = query(
       collection(db, "users", auth.currentUser.uid, "glicemia"),
@@ -57,6 +57,7 @@ export default function Glicemia() {
     return () => unsubscribe();
   }, []);
 
+  // 🔹 Salvar valor no Firestore
   const salvarGlicemia = async () => {
     if (!valor) return;
     const valorAtual = valor;
@@ -73,7 +74,8 @@ export default function Glicemia() {
     }
   };
 
-  const removerRegistro = async (id) => {      // ✅ NOVO BLOCO
+  // 🔹 Remover registro
+  const removerRegistro = async (id) => {
     try {
       await deleteDoc(doc(db, "users", auth.currentUser.uid, "glicemia", id));
     } catch (error) {
@@ -81,7 +83,8 @@ export default function Glicemia() {
     }
   };
 
-  const resetarTudo = async () => {            // ✅ MANTER APENAS ESTA VERSÃO
+  // 🔹 Resetar todos registros
+  const resetarTudo = async () => {
     Alert.alert("Confirmar", "Deseja realmente apagar todos os registros?", [
       { text: "Cancelar", style: "cancel" },
       {
@@ -89,24 +92,21 @@ export default function Glicemia() {
         style: "destructive",
         onPress: async () => {
           try {
-            setResetando(true); // ✅ Ativa spinner
             const q = collection(db, "users", auth.currentUser.uid, "glicemia");
             const snapshot = await getDocs(q);
             const promises = snapshot.docs.map((docSnap) =>
-              deleteDoc(doc(db, "users", auth.currentUser.uid, "glicemia", docSnap.id))
+              deleteDoc(
+                doc(db, "users", auth.currentUser.uid, "glicemia", docSnap.id)
+              )
             );
             await Promise.all(promises);
-            setValor(""); // Limpa input
           } catch (error) {
             Alert.alert("Erro", "Não foi possível apagar os registros.");
-          } finally {
-            setResetando(false);
           }
         },
       },
     ]);
   };
-
 
   const getDotColor = (valor) => {
     if (valor < 90) return "#3b82f6"; // azul
@@ -120,69 +120,97 @@ export default function Glicemia() {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
+        {/* 🔹 Cabeçalho */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => setMenuAberto(true)}>
+            <Ionicons name="menu-outline"
+              size={28}
+              color="#fff"
+              paddingBottom={20}
+            />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>📊 Controle de Glicemia</Text>
+          <View style={{ width: 28 }} />
+        </View>
+
+        {/*Menu lateral */}
+        {
+          menuAberto && (
+            <TouchableOpacity
+              style={styles.menuOverlay}
+              activeOpacity={1}
+              onPress={() => setMenuAberto(false)}
+            >
+              <Animated.View
+                entering={SlideInLeft.duration(300)}
+                style={[styles.menuContainer, { width: screenWidth * 0.8 }]}
+              >
+                <LinearGradient
+                  colors={["#1e90ff", "#b5d8fcff"]}
+                  style={styles.menuGradient}
+                >
+                  <View style={styles.menuHeader}>
+                    <Image
+                      source={{ uri: "https://i.pravatar.cc/150?img=47" }}
+                      style={styles.avatar}
+                    />
+                    <Text style={styles.username}>{nome}</Text>
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => {
+                      setMenuAberto(false);
+                      navigation.navigate("Login");
+                    }}
+                  >
+                    <Ionicons
+                      name="swap-horizontal-outline"
+                      size={22}
+                      color="#fff"
+                    />
+                    <Text style={styles.menuText}>Trocar Conta</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => {
+                      setMenuAberto(false);
+                      navigation.navigate("Configurações");
+                    }}
+                  >
+                    <Ionicons name="settings-outline" size={22} color="#fff" />
+                    <Text style={styles.menuText}>Configurações</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.menuItem, { marginTop: "auto" }]}
+                    onPress={() => {
+                      setMenuAberto(false);
+                      BackHandler.exitApp();
+                    }}
+                  >
+                    <Ionicons name="exit-outline" size={22} color="#ff4d4d" />
+                    <Text style={[styles.menuText, { color: "#ff4d4d" }]}>Sair</Text>
+                  </TouchableOpacity>
+                </LinearGradient>
+              </Animated.View>
+            </TouchableOpacity>
+          )
+        }
+
+        {/* 🔹 Corpo principal */}
         <FlatList
           data={[]}
-          contentContainerStyle={{ paddingBottom: 90 }} // 🔑 Espaço extra p/ a TabBar
+          contentContainerStyle={{ paddingBottom: 100 }}
           ListHeaderComponent={
             <>
-              <View style={styles.header}>
-                <TouchableOpacity onPress={() => setMenuAberto(!menuAberto)}>
-                  <Ionicons name="menu-outline" size={28} color="#fff" bottom="10" right="10" />
-                </TouchableOpacity>
-                <Text style={styles.headerText}>📊 Controle de Glicemia</Text>
-                <View style={{ width: 28 }} />
-              </View>
-
-              {/* Menu lateral */}
-              {menuAberto && (
-                <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={() => setMenuAberto(false)}>
-                  <Animated.View entering={FadeInUp} style={styles.menu}>
-
-                    {/* Opção de Trocar conta */}
-                    <TouchableOpacity
-                      style={styles.menuItem}
-                      onPress={() => {
-                        setMenuAberto(false);
-                        navigation.navigate("Login");
-                      }}
-                    >
-                      <Ionicons name="swap-horizontal-outline" size={20} color="#000" />
-                      <Text style={styles.menuText}>Trocar Conta</Text>
-                    </TouchableOpacity>
-
-                    {/* Opção de Configurações */}
-                    <TouchableOpacity
-                      style={styles.menuItem}
-                      onPress={() => {
-                        setMenuAberto(false);
-                        navigation.navigate("Configurações");
-                      }}
-                    >
-                      <Ionicons name="settings-outline" size={20} color="#000" />
-                      <Text style={styles.menuText}>Configurações</Text>
-                    </TouchableOpacity>
-
-                    {/* Opção de Sair */}
-                    <TouchableOpacity
-                      style={styles.menuItem}
-                      onPress={() => {
-                        setMenuAberto(false);
-                        BackHandler.exitApp(); // Fecha o aplicativo
-                      }}
-                    >
-                      <Ionicons name="exit-outline" size={20} color="red" />
-                      <Text style={[styles.menuText, { color: "red" }]}>Sair</Text>
-                    </TouchableOpacity>
-                  </Animated.View>
-                </TouchableOpacity>
-              )}
-
               <Text style={styles.instrucoes}>
-                Registre seus níveis de glicemia e acompanhe com o gráfico e o histórico abaixo.
+                Registre seus níveis de glicemia e acompanhe o gráfico e o
+                histórico abaixo.
                 {"\n\n"}• Digite o valor {"\n"}• Pressione "Salvar"
               </Text>
 
-              {/* Input + Botão */}
               <View style={styles.inputContainer}>
                 <TextInput
                   style={styles.input}
@@ -199,12 +227,17 @@ export default function Glicemia() {
 
               {registros.length > 0 && (
                 <TouchableOpacity style={styles.botaoReset} onPress={resetarTudo}>
-                  <Ionicons name="reload-outline" size={20} color="#ffffffff" fontWeight="900" />
+                  <Ionicons
+                    name="reload-outline"
+                    size={20}
+                    color="#fff"
+                    style={{ marginRight: 6 }}
+                  />
                   <Text style={styles.botaoResetTexto}>Resetar Tudo</Text>
                 </TouchableOpacity>
               )}
 
-              {/* Gráfico */}
+              {/* 🔹 Gráfico */}
               {registros.length > 0 && (
                 <MotiView
                   from={{ opacity: 0, translateY: 20 }}
@@ -218,24 +251,23 @@ export default function Glicemia() {
                           labels: registros.map((r) =>
                             new Date(r.data.seconds * 1000).toLocaleDateString(
                               "pt-BR",
-                              { day: "2-digit", month: "2-digit", year: "2-digit" }
+                              { day: "2-digit", month: "2-digit" }
                             )
                           ),
                           datasets: [{ data: registros.map((r) => r.valor) }],
                         }}
-                        width={Math.max(largura, registros.length * 80 + 40, )}
+                        width={Math.max(largura, registros.length * 80 + 40)}
                         height={260}
                         yAxisSuffix="/dL"
                         chartConfig={{
-                          backgroundGradientFrom: "#acd7fa59",
-                          backgroundGradientTo: "#dceefc",
+                          backgroundGradientFrom: "#dceefc",
+                          backgroundGradientTo: "#ffffff",
                           decimalPlaces: 0,
                           color: (o = 1) => `rgba(34,128,176,${o})`,
                           labelColor: (o = 1) => `rgba(0,0,0,${o})`,
-                          propsForDots: { r: "6", fill: "#fff" },
                         }}
                         bezier
-                        style={[styles.grafico, {}]}
+                        style={styles.grafico}
                         renderDotContent={({ x, y, index }) => {
                           const r = registros[index];
                           return (
@@ -267,41 +299,62 @@ export default function Glicemia() {
                 </MotiView>
               )}
 
-              <Text style={{ fontSize: 15, marginBottom: 10, padding: 10, marginLeft: 10 }}>
+              <Text
+                style={{
+                  fontSize: 15,
+                  marginBottom: 10,
+                  padding: 10,
+                  marginLeft: 10,
+                }}
+              >
                 🔴 Maior que 120 = Acima da média {"\n"}
                 🟢 Entre 90-120 = Equilibrado {"\n"}
                 🔵 Menor que 90 = Abaixo da média
               </Text>
 
-              <Text style={{ fontWeight: "bold", fontSize: 24, marginTop: 20, marginLeft: 20 }}>
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  fontSize: 24,
+                  marginTop: 20,
+                  marginLeft: 20,
+                }}
+              >
                 Histórico
               </Text>
-
-              {/* Cards de histórico */}
               {registros.length > 0 && (
                 <View style={{ maxHeight: 300, marginTop: 10 }}>
                   <ScrollView nestedScrollEnabled={true}>
-                    {registros.slice().reverse().map((item, index) => (
-                      <MotiView
-                        key={item.id}
-                        from={{ opacity: 0, translateX: -50 }}
-                        animate={{ opacity: 1, translateX: 0 }}
-                        transition={{ type: "timing", duration: 400, delay: index * 100 }}
-                      >
-                        <View style={styles.card}>
-                          <Text style={styles.cardValor}>{item.valor} mg/dL</Text>
-                          <Text style={styles.cardData}>
-                            {new Date(item.data.seconds * 1000).toLocaleString()}
-                          </Text>
-                          <TouchableOpacity
-                            style={styles.botaoRemover}
-                            onPress={() => removerRegistro(item.id)}
-                          >
-                            <Text style={styles.botaoRemoverTexto}>❌ Remover</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </MotiView>
-                    ))}
+                    {registros
+                      .slice()
+                      .reverse()
+                      .map((item, index) => (
+                        <MotiView
+                          key={item.id}
+                          from={{ opacity: 0, translateX: -50 }}
+                          animate={{ opacity: 1, translateX: 0 }}
+                          transition={{
+                            type: "timing",
+                            duration: 400,
+                            delay: index * 100,
+                          }}
+                        >
+                          <View style={styles.card}>
+                            <Text style={styles.cardValor}>
+                              {item.valor} mg/dL
+                            </Text>
+                            <Text style={styles.cardData}>
+                              {new Date(item.data.seconds * 1000).toLocaleString()}
+                            </Text>
+                            <TouchableOpacity
+                              style={styles.botaoRemover}
+                              onPress={() => removerRegistro(item.id)}
+                            >
+                              <Text style={styles.botaoRemoverTexto}>❌ Remover</Text>
+                            </TouchableOpacity>
+                          </View>
+                        </MotiView>
+                      ))}
                   </ScrollView>
                 </View>
               )}
@@ -309,7 +362,7 @@ export default function Glicemia() {
           }
         />
 
-        {/* TAB BAR FIXA */}
+        {/* 🔹 Rodapé fixo */}
         <View style={styles.footerWrapper}>
           <LinearGradient
             colors={["#ffffffcc", "#f5f4fcee"]}
@@ -322,7 +375,9 @@ export default function Glicemia() {
               onPress={() => navigation.navigate("HomeScreen")}
             >
               <Ionicons name="home-outline" size={26} color="#00c47c" />
-              <Text style={[styles.footerText, { color: "#00c47c" }]}>Início</Text>
+              <Text style={[styles.footerText, { color: "#00c47c" }]}>
+                Início
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -330,15 +385,23 @@ export default function Glicemia() {
               onPress={() => navigation.navigate("Glicemia")}
             >
               <Ionicons name="water-outline" size={26} color="#00bcd4" />
-              <Text style={[styles.footerText, { color: "#00bcd4" }]}>Glicemia</Text>
+              <Text style={[styles.footerText, { color: "#00bcd4" }]}>
+                Glicemia
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.footerItem]}
+              style={styles.footerItem}
               onPress={() => navigation.navigate("Refeicao")}
             >
-              <MaterialCommunityIcons name="silverware-fork-knife" size={26} color="#d17d6b" />
-              <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
+              <MaterialCommunityIcons
+                name="silverware-fork-knife"
+                size={26}
+                color="#d17d6b"
+              />
+              <Text style={[styles.footerText, { color: "#d17d6b" }]}>
+                Refeição
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -346,7 +409,9 @@ export default function Glicemia() {
               onPress={() => navigation.navigate("Exercicio")}
             >
               <Ionicons name="barbell-outline" size={26} color="#7c6e7f" />
-              <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
+              <Text style={[styles.footerText, { color: "#7c6e7f" }]}>
+                Exercícios
+              </Text>
             </TouchableOpacity>
           </LinearGradient>
         </View>
@@ -355,10 +420,7 @@ export default function Glicemia() {
   );
 }
 
-
-
 const styles = StyleSheet.create({
-
   safeArea: {
     flex: 1,
     backgroundColor: "#f0f4f7"
@@ -375,9 +437,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
+    paddingBottom: 0,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 10 : 10,
-    paddingBottom: 12,
-    bottom: 12
   },
 
   headerText: {
@@ -387,12 +448,43 @@ const styles = StyleSheet.create({
     bottom: 12
   },
 
+  // 🔹 Menu lateral corrigido
+  menuOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    flexDirection: "row",
+    zIndex: 998,
+  },
+
+  menuContainer: {
+    height: "100%",
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+    overflow: "hidden",
+    elevation: 8,
+  },
+
+  menuGradient: {
+    flex: 1,
+    padding: 20,
+  },
+
+  menuHeader: { flexDirection: "row", alignItems: "center", marginBottom: 30 },
+  avatar: { width: 60, height: 60, borderRadius: 30, marginRight: 15, borderWidth: 2, borderColor: "#fff" },
+  username: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  menuItem: { flexDirection: "row", alignItems: "center", paddingVertical: 15, borderBottomWidth: 0.5, borderBottomColor: "rgba(255,255,255,0.3)" },
+  menuText: { marginLeft: 15, color: "#fff", fontSize: 16, fontWeight: "600" },
+
   inputContainer: {
     flexDirection: "row",
     marginBottom: 20,
-    alignItems: "center"
+    alignItems: "center",
+    marginHorizontal: 10,
   },
-
   input: {
     flex: 1,
     borderWidth: 2,
@@ -402,96 +494,36 @@ const styles = StyleSheet.create({
     marginRight: 10,
     backgroundColor: "#fff",
     fontSize: 16,
-    marginLeft: 10,
   },
-
-  // Menu lateral
-  menuOverlay: {
-    position: "absolute",
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.36)",
-    justifyContent: "flex-start",
-    alignItems: "right",
-    paddingTop: 50,
-    zIndex: 998,
-  },
-  
-  menu: {
-    marginTop: 10,
-    marginRight: 10,
-    backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 10,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    zIndex: 999,
-    width: 220,
-  },
-
-  menuItem: {
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-
-  menuText: {
-    fontSize: 16,
-    fontWeight: "500"
-  },
-
-  resetButton: {
-    backgroundColor: '#d9534f',
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  resetButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-
-
   botao: {
     backgroundColor: "#227FB0",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 12,
     elevation: 3,
-    marginRight: 10
   },
-
-  botaoTexto: {
-    color: "#fff",
-    fontWeight: "bold"
-  },
-
+  botaoTexto: { color: "#fff", fontWeight: "bold" },
   botaoReset: {
     backgroundColor: "#f87171",
     padding: 10,
     borderRadius: 8,
     alignSelf: "flex-end",
-    marginTop: 10,
-    marginRight: 10
+    marginRight: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  botaoResetTexto: { color: "#fff", fontWeight: "bold" },
+  grafico: { marginVertical: 10, borderRadius: 16 },
+  instrucoes: {
+    fontSize: 16,
+    margin: 10,
+    color: "#555",
+    marginBottom: 15,
+    lineHeight: 20,
+    textAlign: "justify",
   },
 
-  botaoResetTexto: {
-    color: "#fff",
-    fontWeight: "bold"
-  },
-
-  grafico: {
-    marginVertical: 10,
-    borderRadius: 16
-  },
-
+  // 🔹 Cards
   card: {
     padding: 15,
     backgroundColor: "#fff",
@@ -501,44 +533,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 2,
-    marginLeft: 10,
-    marginRight: 10
+    marginHorizontal: 10,
   },
-
-  cardValor: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#227FB0"
-  },
-
-  cardData: {
-    fontSize: 14,
-    color: "#555",
-    marginTop: 4
-  },
-
+  cardValor: { fontSize: 18, fontWeight: "bold", color: "#227FB0" },
+  cardData: { fontSize: 14, color: "#555", marginTop: 4 },
   botaoRemover: {
     marginTop: 8,
     backgroundColor: "#ef4444",
     paddingVertical: 6,
     borderRadius: 8,
-    alignItems: "center"
+    alignItems: "center",
   },
-
-  botaoRemoverTexto: {
-    color: "#fff",
-    fontWeight: "bold"
-  },
-
-  instrucoes: {
-    fontSize: 16,
-    margin: 5,
-    padding: 10,
-    color: "#555",
-    marginBottom: 15,
-    lineHeight: 20,
-    textAlign: "justify"
-  },
+  botaoRemoverTexto: { color: "#fff", fontWeight: "bold" },
 
   footerWrapper: {
     position: "absolute",
