@@ -251,7 +251,7 @@ export default function Glicemia() {
                           labels: registros.map((r) =>
                             new Date(r.data.seconds * 1000).toLocaleDateString(
                               "pt-BR",
-                              { day: "2-digit", month: "2-digit" }
+                              { day: "2-digit", month: "2-digit", year: "2-digit" }
                             )
                           ),
                           datasets: [{ data: registros.map((r) => r.valor) }],
