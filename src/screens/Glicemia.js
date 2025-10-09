@@ -150,11 +150,15 @@ export default function Glicemia() {
                   style={styles.menuGradient}
                 >
                   <View style={styles.menuHeader}>
-                    <Image
-                      source={{ uri: "https://i.pravatar.cc/150?img=47" }}
-                      style={styles.avatar}
-                    />
-                    <Text style={styles.username}>{nome}</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate("EditarPerfil")}>
+                      <Image
+                        source={{ uri: "https://i.pravatar.cc/150?img=47" }}
+                        style={styles.avatar}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate("EditarPerfil")}>
+                      <Text style={styles.username}>{nome}</Text>
+                    </TouchableOpacity>
                   </View>
 
                   <TouchableOpacity

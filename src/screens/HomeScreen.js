@@ -19,6 +19,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+
 const { width: screenWidth } = Dimensions.get("window");
 
 const data = [
@@ -117,10 +118,10 @@ export default function HomeScreen({ route, navigation }) {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setMenuAberto(!menuAberto)}>
-          <Ionicons name="menu-outline" 
-          size={28} 
-          color="#fff" 
-          top={9}
+          <Ionicons name="menu-outline"
+            size={28}
+            color="#fff"
+            top={9}
           />
         </TouchableOpacity>
         <Text style={styles.headerText}>
@@ -144,12 +145,17 @@ export default function HomeScreen({ route, navigation }) {
               colors={["#1e90ff", "#b5d8fcff"]}
               style={styles.menuGradient}
             >
+
               <View style={styles.menuHeader}>
-                <Image
-                  source={{ uri: "https://i.pravatar.cc/150?img=47" }}
-                  style={styles.avatar}
-                />
-                <Text style={styles.username}>{nome}</Text>
+                <TouchableOpacity onPress={() => navigation.navigate("EditarPerfil")}>
+                  <Image
+                    source={{ uri: "https://i.pravatar.cc/150?img=47" }}
+                    style={styles.avatar}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("EditarPerfil")}>
+                  <Text style={styles.username}>{nome}</Text>
+                </TouchableOpacity>
               </View>
 
               <TouchableOpacity
@@ -195,7 +201,7 @@ export default function HomeScreen({ route, navigation }) {
 
 
       {/* Conteúdo principal */}
-      <ScrollView contentContainerStyle={{  }}>
+      <ScrollView contentContainerStyle={{}}>
         {/* Carrossel principal */}
         <View style={styles.carouselContainer}>
           <Carousel
@@ -406,8 +412,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 32,
   },
-  
-  headerText: { fontSize: 20, fontWeight: "bold", color: "#fff", top: 8},
+
+  headerText: { fontSize: 20, fontWeight: "bold", color: "#fff", top: 8 },
 
   menuOverlay: {
     position: "absolute",
