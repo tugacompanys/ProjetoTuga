@@ -16,7 +16,7 @@ import * as SecureStore from "expo-secure-store";
 export default function Configuracoes() {
   const navigation = useNavigation();
 
-  // Estados para switches
+  // Estados para switchesÇ
   const [notificacoesAtivas, setNotificacoesAtivas] = useState(true);
   const [temaEscuro, setTemaEscuro] = useState(false);
   const [loginBiometrico, setLoginBiometrico] = useState(false);

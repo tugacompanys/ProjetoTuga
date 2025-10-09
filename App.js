@@ -72,7 +72,7 @@ export default function App() {
         <Stack.Screen
           name="EditarPerfil"
           component={EditarPerfil}
-          options={{ headerShown: true, title: "Editar Perfil" }}
+          options={{ headerShown: false, title: "Editar Perfil" }}
         />
 
         <Stack.Screen

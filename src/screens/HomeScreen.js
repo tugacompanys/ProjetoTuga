@@ -117,7 +117,11 @@ export default function HomeScreen({ route, navigation }) {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setMenuAberto(!menuAberto)}>
-          <Ionicons name="menu-outline" size={28} color="#fff" />
+          <Ionicons name="menu-outline" 
+          size={28} 
+          color="#fff" 
+          top={9}
+          />
         </TouchableOpacity>
         <Text style={styles.headerText}>
           Bem-vindo, <Text style={{ fontWeight: "900" }}>{nome}</Text> ✌
@@ -400,10 +404,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 32,
   },
   
-  headerText: { fontSize: 20, fontWeight: "bold", color: "#fff" },
+  headerText: { fontSize: 20, fontWeight: "bold", color: "#fff", top: 8},
 
   menuOverlay: {
     position: "absolute",
