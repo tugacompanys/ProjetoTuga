@@ -21,7 +21,7 @@ export default function Configuracoes() {
   const [temaEscuro, setTemaEscuro] = useState(false);
   const [loginBiometrico, setLoginBiometrico] = useState(false);
 
-  // 🔑 Carrega a preferência salva de biometria ao abrir a tela
+  // Carrega a preferência salva de biometria ao abrir a tela
   useEffect(() => {
     const carregarPreferenciaBiometria = async () => {
       try {
@@ -39,7 +39,7 @@ export default function Configuracoes() {
   const toggleNotificacoes = () => setNotificacoesAtivas(!notificacoesAtivas);
   const toggleTema = () => setTemaEscuro(!temaEscuro);
 
-  // ✅ Ativar/Desativar biometria e salvar no SecureStore
+  // Ativar/Desativar biometria e salvar no SecureStore
   const toggleBiometria = async () => {
     try {
       const novoValor = !loginBiometrico;
