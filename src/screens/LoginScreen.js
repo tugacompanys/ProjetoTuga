@@ -110,7 +110,7 @@ export default function LoginScreen({ navigation }) {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', padding: 20, paddingTop: 80 }} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', padding: 20, paddingTop: 110 }} keyboardShouldPersistTaps="handled">
 
           <Image source={require('../../assets/tugacriança.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.appName}>
@@ -143,26 +143,24 @@ export default function LoginScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity onPress={() => Alert.alert('Recuperação', 'Função em desenvolvimento')}>
-            <Text style={styles.forgot}>Esqueci a senha</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity
-            style={[styles.button, loading && { opacity: 0.7 }]}
+            style={[styles.buttonLogin, loading && { opacity: 0.8 }]}
             onPress={handleLogin}
             disabled={loading}
+            activeOpacity={0.8}
           >
-            {loading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <LinearGradient
-                colors={["#0ed42fff", "#0f971aff"]}
-                style={styles.buttonLogin}
-              >
+            <LinearGradient
+              colors={["#0ed42fff", "#0f971aff"]}
+              style={styles.InsideButton}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" style={styles.loadingIndicator} />
+              ) : (
                 <Text style={styles.buttonText}>Entrar</Text>
-              </LinearGradient>
-            )}
+              )}
+            </LinearGradient>
           </TouchableOpacity>
+
 
 
           {/* Botão biometria visível se o dispositivo for compatível e credenciais salvas */}
@@ -240,20 +238,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   buttonLogin: {
-    borderRadius: 20,
-    marginTop: 20,
-    paddingHorizontal: 40,
-    paddingVertical: 10,
-    elevation: 3,
+    borderRadius: 25,
+    marginTop: 25,
+    width: '50%',
+    alignSelf: 'center',
+    elevation: 4,
     shadowColor: '#081b03ff',
     shadowOpacity: 0.6,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
   },
 
-  buttonText: { fontWeight: 'bold', color: '#fff', fontSize: 16 },
+  InsideButton: {
+    borderRadius: 25,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
-  
+  loadingIndicator: {
+    height: 22,
+  },
+
+
+  buttonText: { fontWeight: 'bold', color: '#fff', fontSize: 16 },
 
   bioButton: {
     flexDirection: 'row',
