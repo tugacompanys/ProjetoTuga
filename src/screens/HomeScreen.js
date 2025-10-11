@@ -101,17 +101,22 @@ export default function HomeScreen({ route, navigation }) {
   const [nome, setNome] = useState("Usuário");
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", async () => {
-      const storedName = await AsyncStorage.getItem("@user_name");
-      if (storedName) {
-        setNome(storedName);
-      } else {
-        const paramName = route?.params?.user?.displayName;
-        if (paramName) setNome(paramName);
-      }
-    });
-    return unsubscribe;
-  }, [navigation, route?.params]);
+  const fetchName = async () => {
+    const storedName = await AsyncStorage.getItem("@user_name");
+    if (storedName) {
+      setNome(storedName);
+    } else {
+      const paramName = route?.params?.user?.displayName;
+      if (paramName) setNome(paramName);
+    }
+  };
+
+  fetchName(); // executa na montagem da tela
+
+  const unsubscribe = navigation.addListener("focus", fetchName);
+  return unsubscribe;
+}, [navigation, route?.params]);
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -149,7 +154,7 @@ export default function HomeScreen({ route, navigation }) {
               <View style={styles.menuHeader}>
                 <TouchableOpacity onPress={() => navigation.navigate("EditarPerfil")}>
                   <Image
-                    source={{ uri: "https://i.pravatar.cc/150?img=47" }}
+                    source={{ uri: "https://cdn-icons-png.flaticon.com/512/147/147142.png" }}
                     style={styles.avatar}
                   />
                 </TouchableOpacity>

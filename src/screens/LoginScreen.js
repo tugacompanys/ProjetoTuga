@@ -8,14 +8,14 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
 import { auth } from "../config/firebaseConfig";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // Estado biometria
   const [dispositivoCompat, setDispositivoCompat] = useState(false);
 
   useEffect(() => {
@@ -54,6 +54,11 @@ export default function LoginScreen({ navigation }) {
       if (result.success) {
         setLoading(true);
         await signInWithEmailAndPassword(auth, credEmail, credSenha);
+
+        // Salva nome do usuário para exibir na Home
+        const nomeUsuario = auth.currentUser?.displayName || "Usuário";
+        await AsyncStorage.setItem("@user_name", nomeUsuario);
+
         navigation.navigate("HomeScreen");
         setLoading(false);
       }
@@ -72,12 +77,14 @@ export default function LoginScreen({ navigation }) {
     try {
       await signInWithEmailAndPassword(auth, email, senha);
 
-      // Salva credenciais para biometria
+      // Salva credenciais e nome do usuário
       await SecureStore.setItemAsync('email', email);
       await SecureStore.setItemAsync('senha', senha);
       await SecureStore.setItemAsync('usarBiometria', 'true');
 
-      // Ativa o botão de biometria após primeiro login
+      const nomeUsuario = auth.currentUser?.displayName || "Usuário";
+      await AsyncStorage.setItem("@user_name", nomeUsuario);
+
       setDispositivoCompat(true);
 
       setTimeout(() => {
@@ -87,16 +94,16 @@ export default function LoginScreen({ navigation }) {
     } catch (error) {
       let msg = "❗ Ocorreu um erro inesperado. Tente novamente.";
       switch (error.code) {
-        case "auth/invalid-email":   msg = "📧 E-mail inválido."; break;
-        case "auth/user-disabled":   msg = "🚫 Conta desativada."; break;
-        case "auth/user-not-found":  msg = "❌ Conta não encontrada."; break;
-        case "auth/wrong-password":  msg = "🔒 Senha incorreta."; break;
+        case "auth/invalid-email": msg = "📧 E-mail inválido."; break;
+        case "auth/user-disabled": msg = "🚫 Conta desativada."; break;
+        case "auth/user-not-found": msg = "❌ Conta não encontrada."; break;
+        case "auth/wrong-password": msg = "🔒 Senha incorreta."; break;
       }
       Alert.alert("Erro", msg);
       setLoading(false);
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <Image source={require('../../assets/tugacriança.png')} style={styles.logo} resizeMode="contain" />

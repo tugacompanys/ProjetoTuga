@@ -34,8 +34,9 @@ import { useNavigation } from "@react-navigation/native";
 import Animated, { SlideInLeft } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function Glicemia() {
+export default function Glicemia(route) {
   const [valor, setValor] = useState("");
   const [menuAberto, setMenuAberto] = useState(false);
   const [nome, setNome] = useState("Usuário");
@@ -56,6 +57,27 @@ export default function Glicemia() {
     });
     return () => unsubscribe();
   }, []);
+
+  // 🔹 Buscar nome do usuário para o menu lateral
+ useEffect(() => {
+  const fetchName = async () => {
+    const storedName = await AsyncStorage.getItem("@user_name");
+    if (storedName) {
+      setNome(storedName);
+    } else {
+      const paramName = route?.params?.user?.displayName;
+      if (paramName) setNome(paramName);
+    }
+  };
+
+  fetchName(); // executa na montagem da tela
+
+  const unsubscribe = navigation.addListener("focus", fetchName);
+  return unsubscribe;
+}, [navigation, route?.params]);
+
+
+
 
   // 🔹 Salvar valor no Firestore
   const salvarGlicemia = async () => {
@@ -152,7 +174,7 @@ export default function Glicemia() {
                   <View style={styles.menuHeader}>
                     <TouchableOpacity onPress={() => navigation.navigate("EditarPerfil")}>
                       <Image
-                        source={{ uri: "https://i.pravatar.cc/150?img=47" }}
+                        source={{ uri:"https://cdn-icons-png.flaticon.com/512/147/147142.png" }}
                         style={styles.avatar}
                       />
                     </TouchableOpacity>
