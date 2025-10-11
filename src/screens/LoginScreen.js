@@ -143,6 +143,10 @@ export default function LoginScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
+          <TouchableOpacity onPress={() => alert('Funcionalidade em desenvolvimento.')}>
+            <Text style={styles.forgot}>Esqueci minha senha</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={[styles.buttonLogin, loading && { opacity: 0.8 }]}
             onPress={handleLogin}
@@ -160,7 +164,6 @@ export default function LoginScreen({ navigation }) {
               )}
             </LinearGradient>
           </TouchableOpacity>
-
 
 
           {/* Botão biometria visível se o dispositivo for compatível e credenciais salvas */}
@@ -233,7 +236,7 @@ const styles = StyleSheet.create({
   forgot: {
     color: '#a44',
     alignSelf: 'flex-end',
-    left: 110,
+    left: 100,
     marginTop: 6,
     fontWeight: 'bold'
   },
