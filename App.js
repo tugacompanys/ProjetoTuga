@@ -42,7 +42,7 @@ export default function App() {
         <Stack.Screen
           name="Register"
           component={RegisterScreen}
-          options={{ headerShown: true, title: "Registrar" }}
+          options={{ headerShown: false, title: "Registrar" }}
         />
 
         <Stack.Screen

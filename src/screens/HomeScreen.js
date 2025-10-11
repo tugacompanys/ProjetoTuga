@@ -101,21 +101,21 @@ export default function HomeScreen({ route, navigation }) {
   const [nome, setNome] = useState("Usuário");
 
   useEffect(() => {
-  const fetchName = async () => {
-    const storedName = await AsyncStorage.getItem("@user_name");
-    if (storedName) {
-      setNome(storedName);
-    } else {
-      const paramName = route?.params?.user?.displayName;
-      if (paramName) setNome(paramName);
-    }
-  };
+    const fetchName = async () => {
+      const storedName = await AsyncStorage.getItem("@user_name");
+      if (storedName) {
+        setNome(storedName);
+      } else {
+        const paramName = route?.params?.user?.displayName;
+        if (paramName) setNome(paramName);
+      }
+    };
 
-  fetchName(); // executa na montagem da tela
+    fetchName(); // executa na montagem da tela
 
-  const unsubscribe = navigation.addListener("focus", fetchName);
-  return unsubscribe;
-}, [navigation, route?.params]);
+    const unsubscribe = navigation.addListener("focus", fetchName);
+    return unsubscribe;
+  }, [navigation, route?.params]);
 
 
   return (
