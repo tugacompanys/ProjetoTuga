@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  Image, ActivityIndicator, Alert
+  Image, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Alert
 } from 'react-native';
 import { Ionicons, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -9,7 +9,7 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
 import { auth } from "../config/firebaseConfig";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -103,80 +103,96 @@ export default function LoginScreen({ navigation }) {
       setLoading(false);
     }
   };
-  
+
   return (
-    <View style={styles.container}>
-      <Image source={require('../../assets/tugacriança.png')} style={styles.logo} resizeMode="contain" />
-      <Text style={styles.appName}>
-        <Text style={{ fontWeight: 'bold' }}>MY</Text> <Text style={{ color: '#00aaff' }}>GLUCO</Text>
-      </Text>
-      <Text style={styles.welcome}>Seja Bem-Vindo</Text>
-
-      <View style={styles.inputContainer}>
-        <Ionicons name="mail-outline" size={20} color="#000" />
-        <TextInput
-          style={styles.input}
-          placeholder="Digite seu email"
-          keyboardType="email-address"
-          onChangeText={setEmail}
-          value={email}
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed-outline" size={20} color="#000" />
-        <TextInput
-          style={styles.input}
-          placeholder="Digite sua senha"
-          secureTextEntry={!mostrarSenha}
-          onChangeText={setSenha}
-          value={senha}
-        />
-        <TouchableOpacity style={styles.eyeButton} onPress={() => setMostrarSenha(!mostrarSenha)}>
-          <Ionicons name={mostrarSenha ? "eye-off-outline" : "eye-outline"} size={20} color="#000" />
-        </TouchableOpacity>
-      </View>
-
-      <TouchableOpacity onPress={() => Alert.alert('Recuperação', 'Função em desenvolvimento')}>
-        <Text style={styles.forgot}>Esqueci a senha</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.button, loading && { opacity: 0.7 }]}
-        onPress={handleLogin}
-        disabled={loading}
+    <LinearGradient colors={["#e0f7ff", "#c2e9fb", "#a1c4fd"]} style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
       >
-        {loading ? <ActivityIndicator size="small" color="#000" /> :
-          <Text style={styles.buttonText}>Entrar</Text>}
-      </TouchableOpacity>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', padding: 20, paddingTop: 80 }} keyboardShouldPersistTaps="handled">
 
-      {/* Botão biometria visível se o dispositivo for compatível e credenciais salvas */}
-      {dispositivoCompat && (
-        <TouchableOpacity style={styles.bioButton} onPress={autenticarBiometria}>
-          <MaterialIcons name="fingerprint" size={34} color="#00aaff" />
-          <Text style={styles.bioText}>Entrar com biometria</Text>
-        </TouchableOpacity>
-      )}
+          <Image source={require('../../assets/tugacriança.png')} style={styles.logo} resizeMode="contain" />
+          <Text style={styles.appName}>
+            <Text style={{ fontWeight: 'bold' }}>MY</Text> <Text style={{ color: '#00aaff' }}>GLUCO</Text>
+          </Text>
+          <Text style={styles.welcome}>Seja Bem-Vindo</Text>
 
-      <View style={styles.registerContainer}>
-        <Text>Não tem uma conta? </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-          <Text style={styles.register}>Inscrever-se</Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.inputContainer}>
+            <Ionicons name="mail-outline" size={20} color="#000" />
+            <TextInput
+              style={styles.input}
+              placeholder="Digite seu email"
+              keyboardType="email-address"
+              onChangeText={setEmail}
+              value={email}
+            />
+          </View>
 
-      <Text style={styles.or}>OU</Text>
-      <Text style={styles.socialText}>Inscreva-se com uma rede social</Text>
+          <View style={styles.inputContainer}>
+            <Ionicons name="lock-closed-outline" size={20} color="#000" />
+            <TextInput
+              style={styles.input}
+              placeholder="Digite sua senha"
+              secureTextEntry={!mostrarSenha}
+              onChangeText={setSenha}
+              value={senha}
+            />
+            <TouchableOpacity style={styles.eyeButton} onPress={() => setMostrarSenha(!mostrarSenha)}>
+              <Ionicons name={mostrarSenha ? "eye-off-outline" : "eye-outline"} size={20} color="#000" />
+            </TouchableOpacity>
+          </View>
 
-      <View style={styles.socialIcons}>
-        <FontAwesome name="facebook" size={30} color="#3b5998" />
-        <FontAwesome name="google" size={30} color="#DB4437" />
-        <FontAwesome name="apple" size={30} color="#000" />
-      </View>
-    </View>
+          <TouchableOpacity onPress={() => Alert.alert('Recuperação', 'Função em desenvolvimento')}>
+            <Text style={styles.forgot}>Esqueci a senha</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, loading && { opacity: 0.7 }]}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <LinearGradient
+                colors={["#0ed42fff", "#0f971aff"]}
+                style={styles.buttonLogin}
+              >
+                <Text style={styles.buttonText}>Entrar</Text>
+              </LinearGradient>
+            )}
+          </TouchableOpacity>
+
+
+          {/* Botão biometria visível se o dispositivo for compatível e credenciais salvas */}
+          {dispositivoCompat && (
+            <TouchableOpacity style={styles.bioButton} onPress={autenticarBiometria}>
+              <MaterialIcons name="fingerprint" size={34} color="#00aaff" />
+              <Text style={styles.bioText}>Entrar com biometria</Text>
+            </TouchableOpacity>
+          )}
+
+          <View style={styles.registerContainer}>
+            <Text>Não tem uma conta? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+              <Text style={styles.register}>Inscrever-se</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.or}>OU</Text>
+          <Text style={styles.socialText}>Inscreva-se com uma rede social</Text>
+
+          <View style={styles.socialIcons}>
+            <FontAwesome name="facebook" size={30} color="#3b5998" />
+            <FontAwesome name="google" size={30} color="#DB4437" />
+            <FontAwesome name="apple" size={30} color="#000" />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     paddingTop: 0,
@@ -186,23 +202,59 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 80,
   },
-  logo: { width: 160, height: 160 },
-  appName: { fontSize: 28, fontWeight: 'bold', marginTop: 10 },
-  welcome: { color: '#6a4a4a', fontSize: 18, fontWeight: 'bold', marginTop: 10 },
+  logo: {
+    width: 160,
+    height: 160
+  },
+  appName: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginTop: 10
+  },
+  welcome: {
+    color: '#6a4a4a',
+    fontSize: 18, fontWeight: 'bold',
+    marginTop: 10
+  },
   inputContainer: {
-    flexDirection: 'row', alignItems: 'center',
-    borderWidth: 1, borderColor: '#a0a0a0',
-    borderRadius: 10, paddingHorizontal: 10,
-    marginTop: 20, width: '100%', backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#a0a0a0',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginTop: 20,
+    width: '100%',
+    backgroundColor: '#fff',
   },
-  input: { flex: 1, paddingVertical: 10, marginLeft: 10 },
-  forgot: { color: '#a44', alignSelf: 'flex-end', marginTop: 10 },
-  button: {
-    backgroundColor: '#00ff0dff', borderRadius: 20,
-    marginTop: 20, paddingHorizontal: 40, paddingVertical: 10,
-    elevation: 3, shadowColor: '#081b03ff', shadowOpacity: 0.6, shadowRadius: 10,
+  input: {
+    flex: 1,
+    paddingVertical: 10,
+    marginLeft: 10
   },
-  buttonText: { fontWeight: 'bold', color: '#000' },
+  forgot: {
+    color: '#a44',
+    alignSelf: 'flex-end',
+    left: 110,
+    marginTop: 6,
+    fontWeight: 'bold'
+  },
+  buttonLogin: {
+    borderRadius: 20,
+    marginTop: 20,
+    paddingHorizontal: 40,
+    paddingVertical: 10,
+    elevation: 3,
+    shadowColor: '#081b03ff',
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+  },
+
+  buttonText: { fontWeight: 'bold', color: '#fff', fontSize: 16 },
+
+  
+
   bioButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -213,14 +265,37 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     elevation: 2,
   },
-  bioText: { marginLeft: 10, fontWeight: '600', color: '#00aaff' },
-  registerContainer: { flexDirection: 'row', marginTop: 20 },
-  register: { color: '#a44', fontWeight: 'bold' },
-  or: { marginTop: 10, fontWeight: 'bold' },
-  socialText: { marginTop: 5 },
-  socialIcons: {
-    flexDirection: 'row', marginTop: 10,
-    width: '60%', justifyContent: 'space-around',
+  bioText: {
+    marginLeft: 10,
+    fontWeight: '600',
+    color: '#00aaff'
   },
-  eyeButton: { position: 'absolute', right: 10, padding: 5 },
+  registerContainer: {
+    flexDirection: 'row',
+    marginTop: 20
+  },
+  register: {
+    color: '#a44',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginLeft: 5
+  },
+  or: {
+    marginTop: 10,
+    fontWeight: 'bold'
+  },
+  socialText: {
+    marginTop: 5
+  },
+  socialIcons: {
+    flexDirection: 'row',
+    marginTop: 10,
+    width: '60%',
+    justifyContent: 'space-around',
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 10,
+    padding: 5
+  },
 });

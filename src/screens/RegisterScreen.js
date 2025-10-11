@@ -98,7 +98,7 @@ export default function RegisterScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={30} color="#0077b6" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Cadastro</Text>
+          <Text style={styles.headerTitle}>Voltar</Text>
         </View>
 
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
@@ -115,7 +115,7 @@ export default function RegisterScreen({ navigation }) {
                 style={styles.profileImage}
               />
               <View style={styles.cameraIcon}>
-                <Ionicons name="camera-outline" size={20} color="#fff" />
+                <Ionicons name="camera-outline" size={20} color="#ffffffff" />
               </View>
             </View>
           </TouchableOpacity>
@@ -123,7 +123,7 @@ export default function RegisterScreen({ navigation }) {
           <Text style={styles.addPhotoText}>Adicionar foto de perfil</Text>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={20} color="#00aaff" />
+            <Ionicons name="person-outline" size={20} color="#000000ff" />
             <TextInput
               style={styles.input}
               placeholder="Digite seu nome"
@@ -134,7 +134,7 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#00aaff" />
+            <Ionicons name="mail-outline" size={20} color="#000000ff" />
             <TextInput
               style={styles.input}
               placeholder="Digite seu email"
@@ -146,7 +146,7 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#00aaff" />
+            <Ionicons name="lock-closed-outline" size={20} color="#000000ff" />
             <TextInput
               style={styles.input}
               placeholder="Digite sua senha"
@@ -158,7 +158,7 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#00aaff" />
+            <Ionicons name="lock-closed-outline" size={20} color="#000000ff" />
             <TextInput
               style={styles.input}
               placeholder="Confirme sua senha"
@@ -170,7 +170,7 @@ export default function RegisterScreen({ navigation }) {
           </View>
 
           <TouchableOpacity style={styles.button} onPress={handleRegister}>
-            <LinearGradient colors={["#00aaff", "#00ffaa"]} style={styles.buttonGradient}>
+            <LinearGradient style={styles.buttonGradient} colors={["#0ed42fff", "#0f8018ff"]}>
               <Text style={styles.buttonText}>Cadastrar</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -201,6 +201,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: "center",
     padding: 25,
+    paddingBottom: 40,
+    bottom: 30
   },
 
   header: {
@@ -214,16 +216,16 @@ const styles = StyleSheet.create({
     paddingTop: 5,
   },
   headerTitle: {
-    fontSize: 30,
+    fontSize: 22,
     fontWeight: "bold",
     color: "#0077b6",
     marginLeft: 10,
   },
 
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: "bold",
-    color: "#0077b6",
+    color: '#6a4a4a',
     marginTop: 20,
     marginBottom: 10,
   },
@@ -240,7 +242,7 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     borderWidth: 3,
     borderColor: "#00aaff",
-    marginTop: 10,
+    marginTop: 20,
   },
   cameraIcon: {
     position: "absolute",
@@ -253,10 +255,12 @@ const styles = StyleSheet.create({
     borderColor: "#fff",
   },
   addPhotoText: {
-    color: "#0077b6",
+    color: "#0581beff",
     marginTop: 10,
-    fontSize: 14,
+    marginBottom: 20,
+    fontSize: 18,
     textDecorationLine: "underline",
+    fontWeight: "bold",
   },
   inputContainer: {
     flexDirection: "row",
@@ -302,8 +306,10 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   loginLink: {
-    color: "#0077b6",
+    color: '#a44',
     fontWeight: "bold",
+    fontSize: 16,
+    marginLeft: 5
   },
   or: {
     marginTop: 25,
