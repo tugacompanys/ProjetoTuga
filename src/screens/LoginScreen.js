@@ -110,7 +110,7 @@ export default function LoginScreen({ navigation }) {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', padding: 20, paddingTop: 110 }} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', padding: 20, paddingTop: 80 }} keyboardShouldPersistTaps="handled">
 
           <Image source={require('../../assets/tugacriança.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.appName}>
