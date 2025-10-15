@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Image, StyleSheet, Animated, StatusBar } from 'react-native';
 import { Audio } from 'expo-av'; // ✅ IMPORTAÇÃO CORRETA
+import {LinearGradient} from 'expo-linear-gradient';
 
 export default function SplashScreen({ navigation }) {
   const fade = useRef(new Animated.Value(0)).current;
@@ -36,6 +37,7 @@ export default function SplashScreen({ navigation }) {
   }, [navigation]);
 
   return (
+    <LinearGradient colors={["#e0f7ff", "#c2e9fb", "#a1c4fde0"]} style={{ flex: 1 }}>
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <Animated.View style={[styles.center, { opacity: fade, transform: [{ translateY }] }]}>
@@ -50,13 +52,13 @@ export default function SplashScreen({ navigation }) {
         <Text style={styles.brandSub}>Company's</Text>
       </View>
     </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 200
