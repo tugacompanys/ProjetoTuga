@@ -387,7 +387,7 @@ export default function HomeScreen({ route, navigation }) {
 
           <TouchableOpacity
             style={styles.footerItem}
-            onPress={() => navigation.navigate("Refeicao")}
+            onPress={() => navigation.navigate("Refeicao_inicio")}
           >
             <MaterialCommunityIcons name="silverware-fork-knife" size={26} color="#d17d6b" />
             <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>

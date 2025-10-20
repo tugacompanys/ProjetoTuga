@@ -2,233 +2,168 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
+  Image,
   TextInput,
   TouchableOpacity,
-  Image,
-  StyleSheet,
   ScrollView,
+  StyleSheet,
+  FlatList,
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { auth } from "../config/firebaseConfig";
-import { updateProfile, updateEmail, updatePassword } from "firebase/auth";
 
-export default function EditProfileScreen({ navigation }) {
-  const user = auth.currentUser;
-  const [image, setImage] = useState(user?.photoURL || "https://cdn-icons-png.flaticon.com/512/147/147142.png");
-  const [name, setName] = useState(user?.displayName || "");
-  const [email, setEmail] = useState(user?.email || "");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+export default function Alimento({ route }) {
+  const { comida } = route.params;
+  const usuario = auth.currentUser;
 
-  // Atualiza a foto de perfil
-  const pickImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permissionResult.granted) {
-      alert("É necessário permitir o acesso à galeria!");
-      return;
-    }
+  const [comentarios, setComentarios] = useState([]);
+  const [comentario, setComentario] = useState("");
+  const [avaliacao, setAvaliacao] = useState(0);
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
+  useEffect(() => {
+    loadComentarios();
+  }, []);
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+  const loadComentarios = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem(`comentarios-${comida.id}`);
+      if (jsonValue != null) setComentarios(JSON.parse(jsonValue));
+    } catch (e) {
+      console.log(e);
     }
   };
 
-  // Salvar alterações no Firebase
-  const handleSave = async () => {
-    if (!name || !email) {
-      Alert.alert("Erro", "Preencha todos os campos obrigatórios!");
-      return;
-    }
-
-    if (password && password !== confirmPassword) {
-      Alert.alert("Erro", "As senhas não coincidem!");
-      return;
-    }
-
-    if (password && password.length < 8) {
-      Alert.alert("Erro", "A senha deve ter pelo menos 8 caracteres.");
-      return;
-    } 
-
+  const saveComentarios = async (novaLista) => {
     try {
-      // Atualiza nome e foto
-      await updateProfile(user, {
-        displayName: name,
-        photoURL: image,
-      });
-
-      // Atualiza email se mudou
-      if (email !== user.email) {
-        await updateEmail(user, email);
-      }
-
-      // Atualiza senha se o usuário digitou nova
-      if (password) {
-        await updatePassword(user, password);
-      }
-
-      Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
-      navigation.goBack();
-    } catch (error) {
-      console.log(error);
-      Alert.alert("Erro", "Ocorreu um problema ao atualizar seu perfil.");
+      await AsyncStorage.setItem(
+        `comentarios-${comida.id}`,
+        JSON.stringify(novaLista)
+      );
+      setComentarios(novaLista);
+    } catch (e) {
+      console.log(e);
     }
+  };
+
+  const handleEnviar = () => {
+    if (!comentario || avaliacao === 0) {
+      Alert.alert("Erro", "Digite um comentário e selecione a avaliação.");
+      return;
+    }
+
+    const novoComentario = {
+      texto: comentario,
+      avaliacao,
+      data: new Date().toLocaleString(),
+      nomeUsuario: usuario?.displayName || "Usuário",
+      fotoUsuario:
+        usuario?.photoURL ||
+        "https://cdn-icons-png.flaticon.com/512/147/147142.png",
+    };
+
+    const novaLista = [novoComentario, ...comentarios];
+    saveComentarios(novaLista);
+    setComentario("");
+    setAvaliacao(0);
   };
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Ionicons name="arrow-back" 
-        size={26} 
-        color="#fff"
-        top={15} 
-        onPress={() => navigation.goBack()} />
-        <Text style={styles.title}>Editar Perfil</Text>
-      </View>
+      <Image source={{ uri: comida.img }} style={styles.image} />
+      <Text style={styles.title}>{comida.nome}</Text>
+      <Text style={styles.kcal}>{comida.kcal} kcal</Text>
 
-      {/* Avatar */}
-      <View style={styles.Body}>
-      <View style={styles.avatarContainer}>
-        <Image source={{ uri: image }} style={styles.avatar} />
-        <TouchableOpacity style={styles.editIcon} onPress={pickImage}>
-          <Ionicons name="camera" size={20} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      {/* Comentários */}
+      <View style={styles.comentarioContainer}>
+        <Text style={styles.secaoTitle}>Comentários</Text>
 
-      {/* Formulário */}
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Nome"
-          value={name}
-          onChangeText={setName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="E-mail"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Nova Senha"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Confirmar Senha"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-        />
-      </View>
+        <View style={styles.novoComentario}>
+          <TextInput
+            placeholder="Escreva seu comentário..."
+            value={comentario}
+            onChangeText={setComentario}
+            style={styles.inputComentario}
+          />
+          <View style={styles.avaliacao}>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <TouchableOpacity key={i} onPress={() => setAvaliacao(i)}>
+                <Ionicons
+                  name={i <= avaliacao ? "star" : "star-outline"}
+                  size={24}
+                  color="#f1c40f"
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+          <TouchableOpacity style={styles.botaoEnviar} onPress={handleEnviar}>
+            <Text style={{ color: "#fff", fontWeight: "600" }}>Enviar</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Botões */}
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveText}>Salvar Alterações</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={styles.cancelText}>Cancelar</Text>
-      </TouchableOpacity>
+        {/* Lista de comentários */}
+        <FlatList
+          data={comentarios}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item: c }) => (
+            <View style={styles.comentarioCard}>
+              <Image
+                source={{ uri: c.fotoUsuario }}
+                style={styles.fotoUsuario}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.nomeUsuario}>{c.nomeUsuario}</Text>
+                <View style={{ flexDirection: "row", marginVertical: 2 }}>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Ionicons
+                      key={i}
+                      name={i <= c.avaliacao ? "star" : "star-outline"}
+                      size={16}
+                      color="#f1c40f"
+                    />
+                  ))}
+                </View>
+                <Text>{c.texto}</Text>
+                <Text style={styles.data}>{c.data}</Text>
+              </View>
+            </View>
+          )}
+        />
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#ffffffff"
+  container: { flex: 1, padding: 15, backgroundColor: "#f9fafb" },
+  image: { width: "100%", height: 200, borderRadius: 12, marginBottom: 10 },
+  title: { fontSize: 20, fontWeight: "700", color: "#111" },
+  kcal: { fontSize: 14, color: "#555", marginBottom: 20 },
+  comentarioContainer: { marginTop: 20 },
+  secaoTitle: { fontSize: 18, fontWeight: "600", marginBottom: 10 },
+  novoComentario: { marginBottom: 20 },
+  inputComentario: {
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
   },
-
-header: {
+  avaliacao: { flexDirection: "row", marginBottom: 10 },
+  botaoEnviar: {
     backgroundColor: "#1e90ff",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  comentarioCard: {
     flexDirection: "row",
-    justifyContent: "evenly",
-    paddingVertical: 36,
-    paddingHorizontal: 20
-  },
-  
-  Body: {
-    paddingVertical: 80
-  },
-
-  title: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "bold",
-    marginLeft: 15,
-    top: 15
-  },
-
-  avatarContainer: {
-    alignItems: "center",
-    marginTop: 30,
-  },
-
-  avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: "#fff",
-  },
-  
-  editIcon: {
-    position: "absolute",
-    bottom: 5,
-    right: 130,
-    backgroundColor: "#1e90ff",
-    borderRadius: 20,
-    padding: 6,
-  },
-
-  form: {
-    marginTop: 30,
-    paddingHorizontal: 20,
-  },
-
-  input: {
-    backgroundColor: "#dee8ecff",
-    padding: 12,
+    backgroundColor: "#fff",
+    padding: 10,
     borderRadius: 10,
-    marginBottom: 15,
-    fontSize: 16,
+    marginBottom: 10,
   },
-
-  saveButton: {
-    backgroundColor: "#1e90ff",
-    marginHorizontal: 50,
-    borderRadius: 10,
-    padding: 14,
-    alignItems: "center",
-    marginTop: 20,
-  },
-
-  saveText: {
-    color: "#fff",
-    fontSize: 17,
-    fontWeight: "600",
-  },
-
-  cancelText: {
-    textAlign: "center",
-    color: "#fff",
-    fontSize: 16,
-    marginTop: 15,
-    marginBottom: 30,
-  },
+  fotoUsuario: { width: 32, height: 32, borderRadius: 16, marginRight: 10 },
+  nomeUsuario: { fontWeight: "600", marginBottom: 2 },
+  data: { fontSize: 12, color: "#888", marginTop: 2 },
 });

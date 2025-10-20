@@ -12,6 +12,9 @@ import Configurações from "./src/screens/Configuracoes";
 import Glicemia from "./src/screens/Glicemia";
 import Refeicao from "./src/screens/Refeicao";
 import Exercicio from "./src/screens/Exercicio";
+import Alimento from "./src/screens/alimento";
+import InicioRefeicaoScreen from "./src/screens/InicioRefeicao";
+
 import { corrigirIcone } from "./corrigirIcone";
 
 const Stack = createNativeStackNavigator();
@@ -102,6 +105,18 @@ export default function App() {
           component={Exercicio}
           options={{ headerShown: false, title: "Exercício" }}
         />
+
+        <Stack.Screen
+        name="Alimento"
+        component={Alimento}
+        options={{ headerShown: false, title: "Detalhes do Alimento" }}
+       />
+               <Stack.Screen
+          name="Refeicao_inicio"
+          component={InicioRefeicaoScreen}
+          options={{ headerShown: false, title: "Refeição"}}
+        />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -6,35 +6,43 @@ import {LinearGradient} from 'expo-linear-gradient';
 export default function SplashScreen({ navigation }) {
   const fade = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(200)).current;
+useEffect(() => {
+  let soundObject;
 
-  useEffect(() => {
-    // ✅ Toca o som
-    const playSound = async () => {
-      try {
-        const { sound } = await Audio.Sound.createAsync(
-          require('../../assets/SoundsEdit.mp3') // ajuste o caminho conforme necessário
-        );
-        await sound.playAsync();
-      } catch (error) {
-        console.log('Erro ao carregar/tocar som:', error);
-      }
-    };
+  const playSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../../assets/SoundsEdit.mp3')
+      );
+      soundObject = sound;
+      await sound.playAsync();
+    } catch (error) {
+      console.log('Erro ao carregar/tocar som:', error);
+    }
+  };
 
-    playSound();
+  playSound();
 
-    // animação de entrada
-    Animated.parallel([
-      Animated.timing(fade, { toValue: 1, duration: 1200, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: 1200, useNativeDriver: true })
-    ]).start();
+  // animação de entrada
+  Animated.parallel([
+    Animated.timing(fade, { toValue: 1, duration: 1200, useNativeDriver: true }),
+    Animated.timing(translateY, { toValue: 0, duration: 1200, useNativeDriver: true })
+  ]).start();
 
-    // simula carregamento de recursos
-    const timer = setTimeout(() => {
-      navigation.replace('Login');
-    }, 4000);
+  // simula carregamento de recursos
+  const timer = setTimeout(() => {
+    navigation.replace('Login');
+  }, 4000);
 
-    return () => clearTimeout(timer);
-  }, [navigation]);
+  return () => {
+    clearTimeout(timer);
+    // libera o player de áudio
+    if (soundObject) {
+      soundObject.stopAsync();
+      soundObject.unloadAsync();
+    }
+  };
+}, [navigation]);
 
   return (
     <LinearGradient colors={["#e0f7ff", "#c2e9fb", "#a1c4fde0"]} style={{ flex: 1 }}>
