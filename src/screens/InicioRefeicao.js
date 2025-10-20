@@ -94,18 +94,15 @@ function CardOndulado({ item, index }) {
   );
 }
 
-function renderColunas({ item, navigation, grupo }) {
+function renderColunas({ item, navigation }) {
   return (
     <View style={styles.column}>
       {item.map((cardItem) => (
         <TouchableOpacity
           key={cardItem.id}
           onPress={() =>
-            navigation.navigate("Refeicao", {
-              grupo,
-              id: cardItem.id,
-              label: cardItem.label,
-            })
+navigation.navigate("Refeicao", { categoria: item.label })
+
           }
         >
           <CardOndulado item={cardItem} index={cardItem.id - 1} />
@@ -115,18 +112,17 @@ function renderColunas({ item, navigation, grupo }) {
   );
 }
 
+
 function CardHorizontalFlex({ item, navigation, grupo, backgroundColor = "#E3E3E3" }) {
   return (
-    <TouchableOpacity
-      style={[styles.cardHorizontalFlex, { backgroundColor }]}
-      onPress={() =>
-        navigation.navigate("Refeicao", {
-          grupo,
-          id: item.id,
-          label: item.label,
-        })
-      }
-    >
+        <TouchableOpacity
+          style={[styles.cardHorizontalFlex, { backgroundColor }]}
+          onPress={() =>
+            navigation.navigate("Refeicao", { categoria: item.label })
+
+          }
+        >
+
       <Text style={[styles.emoji, { fontSize: 20 }]}>{item.emoji}</Text>
       <Text style={[styles.label, { fontSize: 12, marginTop: 2 }]} numberOfLines={2}>
         {item.label}
@@ -135,17 +131,11 @@ function CardHorizontalFlex({ item, navigation, grupo, backgroundColor = "#E3E3E
   );
 }
 
-function CardHorizontal({ item, navigation, grupo, backgroundColor = "#F9F6EE" }) {
+function CardHorizontal({ item, backgroundColor = "#F9F6EE", onPressCard }) {
   return (
     <TouchableOpacity
-      style={[styles.cardHorizontalLarge, { backgroundColor }]}
-      onPress={() =>
-        navigation.navigate("Refeicao", {
-          grupo,
-          id: item.id,
-          label: item.label,
-        })
-      }
+      style={[styles.cardHorizontalFlex, { backgroundColor }]}
+      onPress={onPressCard}
     >
       <Svg width="100%" height="100%" style={StyleSheet.absoluteFill}>
         <Path
@@ -162,6 +152,7 @@ function CardHorizontal({ item, navigation, grupo, backgroundColor = "#F9F6EE" }
     </TouchableOpacity>
   );
 }
+
 
 export default function InicioRefeicaoScreen({ navigation }) {
   const [abaSelecionada, setAbaSelecionada] = useState("descubra");
@@ -214,16 +205,22 @@ export default function InicioRefeicaoScreen({ navigation }) {
 
       <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
         <Text style={styles.title}>Categorias comuns</Text>
-        <FlatList
-          data={categoriasComuns}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <CardHorizontalFlex item={item} navigation={navigation} grupo="categoriasComuns" />
-          )}
-          contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 10 }}
-        />
+<FlatList
+  data={categoriasComuns}
+  horizontal
+  keyExtractor={(item) => item.id}
+  renderItem={({ item }) => (
+    <CardHorizontalFlex
+      item={item}
+      navigation={navigation}
+      onPressCard={() =>
+        navigation.navigate("Refeicao", { categoria: item.label })
+      }
+    />
+  )}
+  contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 10 }}
+/>
+
 
         <Text style={styles.title}>Calorias contadas</Text>
         <FlatList
@@ -236,14 +233,21 @@ export default function InicioRefeicaoScreen({ navigation }) {
         />
 
         <Text style={styles.title}>Escolha a refeição</Text>
-        <FlatList
-          data={escolhaRefeicao}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <CardHorizontal item={item} navigation={navigation} grupo="escolhaRefeicao" />}
-          contentContainerStyle={{ paddingHorizontal: 10 }}
-        />
+<FlatList
+  data={escolhaRefeicao}
+  horizontal
+  keyExtractor={(item) => item.id}
+  renderItem={({ item }) => (
+    <CardHorizontal
+      item={item}
+      onPressCard={() =>
+navigation.navigate("Refeicao", { categoria: item.label })
+      }
+    />
+  )}
+  contentContainerStyle={{ paddingHorizontal: 10 }}
+/>
+
 
         <Text style={styles.title}>Escolha seu método</Text>
         <FlatList
@@ -266,13 +270,10 @@ export default function InicioRefeicaoScreen({ navigation }) {
               {item.map((cardItem) => (
                 <TouchableOpacity
                   key={cardItem.id}
-                  onPress={() =>
-                    navigation.navigate("Refeicao", {
-                      grupo: "preferencias",
-                      id: cardItem.id,
-                      label: cardItem.label,
-                    })
-                  }
+                        onPress={() =>
+navigation.navigate("Refeicao", { categoria: item.label })
+
+                        }
                 >
                   <CardOndulado item={cardItem} index={cardItem.id - 1} />
                 </TouchableOpacity>
