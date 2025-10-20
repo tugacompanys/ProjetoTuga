@@ -129,13 +129,11 @@ function CardHorizontalFlex({ item, navigation, grupo, backgroundColor = "#E3E3E
       </Text>
     </TouchableOpacity>
   );
-}
-
-function CardHorizontal({ item, backgroundColor = "#F9F6EE", onPressCard }) {
+}function CardHorizontal({ item, onPressCard, backgroundColor = "#F9F6EE" }) {
   return (
     <TouchableOpacity
       style={[styles.cardHorizontalFlex, { backgroundColor }]}
-      onPress={onPressCard}
+      onPress={onPressCard} // <-- aqui é essencial
     >
       <Svg width="100%" height="100%" style={StyleSheet.absoluteFill}>
         <Path
@@ -152,6 +150,7 @@ function CardHorizontal({ item, backgroundColor = "#F9F6EE", onPressCard }) {
     </TouchableOpacity>
   );
 }
+
 
 
 export default function InicioRefeicaoScreen({ navigation }) {
@@ -222,27 +221,37 @@ export default function InicioRefeicaoScreen({ navigation }) {
 />
 
 
-        <Text style={styles.title}>Calorias contadas</Text>
-        <FlatList
-          data={groupedData}
-          keyExtractor={(item, index) => index.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => renderColunas({ item, navigation, grupo: "caloriasContadas" })}
-          contentContainerStyle={{ paddingHorizontal: 10 }}
-        />
-
-        <Text style={styles.title}>Escolha a refeição</Text>
+<Text style={styles.title}>Calorias contadas</Text>
 <FlatList
+  data={groupedData} // array de arrays de 2 categorias
+  keyExtractor={(item, index) => index.toString()}
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  renderItem={({ item }) => (
+    <View style={styles.column}>
+      {item.map((cardItem) => (
+        <TouchableOpacity
+          key={cardItem.id}
+          onPress={() =>
+            navigation.navigate("Refeicao", { categoria: cardItem.label })
+          }
+        >
+          <CardOndulado item={cardItem} index={parseInt(cardItem.id) - 1} />
+        </TouchableOpacity>
+      ))}
+    </View>
+  )}
+  contentContainerStyle={{ paddingHorizontal: 10 }}
+/>
+
+        <Text style={styles.title}>Escolha a refeição</Text><FlatList
   data={escolhaRefeicao}
   horizontal
   keyExtractor={(item) => item.id}
   renderItem={({ item }) => (
     <CardHorizontal
       item={item}
-      onPressCard={() =>
-navigation.navigate("Refeicao", { categoria: item.label })
-      }
+      onPressCard={() => navigation.navigate("Refeicao", { categoria: item.label })}
     />
   )}
   contentContainerStyle={{ paddingHorizontal: 10 }}
@@ -250,38 +259,44 @@ navigation.navigate("Refeicao", { categoria: item.label })
 
 
         <Text style={styles.title}>Escolha seu método</Text>
-        <FlatList
-          data={escolhaMetodo}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <CardHorizontal item={item} navigation={navigation} grupo="escolhaMetodo" backgroundColor="#FAD689" />}
-          contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 20 }}
-        />
+<FlatList
+  data={escolhaMetodo}
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  keyExtractor={(item) => item.id}
+  renderItem={({ item }) => (
+    <CardHorizontal
+      item={item}
+      backgroundColor="#FAD689"
+      onPressCard={() => navigation.navigate("Refeicao", { categoria: item.label })}
+    />
+  )}
+  contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 20 }}
+/>
 
         <Text style={styles.title}>Preferências</Text>
-        <FlatList
-          data={groupedPreferencias}
-          keyExtractor={(item, index) => index.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <View style={styles.column}>
-              {item.map((cardItem) => (
-                <TouchableOpacity
-                  key={cardItem.id}
-                        onPress={() =>
-navigation.navigate("Refeicao", { categoria: item.label })
+<FlatList
+  data={groupedPreferencias}
+  keyExtractor={(item, index) => index.toString()}
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  renderItem={({ item }) => (
+    <View style={styles.column}>
+      {item.map((cardItem) => (
+        <TouchableOpacity
+          key={cardItem.id}
+          onPress={() =>
+            navigation.navigate("Refeicao", { categoria: cardItem.label }) // <--- use cardItem.label
+          }
+        >
+          <CardOndulado item={cardItem} index={cardItem.id - 1} />
+        </TouchableOpacity>
+      ))}
+    </View>
+  )}
+  contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 20 }}
+/>
 
-                        }
-                >
-                  <CardOndulado item={cardItem} index={cardItem.id - 1} />
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-          contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 20 }}
-        />
       </ScrollView>
     </SafeAreaView>
   );

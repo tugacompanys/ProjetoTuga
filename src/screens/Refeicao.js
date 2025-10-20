@@ -43,21 +43,20 @@ function getSecoesPorCategoria(categoriaSelecionada) {
   });
 
   return secoes;
-}
-function CardAlimento({ item, onPress }) {
+}function CardAlimento({ item, navigation }) {
   const [favorito, setFavorito] = useState(false);
 
   const toggleFavorito = () => setFavorito(!favorito);
 
+  // Função que vai abrir a tela Alimento.js
+  const handlePress = () => {
+    navigation.navigate("Alimento", { comida: item });
+  };
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
+    <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={{ position: "relative" }}>
-        {/* Imagem do alimento */}
-        <Image
-          source={{ uri: item.img }}
-          style={styles.imagem}
-          resizeMode="cover"
-        />
+        <Image source={{ uri: item.img }} style={styles.imagem} resizeMode="cover" />
 
         {/* Botão de favoritar */}
         <TouchableOpacity style={styles.favButton} onPress={toggleFavorito}>
@@ -74,9 +73,7 @@ function CardAlimento({ item, onPress }) {
       {/* Informações do card */}
       <View style={styles.info}>
         <Text style={styles.nome} numberOfLines={2}>{item.nome}</Text>
-
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-          {/* Tempo e kcal com ícones */}
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Ionicons name="time-outline" size={12} color="#fff" />
             <Text style={[styles.tempo, { marginLeft: 4 }]}>{item.tempo}</Text>
@@ -85,7 +82,6 @@ function CardAlimento({ item, onPress }) {
             <Text style={[styles.tempo, { marginLeft: 4 }]}>{item.kcal} kcal</Text>
           </View>
 
-          {/* Estrelas */}
           <View style={{ flexDirection: "row" }}>
             {Array.from({ length: 5 }).map((_, i) => (
               <Ionicons
@@ -101,6 +97,7 @@ function CardAlimento({ item, onPress }) {
     </TouchableOpacity>
   );
 }
+
 
 
 // --- Carrossel fixo com "Novidade" ---
@@ -176,7 +173,8 @@ contentContainerStyle={{
               data={secao.dados}
               keyExtractor={(item) => item.nome}
               showsHorizontalScrollIndicator={false}
-              renderItem={({ item }) => <CardAlimento item={item} />}
+              renderItem={({ item }) => <CardAlimento item={item} navigation={navigation} />}
+
             />
           </View>
         ))}

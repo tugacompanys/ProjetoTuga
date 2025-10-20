@@ -30,15 +30,7 @@ if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-// Array de categorias (mesmo usado no Refeicao.js)
-const categoriasArray = [
-  { id: '1', nome: 'Café da manhã' },
-  { id: '2', nome: 'Almoço' },
-  { id: '3', nome: 'Janta' },
-  { id: '4', nome: 'Lanches' },
-  { id: '5', nome: 'Rápido' },
-  { id: '6', nome: 'Poucos ingredientes' },
-];
+
 
 export default function Alimento({ route, navigation }) {
   const { comida } = route.params;
@@ -64,6 +56,7 @@ export default function Alimento({ route, navigation }) {
     });
     return () => unsubscribe();
   }, [comida.id]);
+
 
   const toggleSection = (section) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -129,11 +122,9 @@ export default function Alimento({ route, navigation }) {
   );
 
   const renderHeader = () => {
-    // Mapear IDs das categorias do alimento para nomes
-    const categoriasDoAlimento = comida.categorias.map(catId => {
-      const catObj = categoriasArray.find(c => c.id === catId);
-      return catObj ? catObj.nome : '';
-    }).filter(Boolean);
+// As categorias já estão no formato de nomes
+const categoriasDoAlimento = comida.categorias;
+
 
     return (
       <View>
@@ -156,13 +147,18 @@ export default function Alimento({ route, navigation }) {
           </View>
 
           {/* CARDS DAS CATEGORIAS */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
-            {categoriasDoAlimento.map((cat, index) => (
-              <View key={index} style={styles.categoryCard}>
-                <Text style={styles.categoryCardText}>{cat}</Text>
-              </View>
-            ))}
-          </ScrollView>
+<ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
+  {categoriasDoAlimento.map((cat, index) => (
+    <TouchableOpacity
+      key={index}
+      style={styles.categoryCard}
+      onPress={() => navigation.navigate("Refeicao", { categoria: cat })}
+    >
+      <Text style={styles.categoryCardText}>{cat}</Text>
+    </TouchableOpacity>
+  ))}
+</ScrollView>
+
         </View>
 
         {/* Valor Nutricional */}
@@ -327,8 +323,6 @@ export default function Alimento({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  backButton: { position: "absolute", top: 40, left: 16, zIndex: 10 },
-  image: { width: "100%", height: 220, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 },
   title: { fontSize: 20, fontWeight: "700", color: "#111", marginBottom: 6 },
   sectionHeader: {
     backgroundColor: "#fff",
@@ -376,13 +370,19 @@ const styles = StyleSheet.create({
   input: { flex: 1, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, marginRight: 8 },
   sendButton: { paddingVertical: 10, paddingHorizontal: 14, backgroundColor: "#1e90ff", borderRadius: 8 },
 
-  // NOVO: Cards das categorias
-  categoryCard: {
-    backgroundColor: "#4CAF50",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  categoryCardText: { color: "#fff", fontWeight: "600" },
+  image: { width: "100%", height: 220, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 },
+title: { fontSize: 20, fontWeight: "700", color: "#111", marginBottom: 6 },
+
+// Cards das categorias
+categoryCard: {
+  backgroundColor: "#4CAF50",
+  paddingVertical: 6,
+  paddingHorizontal: 12,
+  borderRadius: 20,
+  marginRight: 10,
+},
+categoryCardText: { color: "#fff", fontWeight: "600" },
+
+backButton: { position: "absolute", top: 40, left: 16, zIndex: 10 },
+
 });
