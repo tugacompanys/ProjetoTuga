@@ -31,9 +31,32 @@ if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 
-
 export default function Alimento({ route, navigation }) {
-  const { comida } = route.params;
+  const comida = route?.params?.comida;
+
+  if (!comida) {
+    console.warn("⚠️ Nenhum alimento foi passado para a tela Alimento!");
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ fontSize: 16, color: "#555", textAlign: "center" }}>
+          Nenhum alimento selecionado.
+        </Text>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{
+            marginTop: 20,
+            backgroundColor: "#4CAF50",
+            paddingVertical: 10,
+            paddingHorizontal: 20,
+            borderRadius: 10,
+          }}
+        >
+          <Text style={{ color: "#fff" }}>Voltar</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
 
   const [nutritionalOpen, setNutritionalOpen] = useState(true);
   const [ingredientsOpen, setIngredientsOpen] = useState(true);
@@ -235,7 +258,7 @@ const categoriasDoAlimento = comida.categorias;
                 ))}
               </View>
               <Image
-                source={require("C:/Users/keven/OneDrive/Desktop/ProjetoTuga/assets/tuga_bodybuilder.png")}
+                source={require("../../assets/tuga_bodybuilder.png")}
                 style={styles.mascoteSide}
               />
             </View>

@@ -13,6 +13,8 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { Ionicons } from "@expo/vector-icons";
+import { useFavoritos } from "./data/favorito"; 
+
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width / 2 - 20;
@@ -156,6 +158,8 @@ function CardHorizontalFlex({ item, navigation, grupo, backgroundColor = "#E3E3E
 export default function InicioRefeicaoScreen({ navigation }) {
   const [abaSelecionada, setAbaSelecionada] = useState("descubra");
 
+  const { favoritos, toggleFavorito } = useFavoritos();
+
   const groupedData = [];
   for (let i = 0; i < receitasFaixaCalorica.length; i += 2) {
     groupedData.push(receitasFaixaCalorica.slice(i, i + 2));
@@ -201,6 +205,26 @@ export default function InicioRefeicaoScreen({ navigation }) {
           </TouchableOpacity>
         </View>
       </View>
+      {abaSelecionada === "favoritas" && (
+  <View style={{ paddingHorizontal: 10, marginTop: 10}}>
+    {favoritos.length === 0 ? (
+      <Text style={{ textAlign: "center", marginTop: 20 }}>
+        Você ainda não adicionou nenhum favorito.
+      </Text>
+    ) : (
+      favoritos.map((item) => (
+        <CardAlimento
+          key={item.id}
+          item={item}
+          navigation={navigation}
+          favoritos={favoritos}
+          toggleFavorito={toggleFavorito}
+        />
+      ))
+    )}
+  </View>
+)}
+
 
       <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
         <Text style={styles.title}>Categorias comuns</Text>
