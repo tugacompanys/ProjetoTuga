@@ -97,11 +97,13 @@ export default function EditProfileScreen({ navigation }) {
 
       {/* Avatar */}
       <View style={styles.Body}>
+      <View style={styles.atras}>
       <View style={styles.avatarContainer}>
         <Image source={{ uri: image }} style={styles.avatar} />
         <TouchableOpacity style={styles.editIcon} onPress={pickImage}>
           <Ionicons name="camera" size={20} color="#fff" />
         </TouchableOpacity>
+      </View>
       </View>
 
       {/* Formulário */}
@@ -131,8 +133,7 @@ export default function EditProfileScreen({ navigation }) {
           placeholder="Confirmar Senha"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
-          secureTextEntry
-        />
+          secureTextEntry></TextInput>
       </View>
 
       {/* Botões */}
@@ -151,7 +152,7 @@ export default function EditProfileScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffffff"
+    backgroundColor: "#f2f2f2f2"
   },
 
 header: {
@@ -176,13 +177,13 @@ header: {
 
   avatarContainer: {
     alignItems: "center",
-    marginTop: 30,
+    marginTop: 5,
   },
 
   avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 150,
+    height: 150,
+    borderRadius: 80,
     borderWidth: 3,
     borderColor: "#fff",
   },
@@ -231,4 +232,5 @@ header: {
     marginTop: 15,
     marginBottom: 30,
   },
+
 });

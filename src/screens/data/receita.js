@@ -12,7 +12,7 @@ export const alimentos = [
   {
     id: "2",
     nome: "Iogurte natural com chia e morango",
-    img: "https://www.tudogostoso.com.br/images/receitas/100/100984/iogurte-com-frutas.jpg",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq7iP5KJMiP87oWaVJos9pwaEUdB5eMMSTkQ&s",
     tempo: "5 min",
     kcal: 180,
     avaliacao: 4.5,
@@ -30,7 +30,7 @@ export const alimentos = [
   {
     id: "4",
     nome: "Panqueca de banana e aveia",
-    img: "https://www.receiteria.com.br/wp-content/uploads/2020/07/panqueca-de-banana.jpg",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpVcoRcBaQMN56EFIJmxEMGCa94aJE1a9YgQ&s",
     tempo: "15 min",
     kcal: 280,
     avaliacao: 4.4,
@@ -41,7 +41,7 @@ export const alimentos = [
   {
     id: "5",
     nome: "Peito de frango grelhado com salada de quinoa",
-    img: "https://www.receiteria.com.br/wp-content/uploads/2020/07/frango-com-quinoa.jpg",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzD70syoO1-Ao3jP4-fz4mpqJLEWcE347xhQ&s",
     tempo: "25 min",
     kcal: 450,
     avaliacao: 4.8,
@@ -50,7 +50,7 @@ export const alimentos = [
   {
     id: "6",
     nome: "Tilápia assada com legumes",
-    img: "https://www.receitasnestle.com.br/images/tilapia-assada-legumes.jpg",
+    img: "https://static.itdg.com.br/images/640-440/b24d5ae883c4e5cf2dfdf48a7b6c70ac/307584-original.jpg",
     tempo: "30 min",
     kcal: 320,
     avaliacao: 4.6,
@@ -59,7 +59,7 @@ export const alimentos = [
   {
     id: "7",
     nome: "Salada de grão-de-bico com atum",
-    img: "https://www.receiteria.com.br/wp-content/uploads/2020/06/salada-grao-de-bico.jpg",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5DQQWlchn0wIH78OtVi6825fG8GG53NFAaQ&s",
     tempo: "15 min",
     kcal: 400,
     avaliacao: 4.5,
@@ -68,7 +68,7 @@ export const alimentos = [
   {
     id: "8",
     nome: "Espaguete de abobrinha com molho de tomate e frango",
-    img: "https://www.receitasnestle.com.br/images/espaguete-abobrinha.jpg",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvDLSmAgIG_Ynxhsopz8gCStaxdyQ4Qhz7Gg&s",
     tempo: "20 min",
     kcal: 350,
     avaliacao: 4.7,
@@ -88,7 +88,7 @@ export const alimentos = [
   {
     id: "10",
     nome: "Sopa de legumes com frango desfiado",
-    img: "https://www.receitasnestle.com.br/images/sopa-legumes-frango.jpg",
+    img: "https://renata.com.br/images/receitas/347/renata-imagem-receitas-sopa-de-macarrao-com-frango-desfiado-share.jpg",
     tempo: "30 min",
     kcal: 280,
     avaliacao: 4.5,
@@ -97,7 +97,7 @@ export const alimentos = [
   {
     id: "11",
     nome: "Omelete de espinafre e cogumelos",
-    img: "https://receitanatureba.com/wp-content/uploads/2022/05/omelete-espinafre-cogumelos.jpg",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSpV9zmAA6hezWu2CiaMeM216Az4XdVJTsag&s",
     tempo: "10 min",
     kcal: 220,
     avaliacao: 4.6,

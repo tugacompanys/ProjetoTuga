@@ -197,15 +197,13 @@ export function ModalExercicio({ visible, onClose, index }) {
     }).start(() => setMostrarAviso(false));
   };
 
-  const getVideoId = url => {
-    if (!url) return '';
-    const vMatch = url.match(/[?&]v=([^&]+)/);
-    if (vMatch && vMatch[1]) return vMatch[1];
-    const embedMatch = url.match(/\/embed\/([^?&/]+)/);
-    if (embedMatch && embedMatch[1]) return embedMatch[1];
-    const parts = url.split('/');
-    return parts[parts.length - 1] || '';
-  };
+const getVideoId = (url) => {
+  if (!url) return null;
+  const youtubeRegex = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/;
+  const match = url.match(youtubeRegex);
+  return match ? match[1] : null;
+};
+
 
   const abrirOuExpandir = (id, url, diaIndex) => {
     const liberado = diasLiberados.includes(diaIndex);
@@ -309,13 +307,15 @@ export function ModalExercicio({ visible, onClose, index }) {
 
   // Todos os vídeos do dia
   const videosPorDia = {
+
     0: [
-      {id:'dom1', titulo:'Caminhada no Lugar', subtitulo:'Duração 10 min', url:'https://www.youtube.com/watch?v=_vUl0hbiV8o'},
-      {id:'dom2', titulo:'Polichinelo', subtitulo:'Séries 3x10 | Intervalo 30s', url:'https://www.youtube.com/watch?v=Yj1KX1D7b8Q'},
-      {id:'dom3', titulo:'Marcha rápida no lugar', subtitulo:'Séries 3x | Intervalo 30s', url:'https://www.youtube.com/watch?v=nlJ2ZtjAYG0'},
-      {id:'dom4', titulo:'Step touch', subtitulo:'Séries 3x12 | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd1'},
-      {id:'dom5', titulo:'Alongamento leve ', subtitulo:'Duração 5 min', url:'https://www.youtube.com/watch?v=abcd2'}
+      {id:'dom1', titulo:'Caminhada no Lugar', subtitulo:'Duração 10 min', url:'https://youtu.be/5xrZRfPa6mE?si=d8EEaOQc9T4igLPP'},
+      {id:'dom2', titulo:'Polichinelo', subtitulo:'Séries 3x10 | Intervalo 30s', url:'https://youtu.be/SWgIDaX5fNA?si=KSuvtOMv2AeuXJ1E'},
+      {id:'dom3', titulo:'Marcha rápida no lugar', subtitulo:'Séries 3x | Intervalo 30s', url:'https://youtu.be/5kXHaLnDjwY?si=c_J-wREEC2zTVy5t'},
+      {id:'dom4', titulo:'Step touch', subtitulo:'Séries 3x12 | Intervalo 30s', url:'https://youtu.be/5kXHaLnDjwY?si=gpgG3WPtgVkq2Ux9'},
+      {id:'dom5', titulo:'Alongamento leve ', subtitulo:'Duração 5 min', url:'https://youtu.be/XC-5pv1QUYo?si=QKVPlQem6Nslwfyc'}
     ],
+
     1: [
       {id:'seg1', titulo:'Agachamento', subtitulo:'Séries 3x12 | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd3'},
       {id:'seg2', titulo:'Flexão de braço ajoelhado', subtitulo:'Séries 3x10 | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd4'},
@@ -324,18 +324,18 @@ export function ModalExercicio({ visible, onClose, index }) {
       {id:'seg5', titulo:'Prancha (cotovelos)', subtitulo:'Séries 3x20s | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd7'}
     ],
     2: [
-      {id:'ter1', titulo:'Alongamento de pescoço', subtitulo: 'Séries 2x30s | Intervalo 10s', url:'https://www.youtube.com/watch?v=abcd8'},
-      {id:'ter2', titulo:'Alongamento de ombros e braços', subtitulo:'Séries 2x30s | Intervalo 10s', url:'https://www.youtube.com/watch?v=abcd9'},
-      {id:'ter3', titulo:'Alongamento de pernas', subtitulo:'Séries 2x30s | Intervalo 10s', url:'https://www.youtube.com/watch?v=abcd10'},
-      {id:'ter4', titulo:'Alongamento de costas', subtitulo:'Séries 2x30s | Intervalo 10s', url:'https://www.youtube.com/watch?v=abcd11'},
-      {id:'ter5', titulo:'Respiração profunda sentada', subtitulo:'Duração 5 min', url:'https://www.youtube.com/watch?v=abcd12'}
+      {id:'ter1', titulo:'Alongamento de pescoço', subtitulo: 'Séries 2x30s | Intervalo 10s', url:'https://youtu.be/-AEOKSMJSR0?si=LkN3wEYoyPGtZSBk'},
+      {id:'ter2', titulo:'Alongamento de ombros e braços', subtitulo:'Séries 2x30s | Intervalo 10s',url:'https://youtu.be/x9X3AiNQhgc?si=VtmvZ-8-ZaJcj-pI'},
+      {id:'ter3', titulo:'Alongamento de pernas', subtitulo:'Séries 2x30s | Intervalo 10s', url:'https://youtu.be/5kXHaLnDjwY?si=c_J-wREEC2zTVy5t'},
+      {id:'ter4', titulo:'Alongamento de costas', subtitulo:'Séries 2x30s | Intervalo 10s', url:'https://youtu.be/5kXHaLnDjwY?si=gpgG3WPtgVkq2Ux9'},
+      {id:'ter5', titulo:'Respiração profunda sentada', subtitulo:'Duração 5 min', url:'https://youtu.be/XC-5pv1QUYo?si=QKVPlQem6Nslwfyc'}
     ],
     3: [
-      {id:'qua1', titulo:'Caminhada rápida', subtitulo:'Duração 15 min', url:'https://www.youtube.com/watch?v=abcd13'},
-      {id:'qua2', titulo:'Polichinelo', subtitulo:'Séries 3x30s | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd14'},
-      {id:'qua3', titulo:'Step touch lateral', subtitulo:'Séries 3x1min | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd15'},
-      {id:'qua4', titulo:'Corrida no lugar', subtitulo:'Duração 5 min', url:'https://www.youtube.com/watch?v=abcd16'},
-      {id:'qua5', titulo:'Alongamento final', subtitulo:'Duração 5 min', url:'https://www.youtube.com/watch?v=abcd17'}
+      {id:'qua1', titulo:'Caminhada rápida', subtitulo:'Duração 15 min', url:'https://youtu.be/5kXHaLnDjwY?si=c_J-wREEC2zTVy5t'},
+      {id:'qua2', titulo:'Polichinelo', subtitulo:'Séries 3x30s | Intervalo 30s', url:'https://youtu.be/-AEOKSMJSR0?si=LkN3wEYoyPGtZSBk'},
+      {id:'qua3', titulo:'Step touch lateral', subtitulo:'Séries 3x1min | Intervalo 30s', url:'https://youtu.be/x9X3AiNQhgc?si=VtmvZ-8-ZaJcj-pI'},
+      {id:'qua4', titulo:'Corrida no lugar', subtitulo:'Duração 5 min', url:'https://youtu.be/9gCTGJA9dBE?si=tf20hTRrG9Qindys'},
+      {id:'qua5', titulo:'Alongamento final', subtitulo:'Duração 5 min', url:'https://youtu.be/XC-5pv1QUYo?si=QKVPlQem6Nslwfyc'}
     ],
     4: [
       {id:'qui1', titulo:'Agachamento com apoio de cadeira', subtitulo:'Séries 3x10 | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd18'},
