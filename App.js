@@ -14,7 +14,6 @@ import Refeicao from "./src/screens/Refeicao";
 import Exercicio from "./src/screens/Exercicio";
 import Alimento from "./src/screens/alimento";
 import InicioRefeicaoScreen from "./src/screens/InicioRefeicao";
-import { FavoritosProvider } from "./src/screens/data/favorito"; 
 import { corrigirIcone } from "./corrigirIcone";
 
 const Stack = createNativeStackNavigator();
@@ -24,7 +23,7 @@ export default function App() {
 
   return (
     // ✅ Envolvendo toda a navegação com o FavoritosProvider
-    <FavoritosProvider>
+
       <NavigationContainer>
         <Stack.Navigator
           initialRouteName="Splash"
@@ -103,6 +102,6 @@ export default function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
-    </FavoritosProvider>
+
   );
 }

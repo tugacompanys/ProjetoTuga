@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { Ionicons } from "@expo/vector-icons";
-import { useFavoritos } from "./data/favorito"; 
 
 
 const { width } = Dimensions.get("window");

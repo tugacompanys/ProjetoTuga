@@ -14,8 +14,6 @@ import Carousel from "react-native-reanimated-carousel";
 import { alimentos } from "./data/receita";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useFavoritos } from "./data/favorito";
-
 
 
 const { width } = Dimensions.get("window");
