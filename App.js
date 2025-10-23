@@ -10,10 +10,10 @@ import RegistroMedicamentoScreen from "./src/screens/RegistroMedicamentoScreen";
 import EditarPerfil from "./src/screens/EditarPerfil";
 import Configurações from "./src/screens/Configuracoes";
 import Glicemia from "./src/screens/Glicemia";
-import Refeicao from "./src/screens/Refeicao";
+import Refeicao from "./src/screens/refeicao/Refeicao";
 import Exercicio from "./src/screens/Exercicio";
-import Alimento from "./src/screens/alimento";
-import InicioRefeicaoScreen from "./src/screens/InicioRefeicao";
+import Alimento from "./src/screens/refeicao/alimento";
+import InicioRefeicaoScreen from "./src/screens/refeicao/InicioRefeicao";
 import { corrigirIcone } from "./corrigirIcone";
 
 const Stack = createNativeStackNavigator();

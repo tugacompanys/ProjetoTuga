@@ -15,7 +15,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { db, auth } from "../config/firebaseConfig";
+import { db, auth } from "../../config/firebaseConfig";
 import {
   collection,
   addDoc,
@@ -258,7 +258,7 @@ const categoriasDoAlimento = comida.categorias;
                 ))}
               </View>
               <Image
-                source={require("../../assets/tuga_bodybuilder.png")}
+                source={require("../../../assets/tuga_bodybuilder.png")}
                 style={styles.mascoteSide}
               />
             </View>

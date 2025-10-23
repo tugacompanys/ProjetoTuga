@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,17 +8,17 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  SafeAreaView,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
-import { alimentos } from "./data/receita";
+import { alimentos } from "./../data/receita";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width / 1 - 130;
-const CARD_HEIGHT = 220; 
+const CARD_HEIGHT = 220;
 const INFO_HEIGHT = 70;  // espaço para nome, kcal, estrelas
 
 function getSecoesPorCategoria(categoriaSelecionada) {
@@ -43,7 +43,7 @@ function getSecoesPorCategoria(categoriaSelecionada) {
   });
 
   return secoes;
-}function CardAlimento({ item, navigation }) {
+} function CardAlimento({ item, navigation }) {
   const [favorito, setFavorito] = useState(false);
 
   const toggleFavorito = () => setFavorito(!favorito);
@@ -151,10 +151,10 @@ export default function Refeicao({ route, navigation }) {
 
       <ScrollView
         style={{ flex: 1, width: "100%" }}
-contentContainerStyle={{
-  alignItems: "center",
-  paddingBottom: 120, // antes estava 80
-}}
+        contentContainerStyle={{
+          alignItems: "center",
+          paddingBottom: 120, // antes estava 80
+        }}
 
         showsVerticalScrollIndicator={false}
       >
@@ -179,29 +179,6 @@ contentContainerStyle={{
           </View>
         ))}
       </ScrollView>
-
-      {/* Footer fixo */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate("Inicio")}>
-          <Ionicons name="home-outline" size={24} color="#00c47c" />
-          <Text style={[styles.footerText, { color: "#00c47c" }]}>Início</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate("Glicemia")}>
-          <Ionicons name="water-outline" size={24} color="#00bcd4" />
-          <Text style={[styles.footerText, { color: "#00bcd4" }]}>Glicemia</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate("Refeicao")}>
-          <MaterialCommunityIcons name="silverware-fork-knife" size={24} color="#d17d6b" />
-          <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate("Exercicios")}>
-          <Ionicons name="barbell-outline" size={24} color="#7c6e7f" />
-          <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
@@ -223,26 +200,26 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     resizeMode: "cover",
   },
-overlayCard: {
-  position: "absolute",
-  bottom: 15,
-  left: 20,
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
-  paddingVertical: 6,
-  paddingHorizontal: 12,
-  borderRadius: 10,
-},
-overlayText: {
-  color: "#fff",
-  fontWeight: "bold",
-  fontSize: 16,
-},
+  overlayCard: {
+    position: "absolute",
+    bottom: 15,
+    left: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+  },
+  overlayText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
 
   subReceitas: { width: "100%", paddingHorizontal: 10, marginBottom: 25 },
   subTitulo: { fontSize: 17, fontWeight: "bold", marginBottom: 10, marginLeft: 5 },
 
 
-  bannerDesc: { marginTop: 8, fontSize: 15, fontWeight: "600", textAlign: "center", color: "#ffffffff"},
+  bannerDesc: { marginTop: 8, fontSize: 15, fontWeight: "600", textAlign: "center", color: "#ffffffff" },
   infoText: { marginTop: 4, fontSize: 13, color: "#ffffffff" },
 
   footer: {
@@ -258,37 +235,37 @@ overlayText: {
   },
   footerItem: { alignItems: "center" },
   footerText: { fontSize: 10, fontWeight: "bold" },
-card: {
-  width: CARD_WIDTH,
-  height: CARD_HEIGHT,
-  borderRadius: 16,
-  overflow: "hidden",
-  backgroundColor: "#fff",
-  marginRight: 12,
-  shadowColor: "#000",
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 3,
-  position: "relative", // <- necessário para o botão ficar sobre a imagem
-},
+  card: {
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+    borderRadius: 16,
+    overflow: "hidden",
+    backgroundColor: "#fff",
+    marginRight: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    position: "relative", // <- necessário para o botão ficar sobre a imagem
+  },
 
 
-imagem: {
-  width: "100%",
-  height: CARD_HEIGHT - INFO_HEIGHT,
-  borderTopLeftRadius: 16,
-  borderTopRightRadius: 16,
-},
+  imagem: {
+    width: "100%",
+    height: CARD_HEIGHT - INFO_HEIGHT,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
 
-info: {
-  height: INFO_HEIGHT,
-  paddingHorizontal: 8,
-  paddingVertical: 6,
-  justifyContent: "space-between",
-  backgroundColor: "#000000ff",
-  borderBottomLeftRadius: 16,
-  borderBottomRightRadius: 16,
-},
+  info: {
+    height: INFO_HEIGHT,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    justifyContent: "space-between",
+    backgroundColor: "#000000ff",
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
   nome: {
     fontWeight: "600",
     fontSize: 14,
@@ -300,20 +277,19 @@ info: {
     marginTop: 4,
   },
   favButton: {
-  position: "absolute",
-  top: 10,
-  right: 10,
-  zIndex: 5, // garante que fique acima da imagem
-},
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 5, // garante que fique acima da imagem
+  },
 
-favCircle: {
-  width: 32,
-  height: 32,
-  borderRadius: 16,
-  backgroundColor: "rgba(100,100,100,0.5)",
-  justifyContent: "center",
-  alignItems: "center",
-},
+  favCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(100,100,100,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
 });
-  

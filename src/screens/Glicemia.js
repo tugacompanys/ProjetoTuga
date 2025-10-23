@@ -418,7 +418,7 @@ export default function Glicemia(route) {
 
             <TouchableOpacity
               style={styles.footerItem}
-              onPress={() => navigation.navigate("Refeicao")}
+              onPress={() => navigation.navigate("Refeicao_inicio")}
             >
               <MaterialCommunityIcons
                 name="silverware-fork-knife"
