@@ -20,6 +20,7 @@ const { width } = Dimensions.get("window");
 const CARD_WIDTH = width / 1 - 130;
 const CARD_HEIGHT = 220; 
 const INFO_HEIGHT = 70;  // espaço para nome, kcal, estrelas
+
 function getSecoesPorCategoria(categoriaSelecionada) {
   const alimentosSelecionados = alimentos.filter(alimento =>
     alimento.categorias.includes(categoriaSelecionada)
@@ -42,14 +43,12 @@ function getSecoesPorCategoria(categoriaSelecionada) {
   });
 
   return secoes;
-}
+}function CardAlimento({ item, navigation }) {
+  const [favorito, setFavorito] = useState(false);
 
-// --- CardAlimento ---
-function CardAlimento({ item, navigation, favoritos, toggleFavorito }) {
-  const [favoritoLocal, setFavoritoLocal] = useState(false);
+  const toggleFavorito = () => setFavorito(!favorito);
 
-  const handleToggleLocal = () => setFavoritoLocal(!favoritoLocal);
-
+  // Função que vai abrir a tela Alimento.js
   const handlePress = () => {
     navigation.navigate("Alimento", { comida: item });
   };
@@ -58,29 +57,31 @@ function CardAlimento({ item, navigation, favoritos, toggleFavorito }) {
     <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={{ position: "relative" }}>
         <Image source={{ uri: item.img }} style={styles.imagem} resizeMode="cover" />
-        <TouchableOpacity
-          style={styles.favButton}
-          onPress={() => toggleFavorito(item)}
-        >
+
+        {/* Botão de favoritar */}
+        <TouchableOpacity style={styles.favButton} onPress={toggleFavorito}>
           <View style={styles.favCircle}>
             <Ionicons
-              name={favoritos.some(f => f.id === item.id) ? "heart" : "heart-outline"}
+              name={favorito ? "heart" : "heart-outline"}
               size={18}
-              color={favoritos.some(f => f.id === item.id) ? "#FF4C4C" : "#fff"}
+              color={favorito ? "#FF4C4C" : "#fff"}
             />
           </View>
         </TouchableOpacity>
       </View>
 
+      {/* Informações do card */}
       <View style={styles.info}>
         <Text style={styles.nome} numberOfLines={2}>{item.nome}</Text>
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Ionicons name="time-outline" size={12} color="#fff" />
             <Text style={[styles.tempo, { marginLeft: 4 }]}>{item.tempo}</Text>
+
             <Ionicons name="flame-outline" size={12} color="#fff" style={{ marginLeft: 8 }} />
             <Text style={[styles.tempo, { marginLeft: 4 }]}>{item.kcal} kcal</Text>
           </View>
+
           <View style={{ flexDirection: "row" }}>
             {Array.from({ length: 5 }).map((_, i) => (
               <Ionicons
@@ -130,7 +131,6 @@ function CarouselComponent() {
 
 // --- Componente principal ---
 export default function Refeicao({ route, navigation }) {
-  const { favoritos, toggleFavorito } = useFavoritos();
   const categoriaSelecionada = route.params?.categoria || "Café da manhã";
   const secoes = getSecoesPorCategoria(categoriaSelecionada);
 
@@ -173,15 +173,7 @@ contentContainerStyle={{
               data={secao.dados}
               keyExtractor={(item) => item.nome}
               showsHorizontalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <CardAlimento 
-                  item={item} 
-                  navigation={navigation} 
-                  favoritos={favoritos} 
-                  toggleFavorito={toggleFavorito} 
-                />
-              )}
-
+              renderItem={({ item }) => <CardAlimento item={item} navigation={navigation} />}
 
             />
           </View>
@@ -324,3 +316,4 @@ favCircle: {
 },
 
 });
+  

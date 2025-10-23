@@ -157,8 +157,6 @@ function CardHorizontalFlex({ item, navigation, grupo, backgroundColor = "#E3E3E
 export default function InicioRefeicaoScreen({ navigation }) {
   const [abaSelecionada, setAbaSelecionada] = useState("descubra");
 
-  const { favoritos, toggleFavorito } = useFavoritos();
-
   const groupedData = [];
   for (let i = 0; i < receitasFaixaCalorica.length; i += 2) {
     groupedData.push(receitasFaixaCalorica.slice(i, i + 2));
