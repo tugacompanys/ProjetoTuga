@@ -58,7 +58,7 @@ export default function App() {
           <Stack.Screen
             name="IndiceDiario"
             component={IndiceDiarioScreen}
-            options={{ headerShown: true, title: "Índice Diário" }}
+            options={{ headerShown: false, title: "Índice Diário" }}
           />
           <Stack.Screen
             name="RegistroMedicamento"
