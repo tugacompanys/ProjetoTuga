@@ -145,8 +145,8 @@ export default function Alimento({ route, navigation }) {
   );
 
   const renderHeader = () => {
-// As categorias já estão no formato de nomes
-const categoriasDoAlimento = comida.categorias;
+    // As categorias já estão no formato de nomes
+    const categoriasDoAlimento = comida.categorias;
 
 
     return (
@@ -170,17 +170,17 @@ const categoriasDoAlimento = comida.categorias;
           </View>
 
           {/* CARDS DAS CATEGORIAS */}
-<ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
-  {categoriasDoAlimento.map((cat, index) => (
-    <TouchableOpacity
-      key={index}
-      style={styles.categoryCard}
-      onPress={() => navigation.navigate("Refeicao", { categoria: cat })}
-    >
-      <Text style={styles.categoryCardText}>{cat}</Text>
-    </TouchableOpacity>
-  ))}
-</ScrollView>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
+            {categoriasDoAlimento.map((cat, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.categoryCard}
+                onPress={() => navigation.navigate("Refeicao", { categoria: cat })}
+              >
+                <Text style={styles.categoryCardText}>{cat}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
         </View>
 
@@ -394,18 +394,18 @@ const styles = StyleSheet.create({
   sendButton: { paddingVertical: 10, paddingHorizontal: 14, backgroundColor: "#1e90ff", borderRadius: 8 },
 
   image: { width: "100%", height: 220, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 },
-title: { fontSize: 20, fontWeight: "700", color: "#111", marginBottom: 6 },
+  title: { fontSize: 20, fontWeight: "700", color: "#111", marginBottom: 6 },
 
-// Cards das categorias
-categoryCard: {
-  backgroundColor: "#4CAF50",
-  paddingVertical: 6,
-  paddingHorizontal: 12,
-  borderRadius: 20,
-  marginRight: 10,
-},
-categoryCardText: { color: "#fff", fontWeight: "600" },
+  // Cards das categorias
+  categoryCard: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  categoryCardText: { color: "#fff", fontWeight: "600" },
 
-backButton: { position: "absolute", top: 40, left: 16, zIndex: 10 },
+  backButton: { position: "absolute", top: 40, left: 16, zIndex: 10 },
 
 });
