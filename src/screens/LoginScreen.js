@@ -1,15 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  Image, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Alert
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  ActivityIndicator,
+  Platform,
+  Alert,
+  StatusBar,
+  ScrollView,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
-import { Ionicons, FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { TextInput } from 'react-native-paper';
+import { FontAwesome, AntDesign, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
 import { auth } from "../config/firebaseConfig";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -28,8 +42,6 @@ export default function LoginScreen({ navigation }) {
       const cadastrado = await LocalAuthentication.isEnrolledAsync();
       const credEmail = await SecureStore.getItemAsync('email');
       const credSenha = await SecureStore.getItemAsync('senha');
-
-      // Botão biometria só aparece se hardware compatível, biometria cadastrada e credenciais salvas
       setDispositivoCompat(compat && cadastrado && credEmail && credSenha);
     } catch (err) {
       console.log('Erro ao checar biometria:', err);
@@ -40,25 +52,19 @@ export default function LoginScreen({ navigation }) {
     try {
       const credEmail = await SecureStore.getItemAsync('email');
       const credSenha = await SecureStore.getItemAsync('senha');
-
       if (!credEmail || !credSenha) {
         Alert.alert("⚠️ Nenhuma credencial salva", "Faça login manual primeiro para ativar biometria.");
         return;
       }
-
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Autentique-se para entrar',
         fallbackLabel: 'Usar senha',
       });
-
       if (result.success) {
         setLoading(true);
         await signInWithEmailAndPassword(auth, credEmail, credSenha);
-
-        // Salva nome do usuário para exibir na Home
         const nomeUsuario = auth.currentUser?.displayName || "Usuário";
         await AsyncStorage.setItem("@user_name", nomeUsuario);
-
         navigation.navigate("HomeScreen");
         setLoading(false);
       }
@@ -72,21 +78,15 @@ export default function LoginScreen({ navigation }) {
       Alert.alert("⚠️ Campos obrigatórios", "Preencha todos os campos para continuar.");
       return;
     }
-
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, senha);
-
-      // Salva credenciais e nome do usuário
       await SecureStore.setItemAsync('email', email);
       await SecureStore.setItemAsync('senha', senha);
       await SecureStore.setItemAsync('usarBiometria', 'true');
-
       const nomeUsuario = auth.currentUser?.displayName || "Usuário";
       await AsyncStorage.setItem("@user_name", nomeUsuario);
-
       setDispositivoCompat(true);
-
       setTimeout(() => {
         navigation.navigate("HomeScreen");
         setLoading(false);
@@ -105,208 +105,116 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={["#e0f7ff", "#c2e9fb", "#a1c4fd"]} style={{ flex: 1 }}>
+    <LinearGradient colors={["#5DE985", "#5DE985"]} style={{ flex: 1 }}>
+      <StatusBar hidden />
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', padding: 20, paddingTop: 80 }} keyboardShouldPersistTaps="handled">
-
-          <Image source={require('../../assets/tugacriança.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.appName}>
-            <Text style={{ fontWeight: 'bold' }}>MY</Text> <Text style={{ color: '#00aaff' }}>GLUCO</Text>
-          </Text>
-          <Text style={styles.welcome}>Seja Bem-Vindo</Text>
-
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#000" />
-            <TextInput
-              style={styles.input}
-              placeholder="Digite seu email"
-              keyboardType="email-address"
-              onChangeText={setEmail}
-              value={email}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#000" />
-            <TextInput
-              style={styles.input}
-              placeholder="Digite sua senha"
-              secureTextEntry={!mostrarSenha}
-              onChangeText={setSenha}
-              value={senha}
-            />
-            <TouchableOpacity style={styles.eyeButton} onPress={() => setMostrarSenha(!mostrarSenha)}>
-              <Ionicons name={mostrarSenha ? "eye-off-outline" : "eye-outline"} size={20} color="#000" />
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity onPress={() => alert('Funcionalidade em desenvolvimento.')}>
-            <Text style={styles.forgot}>Esqueci minha senha</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.buttonLogin, loading && { opacity: 0.8 }]}
-            onPress={handleLogin}
-            disabled={loading}
-            activeOpacity={0.8}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
           >
-            <LinearGradient
-              colors={["#0ed42fff", "#0f971aff"]}
-              style={styles.InsideButton}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="#fff" style={styles.loadingIndicator} />
-              ) : (
-                <Text style={styles.buttonText}>Entrar</Text>
-              )}
-            </LinearGradient>
-          </TouchableOpacity>
+            <View style={{ flex: 1 }}>
+              {/* Top Green */}
+              <View style={styles.topGreen} />
 
+              {/* Login Box */}
+              <View style={styles.loginBox}>
+                <Text style={styles.title}>LOGIN</Text>
 
-          {/* Botão biometria visível se o dispositivo for compatível e credenciais salvas */}
-          {dispositivoCompat && (
-            <TouchableOpacity style={styles.bioButton} onPress={autenticarBiometria}>
-              <MaterialIcons name="fingerprint" size={34} color="#00aaff" />
-              <Text style={styles.bioText}>Entrar com biometria</Text>
-            </TouchableOpacity>
-          )}
+                <TextInput
+                  label="Email"
+                  placeholder="teste@gmail.com"
+                  value={email}
+                  onChangeText={setEmail}
+                  style={styles.input}
+                  keyboardType="email-address"
+                  mode="outlined"
+                  activeOutlineColor="#000"
+                  outlineColor="#fff"
+                />
 
-          <View style={styles.registerContainer}>
-            <Text>Não tem uma conta? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-              <Text style={styles.register}>Inscrever-se</Text>
-            </TouchableOpacity>
-          </View>
+                <TextInput
+                  label="Senha"
+                  placeholder="********"
+                  value={senha}
+                  onChangeText={setSenha}
+                  style={styles.input}
+                  secureTextEntry={!mostrarSenha}
+                  mode="outlined"
+                  activeOutlineColor="#000"
+                  outlineColor="#fff"
+                  right={<TextInput.Icon icon={mostrarSenha ? "eye-off" : "eye"} onPress={() => setMostrarSenha(!mostrarSenha)} />}
+                />
 
-          <Text style={styles.or}>OU</Text>
-          <Text style={styles.socialText}>Inscreva-se com uma rede social</Text>
+                <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+                  {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Entrar</Text>}
+                </TouchableOpacity>
 
-          <View style={styles.socialIcons}>
-            <FontAwesome name="facebook" size={30} color="#3b5998" />
-            <FontAwesome name="google" size={30} color="#DB4437" />
-            <FontAwesome name="apple" size={30} color="#000" />
-          </View>
-        </ScrollView>
+                {dispositivoCompat && (
+                  <TouchableOpacity style={styles.bioButton} onPress={autenticarBiometria}>
+                    <MaterialIcons name="fingerprint" size={34} color="#00aaff" />
+                    <Text style={styles.bioText}>Entrar com biometria</Text>
+                  </TouchableOpacity>
+                )}
+
+                <View style={styles.separatorLine} />
+
+                <View style={styles.socials}>
+                  <TouchableOpacity style={styles.socialIcon}>
+                    <FontAwesome name="facebook-square" size={30} color="#1877F2" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.socialIcon}>
+                    <AntDesign name="google" size={30} color="#DB4437" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.socialIcon}>
+                    <MaterialCommunityIcons name="twitter" size={30} color="#000" />
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.signupText}>
+                  Não tem conta? <Text style={styles.signupLink} onPress={() => navigation.navigate('Register')}>Criar</Text>
+                </Text>
+              </View>
+            </View>
+          </ScrollView>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
+
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: 0,
-    paddingHorizontal: 20,
-    flex: 1,
-    backgroundColor: '#f4efef',
-    alignItems: 'center',
-    marginTop: 80,
-  },
-  logo: {
-    width: 160,
-    height: 160
-  },
-  appName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginTop: 10
-  },
-  welcome: {
-    color: '#6a4a4a',
-    fontSize: 18, fontWeight: 'bold',
-    marginTop: 10
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#a0a0a0',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    marginTop: 20,
+  topGreen: {
     width: '100%',
-    backgroundColor: '#fff',
+    height: height * 0.20,
+    backgroundColor: '#5DE985',
+    borderBottomLeftRadius: 100,
   },
-  input: {
+  loginBox: {
+    width: '100%',
     flex: 1,
-    paddingVertical: 10,
-    marginLeft: 10
-  },
-  forgot: {
-    color: '#a44',
-    alignSelf: 'flex-end',
-    left: 100,
-    marginTop: 6,
-    fontWeight: 'bold'
-  },
-  buttonLogin: {
-    borderRadius: 25,
-    marginTop: 25,
-    width: '50%',
-    alignSelf: 'center',
-    elevation: 4,
-    shadowColor: '#081b03ff',
+    justifyContent: 'flex-end',
+    backgroundColor: '#f7f5f5',
+    borderTopLeftRadius: 100,
+    paddingVertical: 50,
+    paddingHorizontal: 25,
+    shadowColor: '#000000ff',
     shadowOpacity: 0.6,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 50,
+    elevation: 20,
   },
-
-  InsideButton: {
-    borderRadius: 25,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  loadingIndicator: {
-    height: 22,
-  },
-
-
-  buttonText: { fontWeight: 'bold', color: '#fff', fontSize: 16 },
-
-  bioButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-    backgroundColor: '#fff',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    elevation: 2,
-  },
-  bioText: {
-    marginLeft: 10,
-    fontWeight: '600',
-    color: '#00aaff'
-  },
-  registerContainer: {
-    flexDirection: 'row',
-    marginTop: 20
-  },
-  register: {
-    color: '#a44',
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginLeft: 5
-  },
-  or: {
-    marginTop: 10,
-    fontWeight: 'bold'
-  },
-  socialText: {
-    marginTop: 5
-  },
-  socialIcons: {
-    flexDirection: 'row',
-    marginTop: 10,
-    width: '60%',
-    justifyContent: 'space-around',
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 10,
-    padding: 5
-  },
+  title: { fontSize: 36, fontWeight: '500', marginBottom: 50, textAlign: 'center', color: '#000', bottom: 90 },
+  input: { marginBottom: 15, backgroundColor: '#fff', borderRadius: 20, bottom: 90 },
+  button: { backgroundColor: '#000', borderRadius: 8, paddingVertical: 14, alignItems: 'center', marginTop: 10, bottom: 90 },
+  buttonText: { color: '#fff', fontSize: 18, bottom: 0 },
+  bioButton: { flexDirection: 'row', alignItems: 'center', marginTop: 15, bottom: 90, backgroundColor: '#fff', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 25, alignSelf: 'center', elevation: 2 },
+  bioText: { marginLeft: 10, fontWeight: '600', color: '#00aaff' },
+  separatorLine: { height: 1, backgroundColor: '#b9b9b9', marginVertical: 20, bottom: 90 },
+  socials: { flexDirection: 'row', justifyContent: 'center' },
+  socialIcon: { marginHorizontal: 12, bottom: 90 },
+  signupText: { textAlign: 'center', color: '#555', marginTop: 20, fontSize: 16, bottom: 90 },
+  signupLink: { color: '#5DE985', fontWeight: 'bold', fontSize: 16, bottom: 90 },
 });

@@ -3,7 +3,7 @@ export const alimentos = [
   {
     id: "1",
     nome: "Omelete de legumes com queijo branco",
-    img: "https://receitanatureba.com/wp-content/uploads/2022/05/omelete-de-legumes.jpg",
+    img: "https://guiadacozinha.com.br/wp-content/uploads/2019/10/omelete-de-legumes-com-queijo-28513-768x619.jpg",
     tempo: "10 min",
     kcal: 250,
     avaliacao: 4.7,
