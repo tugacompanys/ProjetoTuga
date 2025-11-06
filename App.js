@@ -63,7 +63,7 @@ export default function App() {
           <Stack.Screen
             name="RegistroMedicamento"
             component={RegistroMedicamentoScreen}
-            options={{ headerShown: true, title: "Registrar Medicamentos" }}
+            options={{ headerShown: false, title: "Registrar Medicamentos" }}
           />
           <Stack.Screen
             name="EditarPerfil"

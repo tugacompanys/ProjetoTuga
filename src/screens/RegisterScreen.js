@@ -9,14 +9,17 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Dimensions,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { auth } from "../config/firebaseConfig";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import * as ImagePicker from "expo-image-picker";
 
+const { width } = Dimensions.get("window");
+
 export default function RegisterScreen({ navigation }) {
+  const [step, setStep] = useState(1);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -39,6 +42,10 @@ export default function RegisterScreen({ navigation }) {
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
+  };
+
+  const handleNext = () => {
+    setStep(2);
   };
 
   const handleRegister = async () => {
@@ -88,111 +95,142 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={["#e0f7ff", "#c2e9fb", "#a1c4fd"]} style={{ flex: 1 }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={30} color="#0077b6" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Voltar</Text>
+      </View>
 
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={30} color="#0077b6" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Voltar</Text>
-        </View>
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
 
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Text style={styles.title}>Crie sua conta</Text>
-
-          <TouchableOpacity onPress={pickImage} activeOpacity={0.8} style={styles.imageContainer}>
-            <View style={styles.imageWrapper}>
-              <Image
-                source={
-                  image
-                    ? { uri: image }
-                    : { uri: "https://cdn-icons-png.flaticon.com/512/147/147142.png" }
-                }
-                style={styles.profileImage}
-              />
-              <View style={styles.cameraIcon}>
-                <Ionicons name="camera-outline" size={20} color="#ffffffff" />
-              </View>
+        {step === 1 && (
+          <View style={[styles.page, { width }]}>
+            <View style={{ paddingHorizontal: 28 }}>
+              <Text style={styles.h1}>Olá, bem-vindo ao MyGluco!</Text>
+              <Text style={styles.h2}>
+                Vamos começar criando sua conta e ajudá-lo a entender melhor sua glicose e hábitos diários
+              </Text>
             </View>
-          </TouchableOpacity>
 
-          <Text style={styles.addPhotoText}>Adicionar foto de perfil</Text>
+            <View style={styles.mascoteWrap}>
+              <Image
+                source={require("../../assets/tuga_bodybuilder.png")}
+                style={styles.mascote}
+                resizeMode="contain"
+              />
+            </View>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={20} color="#000000ff" />
-            <TextInput
-              style={styles.input}
-              placeholder="Digite seu nome"
-              placeholderTextColor="#888"
-              onChangeText={setNome}
-              value={nome}
-            />
+            <View style={{ alignItems: "center", marginTop: 30 }}>
+              <TouchableOpacity style={styles.buttonStep1} onPress={handleNext}>
+                <Text style={styles.buttonText}>Próximo</Text>
+              </TouchableOpacity>
+            </View>
           </View>
+        )}
+{step === 2 && (
+  <>
+    {/* FOTO DO USUÁRIO */}
+    <TouchableOpacity onPress={pickImage} activeOpacity={0.8} style={{ marginTop: -20 }}>
+      <View style={styles.imageWrapper}>
+        <Image
+          source={
+            image
+              ? { uri: image }
+              : { uri: "https://cdn-icons-png.flaticon.com/512/9512/9512683.png" }
+          }
+          style={styles.profileImage}
+        />
+        <View style={styles.cameraIcon}>
+          <Ionicons name="camera-outline" size={20} color="#000000ff" />
+        </View>
+      </View>
+    </TouchableOpacity>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#000000ff" />
-            <TextInput
-              style={styles.input}
-              placeholder="Digite seu email"
-              keyboardType="email-address"
-              placeholderTextColor="#888"
-              onChangeText={setEmail}
-              value={email}
-            />
-          </View>
+    {/* CAMPO NOME (SEPARADO E MAIS PRA CIMA) */}
+<View style={styles.singleInputBox}>
+  <Ionicons
+    name="pencil"
+    size={22}
+    color="#000000ff"
+    style={styles.iconAbsolute}
+  />
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#000000ff" />
-            <TextInput
-              style={styles.input}
-              placeholder="Digite sua senha"
-              secureTextEntry
-              placeholderTextColor="#888"
-              onChangeText={setSenha}
-              value={senha}
-            />
-          </View>
+  <TextInput
+    style={styles.inputFieldCentered}
+    placeholder="Nome"
+    placeholderTextColor="#000000ff"
+    value={nome}
+    onChangeText={setNome}
+  />
+</View>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#000000ff" />
-            <TextInput
-              style={styles.input}
-              placeholder="Confirme sua senha"
-              secureTextEntry
-              placeholderTextColor="#888"
-              onChangeText={setConfirmarSenha}
-              value={confirmarSenha}
-            />
-          </View>
+    {/* Espaçamento para separar os outros campos */}
+    <View style={{ height: 30 }} />
 
-          <TouchableOpacity style={styles.button} onPress={handleRegister}>
-            <LinearGradient style={styles.buttonGradient} colors={["#0ed42fff", "#0f8018ff"]}>
-              <Text style={styles.buttonText}>Cadastrar</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+    {/* CAMPO EMAIL */}
+    <View style={styles.singleInputBox}>
+      <Ionicons name="mail-outline" size={22} color="#0077b6" style={styles.iconLeft} />
+      <TextInput
+        style={styles.inputField}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+      />
+    </View>
 
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Já tem uma conta?</Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-              <Text style={styles.loginLink}> Entrar</Text>
-            </TouchableOpacity>
-          </View>
+    {/* CAMPO SENHA */}
+    <View style={styles.singleInputBox}>
+      <Ionicons name="lock-closed-outline" size={22} color="#0077b6" style={styles.iconLeft} />
+      <TextInput
+        style={styles.inputField}
+        placeholder="Senha"
+        secureTextEntry
+        value={senha}
+        onChangeText={setSenha}
+      />
+    </View>
 
-          <Text style={styles.or}>OU</Text>
-          <Text style={styles.socialText}>Cadastre-se com uma rede social</Text>
+    {/* CAMPO CONFIRMAR SENHA */}
+    <View style={styles.singleInputBox}>
+      <Ionicons name="shield-checkmark-outline" size={22} color="#0077b6" style={styles.iconLeft} />
+      <TextInput
+        style={styles.inputField}
+        placeholder="Confirmar senha"
+        secureTextEntry
+        value={confirmarSenha}
+        onChangeText={setConfirmarSenha}
+      />
+    </View>
 
-          <View style={styles.socialIcons}>
-            <FontAwesome name="facebook" size={30} color="#3b5998" />
-            <FontAwesome name="google" size={30} color="#DB4437" />
-            <FontAwesome name="apple" size={30} color="#000" />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </LinearGradient>
+    {/* BOTÃO CADASTRAR */}
+    <TouchableOpacity style={styles.buttonStep2} onPress={handleRegister}>
+      <Text style={styles.buttonText}>Cadastrar</Text>
+    </TouchableOpacity>
+
+
+    <View style={{ flexDirection: "row", marginTop: 15 }}>
+  <Text style={{ fontSize: 16, color: "#555" }}>
+    Já possui uma conta?
+  </Text>
+
+  <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+    <Text style={{ fontSize: 16, color: "#0077b6", fontWeight: "bold", marginLeft: 5 }}>
+      Entrar
+    </Text>
+  </TouchableOpacity>
+</View>
+
+  </>
+)}
+
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -202,9 +240,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 25,
     paddingBottom: 40,
-    bottom: 30
+    bottom: 30,
   },
-
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -213,117 +250,153 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   backButton: {
-    paddingTop: 5,
+    paddingTop: 28,
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: "bold",
     color: "#0077b6",
     marginLeft: 10,
+    paddingTop: 30
   },
-
-  title: {
-    fontSize: 30,
-    fontWeight: "bold",
-    color: '#6a4a4a',
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  imageContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  imageWrapper: {
-    position: "relative",
-  },
+  imageContainer: { alignItems: "center", justifyContent: "center" },
+  imageWrapper: { position: "relative" },
   profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 140,
+    height: 140,
+    borderRadius: 100,
     borderWidth: 3,
-    borderColor: "#00aaff",
-    marginTop: 20,
+    borderColor: "#ffffffff",
+    marginTop: 80,
+    marginBottom: 20
   },
   cameraIcon: {
     position: "absolute",
-    bottom: 0,
+    bottom: 20,
     right: 0,
-    backgroundColor: "#00aaff",
+    backgroundColor: "#ffffffff",
     borderRadius: 20,
     padding: 6,
     borderWidth: 2,
     borderColor: "#fff",
   },
-  addPhotoText: {
-    color: "#0581beff",
-    marginTop: 10,
-    marginBottom: 20,
-    fontSize: 18,
-    textDecorationLine: "underline",
-    fontWeight: "bold",
+
+  barNome: {
+    width: "90%",
+    backgroundColor: "#e9e9e9",
+    paddingVertical: 10,
+    marginTop: 15,
+    borderRadius: 10,
+    justifyContent: "center",
   },
-  inputContainer: {
+
+  boxInputs: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    padding: 15,
+    marginTop: 20,
+    elevation: 3,
+  },
+
+  inputRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    marginTop: 15,
-    width: "100%",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
-  input: {
-    flex: 1,
-    paddingVertical: 10,
+
+  line: {
+    width: "100%",
+    height: 1,
+    backgroundColor: "#ccc",
+    marginVertical: 10,
+  },
+
+  singleLine: {
+    width: "100%",
+    paddingVertical: 6,
     marginLeft: 8,
-    color: "#000",
   },
-  button: {
+
+  buttonStep1: {
     marginTop: 25,
-    width: "100%",
+    width: "90%",
     borderRadius: 25,
-    overflow: "hidden",
-    elevation: 4,
-  },
-  buttonGradient: {
     paddingVertical: 12,
+    backgroundColor: "#0077ff",
     alignItems: "center",
-    borderRadius: 25,
   },
+
+  buttonStep2: {
+    marginTop: 25,
+    width: "90%",
+    height: 55,
+    borderRadius: 25,
+    paddingVertical: 14,
+    backgroundColor: "#0077ff",
+    alignItems: "center"
+  },
+
   buttonText: {
     fontWeight: "bold",
     color: "#fff",
-    fontSize: 16,
+    fontSize: 18,
   },
-  loginContainer: {
-    flexDirection: "row",
-    marginTop: 20,
+
+  page: {
+    paddingTop: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 30,
   },
-  loginText: {
-    color: "#333",
-  },
-  loginLink: {
-    color: '#a44',
-    fontWeight: "bold",
-    fontSize: 16,
-    marginLeft: 5
-  },
-  or: {
-    marginTop: 25,
-    fontWeight: "bold",
-    color: "#444",
-  },
-  socialText: {
-    marginTop: 8,
-    color: "#333",
-  },
-  socialIcons: {
-    flexDirection: "row",
+
+  h1: {
+    fontSize: 36,
+    fontWeight: "700",
+    color: "#1E1A2A",
+    lineHeight: 42,
     marginTop: 12,
-    width: "60%",
-    justifyContent: "space-around",
   },
+
+  h2: {
+    fontSize: 18,
+    color: "#5E5870",
+    marginTop: 12,
+  },
+
+  mascote: {
+    height: 400,
+  },
+  iconLeft: {
+  marginRight: 10,
+},
+
+singleInputBox: {
+  width: "90%",
+  backgroundColor: "#fff",
+  flexDirection: "row",
+  alignItems: "center",
+  borderRadius: 16,
+  paddingHorizontal: 14,
+  paddingVertical: 8, // altura menor
+  marginBottom: 14,
+  elevation: 2,
+},
+
+inputField: {
+  flex: 1,
+  paddingVertical: 6,
+  fontSize: 15,
+},
+iconAbsolute: {
+  position: "absolute",
+  left: 14,
+  zIndex: 10,
+},
+
+inputFieldCentered: {
+  flex: 1,
+  fontSize: 15,
+  paddingVertical: 6,
+  textAlign: "center",   // CENTRALIZA DE VERDADE
+},
+
 });

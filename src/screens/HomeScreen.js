@@ -96,6 +96,7 @@ const videos = [
 export default function HomeScreen({ route, navigation }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [menuAberto, setMenuAberto] = useState(false);
+  const [activeMenu, setActiveMenu] = useState("HOME");
   const [videoId, setVideoId] = useState(null);
   const [plano, setPlano] = useState(null);
   const [nome, setNome] = useState("Usuário");
@@ -143,67 +144,131 @@ export default function HomeScreen({ route, navigation }) {
           onPress={() => setMenuAberto(false)}
         >
           <Animated.View
-            entering={SlideInLeft.duration(300)}
             style={[styles.menuContainer, { width: screenWidth * 0.8 }]}
           >
-            <LinearGradient
-              colors={["#1e90ff", "#b5d8fcff"]}
-              style={styles.menuGradient}
-            >
+{/* Menu Header */}
+        <View style={styles.menuHeader}>
+          <TouchableOpacity onPress={() => {
+            setMenuAberto(false); // fecha o menu
+            navigation.navigate("EditarPerfil"); // navega para EditarPerfil
+          }}>
+            <Image
+              source={{ uri: "https://cdn-icons-png.flaticon.com/512/147/147142.png" }}
+              style={styles.menuAvatar}
+            />
+          </TouchableOpacity>
+          <Text style={styles.menuName}>{nome}</Text>
+        </View>
 
-              <View style={styles.menuHeader}>
-                <TouchableOpacity onPress={() => navigation.navigate("EditarPerfil")}>
-                  <Image
-                    source={{ uri: "https://cdn-icons-png.flaticon.com/512/147/147142.png" }}
-                    style={styles.avatar}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("EditarPerfil")}>
-                  <Text style={styles.username}>{nome}</Text>
-                </TouchableOpacity>
-              </View>
+
+            {/* Opções do menu */}
+            <View style={{ flex: 1 }}>
+              <TouchableOpacity
+                style={[
+                  styles.menuButton,
+                  activeMenu === "HOME" && styles.menuButtonActive,
+                ]}
+                onPress={() => {
+                  setActiveMenu("HOME");
+                  navigation.navigate("HomeScreen");
+                  setMenuAberto(false);
+                }}
+              >
+                <Ionicons
+                  name="home-outline"
+                  size={22}
+                  color={activeMenu === "HOME" ? "#fff" : "#000"}
+                />
+                <Text
+                  style={[
+                    styles.menuButtonText,
+                    activeMenu === "HOME" && { color: "#fff" },
+                  ]}
+                >
+                  HOME
+                </Text>
+              </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.menuItem}
+                style={[
+                  styles.menuButton,
+                  activeMenu === "CONFIG" && styles.menuButtonActive,
+                ]}
                 onPress={() => {
+                  setActiveMenu("CONFIG");
+                  navigation.navigate("Configurações");
                   setMenuAberto(false);
+                }}
+              >
+                <Ionicons
+                  name="settings-outline"
+                  size={22}
+                  color={activeMenu === "CONFIG" ? "#fff" : "#000"}
+                />
+                <Text
+                  style={[
+                    styles.menuButtonText,
+                    activeMenu === "CONFIG" && { color: "#fff" },
+                  ]}
+                >
+                  CONFIGURAÇÕES
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.menuButton,
+                  activeMenu === "TROCAR" && styles.menuButtonActive,
+                ]}
+                onPress={() => {
+                  setActiveMenu("TROCAR");
                   navigation.navigate("Login");
+                  setMenuAberto(false);
                 }}
               >
                 <Ionicons
                   name="swap-horizontal-outline"
                   size={22}
-                  color="#fff"
+                  color={activeMenu === "TROCAR" ? "#fff" : "#000"}
                 />
-                <Text style={styles.menuText}>Trocar Conta</Text>
+                <Text
+                  style={[
+                    styles.menuButtonText,
+                    activeMenu === "TROCAR" && { color: "#fff" },
+                  ]}
+                >
+                  TROCAR CONTA
+                </Text>
               </TouchableOpacity>
+            </View>
 
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => {
-                  setMenuAberto(false);
-                  navigation.navigate("Configurações");
-                }}
+            {/* Sair na parte inferior */}
+            <TouchableOpacity
+              style={[
+                styles.menuButton,
+                styles.menuButtonBottom,
+                activeMenu === "SAIR" && styles.menuButtonActive,
+              ]}
+              onPress={() => BackHandler.exitApp()}
+            >
+              <Ionicons
+                name="exit-outline"
+                size={22}
+                color={activeMenu === "SAIR" ? "#fff" : "#ff4d4d"}
+              />
+              <Text
+                style={[
+                  styles.menuButtonText,
+                  activeMenu === "SAIR" && { color: "#fff", fontWeight: "bold" },
+                  { color: "#ff4d4d" },
+                ]}
               >
-                <Ionicons name="settings-outline" size={22} color="#fff" />
-                <Text style={styles.menuText}>Configurações</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.menuItem, { marginTop: "auto" }]}
-                onPress={() => {
-                  setMenuAberto(false);
-                  BackHandler.exitApp();
-                }}
-              >
-                <Ionicons name="exit-outline" size={22} color="#ff4d4d" />
-                <Text style={[styles.menuText, { color: "#ff4d4d" }]}>Sair</Text>
-              </TouchableOpacity>
-            </LinearGradient>
+                SAIR
+              </Text>
+            </TouchableOpacity>
           </Animated.View>
         </TouchableOpacity>
       )}
-
 
       {/* Conteúdo principal */}
       <ScrollView contentContainerStyle={{}}>
@@ -426,7 +491,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.2)",
     flexDirection: "row",
     zIndex: 998,
   },
@@ -437,15 +502,30 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     elevation: 8,
   },
-  menuGradient: {
-    flex: 1,
+  menuContainer: {
+    height: "100%",
+    backgroundColor: "#fff",
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
     padding: 20,
+    justifyContent: "space-between",
+    elevation: 8,
   },
-  menuHeader: { flexDirection: "row", alignItems: "center", marginBottom: 30 },
-  avatar: { width: 60, height: 60, borderRadius: 30, marginRight: 15, borderWidth: 2, borderColor: "#fff" },
-  username: { color: "#fff", fontSize: 18, fontWeight: "bold" },
-  menuItem: { flexDirection: "row", alignItems: "center", paddingVertical: 15, borderBottomWidth: 0.5, borderBottomColor: "rgba(255,255,255,0.3)" },
-  menuText: { marginLeft: 15, color: "#fff", fontSize: 16, fontWeight: "600" },
+  menuHeader: { alignItems: "center", marginBottom: 30 },
+  menuAvatar: { width: 100, height: 100, borderRadius: 50, marginBottom: 15 },
+  menuName: { fontSize: 20, fontWeight: "bold" },
+
+  menuButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  menuButtonActive: { backgroundColor: "#1e90ff" },
+  menuButtonText: { fontSize: 16, fontWeight: "600", marginLeft: 15, color: "#000" },
+  menuButtonBottom: { marginTop: "auto" },
 
   card: {
     borderRadius: 16,

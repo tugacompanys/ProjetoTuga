@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { ModalExercicio } from "./videos_exercicio";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -308,6 +308,52 @@ export default function App() {
         />
       )}
 
+
+      {/* Footer */}
+      <View style={styles.footerWrapper}>
+        <LinearGradient
+          colors={["#ffffffcc", "#f8f8f8ee"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.footer}
+        >
+          <TouchableOpacity
+            style={[styles.footerItem, styles.activeTab]}
+            onPress={() => navigation.navigate("HomeScreen")}
+          >
+            <Ionicons name="home-outline" size={26} color="#00c47c" />
+            <Text style={[styles.footerText, { color: "#00c47c" }]}>Início</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.footerItem}
+            onPress={() => navigation.navigate("Glicemia")}
+          >
+            <Ionicons name="water-outline" size={26} color="#00bcd4" />
+            <Text style={[styles.footerText, { color: "#00bcd4" }]}>Glicemia</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.footerItem}
+            onPress={() => navigation.navigate("Refeicao_inicio")}
+          >
+            <MaterialCommunityIcons name="silverware-fork-knife" size={26} color="#d17d6b" />
+            <Text style={[styles.footerText, { color: "#d17d6b" }]}>Refeição</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.footerItem}
+            onPress={() => navigation.navigate("Exercicio")}
+          >
+            <Ionicons name="barbell-outline" size={26} color="#7c6e7f" />
+            <Text style={[styles.footerText, { color: "#7c6e7f" }]}>Exercícios</Text>
+          </TouchableOpacity>
+        </LinearGradient>
+      </View>
+
+
+
+
     </LinearGradient>
   );
 }
@@ -386,5 +432,47 @@ backButton: {
   zIndex: 10,
 },
 
+  footerWrapper: {
+    position: "absolute",
+    letterSpacing: 19,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+  },
+
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "95%",
+    paddingVertical: 14,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: -2 },
+    shadowRadius: 6,
+
+  },
+
+  footerItem: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+  },
+  footerText: { fontSize: 13, marginTop: 4, fontWeight: "700" },
+
+
+  activeTab: {
+    backgroundColor: "#11f09e2c", // leve destaque no item ativo
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
 
 });

@@ -311,22 +311,22 @@ const getVideoId = (url) => {
     0: [
       {id:'dom1', titulo:'Caminhada no Lugar', subtitulo:'Duração 10 min', url:'https://youtu.be/5xrZRfPa6mE?si=d8EEaOQc9T4igLPP'},
       {id:'dom2', titulo:'Polichinelo', subtitulo:'Séries 3x10 | Intervalo 30s', url:'https://youtu.be/SWgIDaX5fNA?si=KSuvtOMv2AeuXJ1E'},
-      {id:'dom3', titulo:'Marcha rápida no lugar', subtitulo:'Séries 3x | Intervalo 30s', url:'https://youtu.be/5kXHaLnDjwY?si=c_J-wREEC2zTVy5t'},
+      {id:'dom3', titulo:'Marcha rápida no lugar', subtitulo:'Séries 3x | Intervalo 30s', url:'https://youtu.be/hxLLhk092eY?si=bPAVvLXT7kqnQPOP'},
       {id:'dom4', titulo:'Step touch', subtitulo:'Séries 3x12 | Intervalo 30s', url:'https://youtu.be/5kXHaLnDjwY?si=gpgG3WPtgVkq2Ux9'},
-      {id:'dom5', titulo:'Alongamento leve ', subtitulo:'Duração 5 min', url:'https://youtu.be/XC-5pv1QUYo?si=QKVPlQem6Nslwfyc'}
+      {id:'dom5', titulo:'Alongamento leve ', subtitulo:'Duração 5 min', url:'https://youtu.be/HhsgekLIKOc?si=UWnpLHwo6-mw-xur'}
     ],
 
     1: [
-      {id:'seg1', titulo:'Agachamento', subtitulo:'Séries 3x12 | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd3'},
-      {id:'seg2', titulo:'Flexão de braço ajoelhado', subtitulo:'Séries 3x10 | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd4'},
-      {id:'seg3', titulo:'Ponte (elevação de quadril)', subtitulo:'Séries 3x15 | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd5'},
-      {id:'seg4', titulo:'Remada invertida', subtitulo:'Séries 3x12 | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd6'},
-      {id:'seg5', titulo:'Prancha (cotovelos)', subtitulo:'Séries 3x20s | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd7'}
+      {id:'seg1', titulo:'Agachamento', subtitulo:'Séries 3x12 | Intervalo 30s', url:'https://youtu.be/mLDqlb6qrZU?si=E5PFtnkl2BhZxzUb'},
+      {id:'seg2', titulo:'Flexão de braço ajoelhado', subtitulo:'Séries 3x10 | Intervalo 30s', url:'https://youtu.be/2dQBli0Yljs?si=VJSRm46VLW1CECu7'},
+      {id:'seg3', titulo:'Ponte (elevação de quadril)', subtitulo:'Séries 3x15 | Intervalo 30s', url:'https://youtu.be/UxHlukzBX5g?si=u7rSDiIkWZtClWok'},
+      {id:'seg4', titulo:'Remada invertida', subtitulo:'Séries 3x12 | Intervalo 30s', url:'https://youtu.be/TLaHR7zoGS0?si=m3eRn-JPQNbow4ZM'},
+      {id:'seg5', titulo:'Prancha (cotovelos)', subtitulo:'Séries 3x20s | Intervalo 30s', url:'https://youtu.be/AIQ1AN7H4v0?si=vIfVKJZ4L8H--jhX'}
     ],
     2: [
-      {id:'ter1', titulo:'Alongamento de pescoço', subtitulo: 'Séries 2x30s | Intervalo 10s', url:'https://youtu.be/-AEOKSMJSR0?si=LkN3wEYoyPGtZSBk'},
-      {id:'ter2', titulo:'Alongamento de ombros e braços', subtitulo:'Séries 2x30s | Intervalo 10s',url:'https://youtu.be/x9X3AiNQhgc?si=VtmvZ-8-ZaJcj-pI'},
-      {id:'ter3', titulo:'Alongamento de pernas', subtitulo:'Séries 2x30s | Intervalo 10s', url:'https://youtu.be/5kXHaLnDjwY?si=c_J-wREEC2zTVy5t'},
+      {id:'ter1', titulo:'Alongamento de pescoço', subtitulo: 'Séries 2x30s | Intervalo 10s', url:'https://youtu.be/jAS814wE6_g?si=9RVdoUvJHRUuufVj'},
+      {id:'ter2', titulo:'Alongamento de ombros e braços', subtitulo:'Séries 2x30s | Intervalo 10s',url:'https://youtu.be/0iicnvKe-U8?si=7BSnJ-2uU0GaT8EO'},
+      {id:'ter3', titulo:'Alongamento de pernas', subtitulo:'Séries 2x30s | Intervalo 10s', url:'https://youtu.be/SibvZTWRFG0?si=RWnoiq7HXtaQkD6L'},
       {id:'ter4', titulo:'Alongamento de costas', subtitulo:'Séries 2x30s | Intervalo 10s', url:'https://youtu.be/5kXHaLnDjwY?si=gpgG3WPtgVkq2Ux9'},
       {id:'ter5', titulo:'Respiração profunda sentada', subtitulo:'Duração 5 min', url:'https://youtu.be/XC-5pv1QUYo?si=QKVPlQem6Nslwfyc'}
     ],
