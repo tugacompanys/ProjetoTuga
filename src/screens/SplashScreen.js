@@ -45,7 +45,7 @@ useEffect(() => {
 }, [navigation]);
 
   return (
-    <LinearGradient colors={["#e0f7ff", "#c2e9fb", "#a1c4fde0"]} style={{ flex: 1 }}>
+    <LinearGradient colors={["#ffffffff", "#ffffffff", "#ffffffe0"]} style={{ flex: 1 }}>
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <Animated.View style={[styles.center, { opacity: fade, transform: [{ translateY }] }]}>

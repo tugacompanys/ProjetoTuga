@@ -29,7 +29,7 @@ export default function IndiceDiarioScreen({ route, navigation }) {
   const macroPieData = planoAtual
     ? [
       { name: "Carboidratos", population: planoAtual.macros.carbs_g, color: "#4A90E2", legendFontColor: "#4A90E2", legendFontSize: 16 },
-      { name: "Proteínas", population: planoAtual.macros.protein_g, color: "#50E3C2", legendFontColor: "#50E3C2", legendFontSize: 16 },
+      { name: "Proteínas", population: planoAtual.macros.protein_g, color: "#e3a850ff", legendFontColor: "#e3a850ff", legendFontSize: 16 },
       { name: "Gorduras", population: planoAtual.macros.fat_g, color: "#7ED321", legendFontColor: "#7ED321", legendFontSize: 16 },
     ]
     : [];
@@ -84,7 +84,7 @@ export default function IndiceDiarioScreen({ route, navigation }) {
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.subtitulo}>🍕 Distribuição de Macros</Text>
+            <Text style={styles.subtitulo}> 📊 Distribuição de Macros</Text>
             <PieChart
               data={macroPieData}
               width={Dimensions.get("window").width - 40}
