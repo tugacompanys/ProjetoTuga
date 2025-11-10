@@ -130,7 +130,7 @@ export default function LoginScreen({ navigation }) {
 
               <Text style={styles.fieldLabel}>Email</Text>
               <TextInput
-                placeholder="teste@gmail.com"
+                placeholder="Digite seu email"
                 value={email}
                 onChangeText={setEmail}
                 style={styles.input}
@@ -147,31 +147,33 @@ export default function LoginScreen({ navigation }) {
               </TouchableOpacity>
 
               <Text style={styles.fieldLabel}>Senha</Text>
-<TextInput
-  placeholder="********"
-  value={senha}
-  onChangeText={setSenha}
-  secureTextEntry={!mostrarSenha}
-  mode="outlined"
-  outlineColor="transparent"
-  activeOutlineColor="transparent"
-  style={{
-    width: "100%",
-    borderRadius: 16,
-    marginBottom: 12,
-  }}
-  theme={{
-    colors: { background: "#FFF" }
-  }}
+              <TextInput
+                value={senha}
+                onChangeText={setSenha}
+                secureTextEntry={!mostrarSenha}
+                mode="outlined"
+                outlineColor="transparent"
+                activeOutlineColor="transparent"
+                placeholder="Digite sua senha"
+                style={{
 
-  right={
-    <TextInput.Icon
-      icon={mostrarSenha ? "eye-off" : "eye"}
-      onPress={() => setMostrarSenha(!mostrarSenha)}
-      color="#000000ff"
-    />
-  }
-/>
+                  fontSize: 16,
+                  width: "100%",
+                  borderRadius: 25,
+                  marginBottom: 12,
+                }}
+                theme={{
+                  colors: { background: "#FFF" }
+                }}
+
+                right={
+                  <TextInput.Icon
+                    icon={mostrarSenha ? "eye-off" : "eye"}
+                    onPress={() => setMostrarSenha(!mostrarSenha)}
+                    color="#000000ff"
+                  />
+                }
+              />
 
 
               <TouchableOpacity style={styles.loginBtn} onPress={handleLogin} disabled={loading}>
@@ -228,7 +230,7 @@ const styles = StyleSheet.create({
   },
   loginImage: {
     width: width * 0.5,
-    height: height * 0.2 ,
+    height: height * 0.2,
     marginVertical: 18
   },
   fieldLabel: {

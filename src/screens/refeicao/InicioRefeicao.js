@@ -23,6 +23,7 @@ const CARD_WIDTH = width / 2 - 20;
 const CARD_HEIGHT = 140;
 
 
+
 const receitasFaixaCalorica = [
   { id: "1", emoji: "🥯", label: "200-300 kcal" },
   { id: "2", emoji: "🍛", label: "400-500 kcal" },
@@ -92,7 +93,7 @@ function getCurvaPreferencias(index) {
     case 0: return "M0,0 Q00,0 0,0 L0,140 L0,140 Z";
     case 1: return "M0,30 Q100,140 240,0 L240,140 L0,140 Z";
     case 2: return "M0,600 Q0,50 170,90 L240,140 L0,140 Z";
-    case 3: return  "M0,50 Q40,30 150,-100 T240,80 L240,140 L0,140 Z";
+    case 3: return "M0,50 Q40,30 150,-100 T240,80 L240,140 L0,140 Z";
     case 4: return "M0,130 Q-50,20 200,250 L240,140 L0,140 Z";
     case 5: return "M0,0 Q0,-150 60,-40 T240,80 L240,140 L0,140 Z";
     case 6: return "M0,0 Q00,0 0,0 L0,140 L0,140 Z";
@@ -139,14 +140,14 @@ function CardOnduladoPreferencia({ item, index }) {
   return (
     <View style={styles.card}>
       <Svg width={CARD_WIDTH} height={CARD_HEIGHT} style={StyleSheet.absoluteFill}>
-        <Path d={curva} fill="#6AC484" opacity={0.85} /> 
+        <Path d={curva} fill="#6AC484" opacity={0.85} />
         {/* Cor diferente pra destacar */}
       </Svg>
       <Text style={styles.emoji}>{item.emoji}</Text>
       <Text style={styles.label}>{item.label}</Text>
     </View>
   );
-}function CardGrandeComImagem({ item, onPressCard, tipo = "refeicao", index }) {
+} function CardGrandeComImagem({ item, onPressCard, tipo = "refeicao", index }) {
   const curva =
     tipo === "metodo"
       ? getCurvaMetodo(index)
@@ -194,7 +195,7 @@ function renderColunas({ item, navigation }) {
         <TouchableOpacity
           key={cardItem.id}
           onPress={() =>
-navigation.navigate("Refeicao", { categoria: item.label })
+            navigation.navigate("Refeicao", { categoria: item.label })
 
           }
         >
@@ -208,13 +209,13 @@ navigation.navigate("Refeicao", { categoria: item.label })
 
 function CardHorizontalFlex({ item, navigation, grupo, backgroundColor = "#E3E3E3" }) {
   return (
-        <TouchableOpacity
-          style={[styles.cardHorizontalFlex, { backgroundColor }]}
-          onPress={() =>
-            navigation.navigate("Refeicao", { categoria: item.label })
+    <TouchableOpacity
+      style={[styles.cardHorizontalFlex, { backgroundColor }]}
+      onPress={() =>
+        navigation.navigate("Refeicao", { categoria: item.label })
 
-          }
-        >
+      }
+    >
 
       <Text style={[styles.emoji, { fontSize: 20 }]}>{item.emoji}</Text>
       <Text style={[styles.label, { fontSize: 12, marginTop: 2 }]} numberOfLines={2}>
@@ -222,7 +223,7 @@ function CardHorizontalFlex({ item, navigation, grupo, backgroundColor = "#E3E3E
       </Text>
     </TouchableOpacity>
   );
-}function CardHorizontal({ item, onPressCard, backgroundColor = "#F9F6EE" }) {
+} function CardHorizontal({ item, onPressCard, backgroundColor = "#F9F6EE" }) {
   return (
     <TouchableOpacity
       style={[styles.cardHorizontalFlex, { backgroundColor }]}
@@ -249,6 +250,7 @@ function CardHorizontalFlex({ item, navigation, grupo, backgroundColor = "#E3E3E
 export default function InicioRefeicaoScreen({ navigation }) {
   const [abaSelecionada, setAbaSelecionada] = useState("descubra");
   const [activeTab, setActiveTab] = useState("CONFIG");
+  const [favoritos, setFavoritos] = useState([]);
   const groupedData = [];
   for (let i = 0; i < receitasFaixaCalorica.length; i += 2) {
     groupedData.push(receitasFaixaCalorica.slice(i, i + 2));
@@ -295,136 +297,136 @@ export default function InicioRefeicaoScreen({ navigation }) {
         </View>
       </View>
       {abaSelecionada === "favoritas" && (
-  <View style={{ paddingHorizontal: 10, marginTop: 10}}>
-    {favoritos.length === 0 ? (
-      <Text style={{ textAlign: "center", marginTop: 20 }}>
-        Você ainda não adicionou nenhum favorito.
-      </Text>
-    ) : (
-      favoritos.map((item) => (
-        <CardAlimento
-          key={item.id}
-          item={item}
-          navigation={navigation}
-          favoritos={favoritos}
-          toggleFavorito={toggleFavorito}
-        />
-      ))
-    )}
-  </View>
-)}
+        <View style={{ paddingHorizontal: 10, marginTop: 10 }}>
+          {favoritos.length === 0 ? (
+            <Text style={{ textAlign: "center", marginTop: 20 }}>
+              Você ainda não adicionou nenhum favorito.
+            </Text>
+          ) : (
+            favoritos.map((item) => (
+              <CardAlimento
+                key={item.id}
+                item={item}
+                navigation={navigation}
+                favoritos={favoritos}
+                toggleFavorito={toggleFavorito}
+              />
+            ))
+          )}
+        </View>
+      )}
 
 
       <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
         <Text style={styles.title}>Categorias comuns</Text>
-<FlatList
-  data={categoriasComuns}
-  horizontal
-  keyExtractor={(item) => item.id}
-  renderItem={({ item }) => (
-    <CardHorizontalFlex
-      item={item}
-      navigation={navigation}
-      onPressCard={() =>
-        navigation.navigate("Refeicao", { categoria: item.label })
-      }
-    />
-  )}
-  contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 10 }}
-/>
+        <FlatList
+          data={categoriasComuns}
+          horizontal
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <CardHorizontalFlex
+              item={item}
+              navigation={navigation}
+              onPressCard={() =>
+                navigation.navigate("Refeicao", { categoria: item.label })
+              }
+            />
+          )}
+          contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 10 }}
+        />
 
 
-<Text style={styles.title}>Calorias contadas</Text>
-<FlatList
-  data={Array.from(
-    { length: Math.ceil(receitasFaixaCalorica.length / 2) },
-    (_, i) => [
-      receitasFaixaCalorica[i],
-      receitasFaixaCalorica[i + Math.ceil(receitasFaixaCalorica.length / 2)],
-    ].filter(Boolean)
-  )}
-  keyExtractor={(_, index) => index.toString()}
-  horizontal
-  showsHorizontalScrollIndicator={false}
-  renderItem={({ item }) => (
-    <View style={styles.column}>
-      {item.map((cardItem) => (
-        <TouchableOpacity
-          key={cardItem.id}
-          onPress={() =>
-            navigation.navigate("Refeicao", { categoria: cardItem.label })
-          }
-        >
-          <CardOndulado item={cardItem} index={parseInt(cardItem.id) - 1} />
-        </TouchableOpacity>
-      ))}
-    </View>
-  )}
-  contentContainerStyle={{ paddingHorizontal: 10 }}
-/>
+        <Text style={styles.title}>Calorias contadas</Text>
+        <FlatList
+          data={Array.from(
+            { length: Math.ceil(receitasFaixaCalorica.length / 2) },
+            (_, i) => [
+              receitasFaixaCalorica[i],
+              receitasFaixaCalorica[i + Math.ceil(receitasFaixaCalorica.length / 2)],
+            ].filter(Boolean)
+          )}
+          keyExtractor={(_, index) => index.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <View style={styles.column}>
+              {item.map((cardItem) => (
+                <TouchableOpacity
+                  key={cardItem.id}
+                  onPress={() =>
+                    navigation.navigate("Refeicao", { categoria: cardItem.label })
+                  }
+                >
+                  <CardOndulado item={cardItem} index={parseInt(cardItem.id) - 1} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+          contentContainerStyle={{ paddingHorizontal: 10 }}
+        />
 
-<Text style={styles.title}>Escolha a refeição</Text><FlatList
-  data={escolhaRefeicao}
-  horizontal
-  keyExtractor={(item) => item.id}
-  renderItem={({ item, index }) => (
-    <CardGrandeComImagem
-      item={item}
-      tipo="refeicao"
-      index={index}
-      onPressCard={() => navigation.navigate("Refeicao", { categoria: item.label })}
-    />
-  )}
-  contentContainerStyle={{ paddingHorizontal: 10 }}
-/>
+        <Text style={styles.title}>Escolha a refeição</Text><FlatList
+          data={escolhaRefeicao}
+          horizontal
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }) => (
+            <CardGrandeComImagem
+              item={item}
+              tipo="refeicao"
+              index={index}
+              onPressCard={() => navigation.navigate("Refeicao", { categoria: item.label })}
+            />
+          )}
+          contentContainerStyle={{ paddingHorizontal: 10 }}
+        />
 
-<Text style={styles.title}>Escolha seu método</Text><FlatList
-  data={escolhaMetodo}
-  horizontal
-  keyExtractor={(item) => item.id}
-  renderItem={({ item, index }) => (
-    <CardGrandeComImagem
-      item={item}
-      tipo="metodo"
-      index={index}
-      onPressCard={() => navigation.navigate("Refeicao", { categoria: item.label })}
-    />
-  )}
-  contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 20 }}
-/>
+        <Text style={styles.title}>Escolha seu método</Text><FlatList
+          data={escolhaMetodo}
+          horizontal
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }) => (
+            <CardGrandeComImagem
+              item={item}
+              tipo="metodo"
+              index={index}
+              onPressCard={() => navigation.navigate("Refeicao", { categoria: item.label })}
+            />
+          )}
+          contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 20 }}
+        />
 
 
-<Text style={styles.title}>Preferências</Text>
+        <Text style={styles.title}>Preferências</Text>
 
-<FlatList
-  data={groupedPreferencias}
-  keyExtractor={(item, index) => index.toString()}
-  horizontal
-  showsHorizontalScrollIndicator={false}
-  renderItem={({ item }) => (
-    <View style={styles.column}>
-      {item.map((cardItem) => (
-        <TouchableOpacity
-          key={cardItem.id}
-          onPress={() =>
-            navigation.navigate("Refeicao", { categoria: cardItem.label })
-          }
-        >
-          <CardOnduladoPreferencia
-            item={cardItem}
-            index={parseInt(cardItem.id) - 1}
-          />
-        </TouchableOpacity>
-      ))}
-    </View>
-  )}
-  contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 20 }}
-/>
+        <FlatList
+          data={groupedPreferencias}
+          keyExtractor={(item, index) => index.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <View style={styles.column}>
+              {item.map((cardItem) => (
+                <TouchableOpacity
+                  key={cardItem.id}
+                  onPress={() =>
+                    navigation.navigate("Refeicao", { categoria: cardItem.label })
+                  }
+                >
+                  <CardOnduladoPreferencia
+                    item={cardItem}
+                    index={parseInt(cardItem.id) - 1}
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+          contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 20 }}
+        />
 
 
 
       </ScrollView>
-      
+
       {/* Footer */}
       <View style={styles.footerWrapper}>
         <LinearGradient
@@ -434,7 +436,7 @@ export default function InicioRefeicaoScreen({ navigation }) {
           style={styles.footer}
         >
           <TouchableOpacity
-            style={[styles.footerItem, styles.activeTab]}
+            style={styles.footerItem}
             onPress={() => navigation.navigate("HomeScreen")}
           >
             <Ionicons name="home-outline" size={26} color="#00c47c" />
@@ -450,7 +452,7 @@ export default function InicioRefeicaoScreen({ navigation }) {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.footerItem}
+            style={[styles.footerItem, styles.activeTab]}
             onPress={() => navigation.navigate("Refeicao_inicio")}
           >
             <MaterialCommunityIcons name="silverware-fork-knife" size={26} color="#d17d6b" />
@@ -491,46 +493,46 @@ const styles = StyleSheet.create({
   cardHorizontalLarge: { width: CARD_WIDTH, height: 120, borderRadius: 16, backgroundColor: "#F9F6EE", overflow: "hidden", alignItems: "center", justifyContent: "center", marginRight: 12 },
   emoji: { fontSize: 28, color: "#000", zIndex: 2 },
   label: { color: "#000", fontWeight: "600", zIndex: 2, marginTop: 5, textAlign: "center" },
-cardGrande: {
-  width: width / 1.7,
-  height: 170,
-  borderRadius: 20,
-  backgroundColor: "#fff",
-  marginRight: 15,
-  overflow: "hidden",
-  justifyContent: "center",
-  alignItems: "center",
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 3 },
-  shadowOpacity: 0.15,
-  shadowRadius: 4,
-  elevation: 4,
-},
+  cardGrande: {
+    width: width / 1.7,
+    height: 170,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    marginRight: 15,
+    overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
 
-imageWrapper: {
-  width: 90,
-  height: 90,
-  borderRadius: 45,
-  justifyContent: "center",
-  alignItems: "center",
-  marginBottom: 10,
-  overflow: "hidden",
-},
+  imageWrapper: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+    overflow: "hidden",
+  },
 
-cardMiniImage: {
-  width: 85,
-  height: 85,
-  borderRadius: 35,
-},
+  cardMiniImage: {
+    width: 85,
+    height: 85,
+    borderRadius: 35,
+  },
 
-cardTitleSmall: {
-  color: "#000",
-  fontSize: 16,
-  fontWeight: "600",
-  textAlign: "center",
-  paddingHorizontal: 10,
-},
-  
+  cardTitleSmall: {
+    color: "#000",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+    paddingHorizontal: 10,
+  },
+
   footerWrapper: {
     position: "absolute",
     letterSpacing: 19,
@@ -568,7 +570,7 @@ cardTitleSmall: {
 
 
   activeTab: {
-    backgroundColor: "#11f09e2c", // leve destaque no item ativo
+    backgroundColor: "#f08f112c", // leve destaque no item ativo
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 6,
