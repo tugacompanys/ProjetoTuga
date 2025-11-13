@@ -11,7 +11,8 @@ import {
   StatusBar,
   Dimensions,
   Animated,
-  Easing
+  Easing,
+  Image
 } from 'react-native';
 import { Ionicons, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
@@ -590,13 +591,19 @@ const getVideoId = (url) => {
             justifyContent: 'center'
           }}>
             <Text style={{ color: '#fff', fontSize: 36, fontWeight: 'bold', marginBottom: 20 }}>Parabéns!</Text>
+                            <Image
+                              source={require("../../assets/tuga_braço.png")}
+                              style={styles.mascote}
+                              resizeMode="contain"
+                            />
             <TouchableOpacity style={{
               backgroundColor: '#fff',
               paddingVertical: 10,
               paddingHorizontal: 25,
               borderRadius: 15,
               marginBottom: 12
-            }} onPress={handleFecharParabens}>
+            }}
+             onPress={handleFecharParabens}>
               <Text style={{ fontWeight: 'bold', color: '#000' }}>Fechar</Text>
             </TouchableOpacity>
 
@@ -698,6 +705,11 @@ infoLabel: {
   fontSize: 16,
   color: '#666',
   top: 20
+},
+mascote: {
+  height: 220,
+  width: 220,
+  marginBottom: 20,
 },
 
 });

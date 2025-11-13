@@ -119,7 +119,7 @@ export default function RegisterScreen({ navigation }) {
 
             <View style={styles.mascoteWrap}>
               <Image
-                source={require("../../assets/tuga_bodybuilder.png")}
+                source={require("../../assets/tuga_celular.png")}
                 style={styles.mascote}
                 resizeMode="contain"
               />
@@ -363,7 +363,10 @@ const styles = StyleSheet.create({
   },
 
   mascote: {
-    height: 400,
+    height: 380,
+    width: 350,
+    alignSelf: "center",
+    marginTop: 20
   },
   iconLeft: {
   marginRight: 10,
