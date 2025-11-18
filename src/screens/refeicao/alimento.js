@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -25,38 +25,24 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-// Habilitar animação para Android
+// Habilitar animação no Android
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
-
 
 export default function Alimento({ route, navigation }) {
   const comida = route?.params?.comida;
 
   if (!comida) {
-    console.warn("⚠️ Nenhum alimento foi passado para a tela Alimento!");
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ fontSize: 16, color: "#555", textAlign: "center" }}>
-          Nenhum alimento selecionado.
-        </Text>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{
-            marginTop: 20,
-            backgroundColor: "#4CAF50",
-            paddingVertical: 10,
-            paddingHorizontal: 20,
-            borderRadius: 10,
-          }}
-        >
-          <Text style={{ color: "#fff" }}>Voltar</Text>
+        <Text>Nenhum alimento selecionado</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text>Voltar</Text>
         </TouchableOpacity>
       </View>
     );
   }
-
 
   const [nutritionalOpen, setNutritionalOpen] = useState(true);
   const [ingredientsOpen, setIngredientsOpen] = useState(true);
@@ -66,6 +52,8 @@ export default function Alimento({ route, navigation }) {
   const [comentariosFiltrados, setComentariosFiltrados] = useState([]);
   const [novoComentario, setNovoComentario] = useState("");
   const [nota, setNota] = useState(0);
+
+  const flatListRef = useRef(null);
 
   const comentariosRef = collection(db, "comentarios");
 
@@ -80,7 +68,6 @@ export default function Alimento({ route, navigation }) {
     return () => unsubscribe();
   }, [comida.id]);
 
-
   const toggleSection = (section) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     if (section === "nutritional") setNutritionalOpen(!nutritionalOpen);
@@ -89,11 +76,8 @@ export default function Alimento({ route, navigation }) {
   };
 
   const enviarComentario = async () => {
-    if (!novoComentario) return;
-    if (!auth.currentUser) {
-      console.log("Usuário não logado");
-      return;
-    }
+    if (!novoComentario.trim()) return;
+    if (!auth.currentUser) return;
 
     try {
       await addDoc(comentariosRef, {
@@ -103,32 +87,35 @@ export default function Alimento({ route, navigation }) {
         foto:
           auth.currentUser.photoURL ||
           "https://cdn-icons-png.flaticon.com/512/147/147142.png",
-        comentario: novoComentario,
+        comentario: novoComentario.trim(),
         nota,
         createdAt: serverTimestamp(),
       });
+
       setNovoComentario("");
       setNota(0);
-    } catch (error) {
-      console.log("Erro ao enviar comentário:", error);
+    } catch (e) {
+      console.log("Erro ao enviar:", e);
     }
   };
 
-  const formatDate = (timestamp) => {
-    if (!timestamp) return "";
-    if (timestamp.toDate) return timestamp.toDate().toLocaleString();
-    if (timestamp.seconds) return new Date(timestamp.seconds * 1000).toLocaleString();
-    return new Date(timestamp).toLocaleString();
+  const formatDate = (t) => {
+    if (!t) return "";
+    if (t.toDate) return t.toDate().toLocaleString();
+    if (t.seconds) return new Date(t.seconds * 1000).toLocaleString();
+    return "";
   };
 
   const renderComentario = ({ item }) => (
     <View style={styles.comentarioRow}>
       <Image source={{ uri: item.foto }} style={styles.comentarioFoto} />
+
       <View style={{ flex: 1 }}>
         <View style={styles.comentarioHeader}>
           <Text style={{ fontWeight: "bold" }}>{item.nome}</Text>
           <Text style={styles.comentarioData}>{formatDate(item.createdAt)}</Text>
         </View>
+
         <View style={{ flexDirection: "row", marginVertical: 2 }}>
           {[1, 2, 3, 4, 5].map((n) => (
             <Ionicons
@@ -139,19 +126,17 @@ export default function Alimento({ route, navigation }) {
             />
           ))}
         </View>
+
         <Text>{item.comentario}</Text>
       </View>
     </View>
   );
 
   const renderHeader = () => {
-    // As categorias já estão no formato de nomes
-    const categoriasDoAlimento = comida.categorias;
-
+    const categorias = comida.categorias || [];
 
     return (
       <View>
-        {/* Botão voltar */}
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={28} color="#111" />
         </TouchableOpacity>
@@ -160,6 +145,7 @@ export default function Alimento({ route, navigation }) {
 
         <View style={{ padding: 16 }}>
           <Text style={styles.title}>{comida.nome}</Text>
+
           <View style={{ flexDirection: "row", alignItems: "center", marginTop: 4 }}>
             <Ionicons name="star" size={16} color="#f1c40f" />
             <Text style={{ marginLeft: 4, marginRight: 12 }}>{comida.rating || 4.5}</Text>
@@ -169,11 +155,10 @@ export default function Alimento({ route, navigation }) {
             <Text style={{ marginLeft: 4 }}>{comida.kcal} kcal</Text>
           </View>
 
-          {/* CARDS DAS CATEGORIAS */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
-            {categoriasDoAlimento.map((cat, index) => (
+            {categorias.map((cat, i) => (
               <TouchableOpacity
-                key={index}
+                key={i}
                 style={styles.categoryCard}
                 onPress={() => navigation.navigate("Refeicao", { categoria: cat })}
               >
@@ -181,14 +166,10 @@ export default function Alimento({ route, navigation }) {
               </TouchableOpacity>
             ))}
           </ScrollView>
-
         </View>
 
-        {/* Valor Nutricional */}
-        <TouchableOpacity
-          style={styles.sectionHeader}
-          onPress={() => toggleSection("nutritional")}
-        >
+        {/* Valor nutricional */}
+        <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection("nutritional")}>
           <Text style={styles.sectionTitle}>Valor nutricional (por porção)</Text>
           <Ionicons
             name={nutritionalOpen ? "chevron-up-outline" : "chevron-down-outline"}
@@ -196,6 +177,7 @@ export default function Alimento({ route, navigation }) {
             color="#444"
           />
         </TouchableOpacity>
+
         {nutritionalOpen && (
           <View style={styles.sectionContentRounded}>
             {[
@@ -206,20 +188,17 @@ export default function Alimento({ route, navigation }) {
               ["Açúcar", "2.3 g"],
               ["Colesterol", "78 mg"],
               ["Fibra", "2.6 g"],
-            ].map(([label, value], i) => (
+            ].map(([l, v], i) => (
               <View key={i} style={styles.row}>
-                <Text style={styles.label}>{label}</Text>
-                <Text style={styles.value}>{value}</Text>
+                <Text style={styles.label}>{l}</Text>
+                <Text style={styles.value}>{v}</Text>
               </View>
             ))}
           </View>
         )}
 
         {/* Ingredientes */}
-        <TouchableOpacity
-          style={styles.sectionHeader}
-          onPress={() => toggleSection("ingredients")}
-        >
+        <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection("ingredients")}>
           <Text style={styles.sectionTitle}>Ingredientes</Text>
           <Ionicons
             name={ingredientsOpen ? "chevron-up-outline" : "chevron-down-outline"}
@@ -227,36 +206,26 @@ export default function Alimento({ route, navigation }) {
             color="#444"
           />
         </TouchableOpacity>
+
         {ingredientsOpen && (
           <View style={styles.sectionContentRounded}>
-            <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+            <View style={{ flexDirection: "row" }}>
               <View style={{ flex: 1 }}>
                 {[
-                  [
-                    "Alho",
-                    "1 dente picado (3 g)",
-                    "https://upload.wikimedia.org/wikipedia/commons/8/8c/Garlic_Bulb.jpg",
-                  ],
-                  [
-                    "Azeite",
-                    "1 colher (15 g)",
-                    "https://upload.wikimedia.org/wikipedia/commons/8/8e/Olive_Oil.jpg",
-                  ],
-                  [
-                    "Tomate seco",
-                    "1 unidade picada (10 g)",
-                    "https://upload.wikimedia.org/wikipedia/commons/3/35/Dried_tomatoes.jpg",
-                  ],
-                ].map(([name, desc, img], i) => (
+                  ["Alho", "1 dente picado (3 g)", "https://upload.wikimedia.org/wikipedia/commons/8/8c/Garlic_Bulb.jpg"],
+                  ["Azeite", "1 colher (15 g)", "https://upload.wikimedia.org/wikipedia/commons/8/8e/Olive_Oil.jpg"],
+                  ["Tomate seco", "1 unidade picada (10 g)", "https://upload.wikimedia.org/wikipedia/commons/3/35/Dried_tomatoes.jpg"],
+                ].map(([n, d, img], i) => (
                   <View key={i} style={styles.ingredientRow}>
                     <Image source={{ uri: img }} style={styles.ingredientImage} />
                     <View>
-                      <Text style={styles.ingredientName}>{name}</Text>
-                      <Text style={styles.ingredientDesc}>{desc}</Text>
+                      <Text style={styles.ingredientName}>{n}</Text>
+                      <Text style={styles.ingredientDesc}>{d}</Text>
                     </View>
                   </View>
                 ))}
               </View>
+
               <Image
                 source={require("../../../assets/tuga_bodybuilder.png")}
                 style={styles.mascoteSide}
@@ -266,10 +235,7 @@ export default function Alimento({ route, navigation }) {
         )}
 
         {/* Instruções */}
-        <TouchableOpacity
-          style={styles.sectionHeader}
-          onPress={() => toggleSection("instructions")}
-        >
+        <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection("instructions")}>
           <Text style={styles.sectionTitle}>Instruções</Text>
           <Ionicons
             name={instructionsOpen ? "chevron-up-outline" : "chevron-down-outline"}
@@ -277,6 +243,7 @@ export default function Alimento({ route, navigation }) {
             color="#444"
           />
         </TouchableOpacity>
+
         {instructionsOpen && (
           <View style={styles.sectionContentRounded}>
             {[
@@ -284,18 +251,18 @@ export default function Alimento({ route, navigation }) {
               "Aqueça o azeite e doure o frango por 4–5 min cada lado.",
               "Adicione os temperos e cozinhe por mais 2 min.",
               "Sirva imediatamente.",
-            ].map((step, i) => (
+            ].map((s, i) => (
               <View key={i} style={styles.stepRow}>
                 <View style={styles.stepNumber}>
                   <Text style={styles.stepNumberText}>{i + 1}</Text>
                 </View>
-                <Text style={styles.stepText}>{step}</Text>
+                <Text style={styles.stepText}>{s}</Text>
               </View>
             ))}
           </View>
         )}
 
-        {/* Seção de Comentários */}
+        {/* ⭐⭐⭐ Estrelas + Comentário — agora logo acima dos comentários ⭐⭐⭐ */}
         <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
           <View style={{ flexDirection: "row", marginBottom: 12 }}>
             {[1, 2, 3, 4, 5].map((n) => (
@@ -309,18 +276,37 @@ export default function Alimento({ route, navigation }) {
             ))}
           </View>
 
-          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              padding: 12,
+              backgroundColor: "#fff",
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: "#ddd",
+              marginBottom: 20,
+            }}
+          >
             <TextInput
-              style={styles.input}
+              style={[styles.input, { flex: 1, marginRight: 8, maxHeight: 120 }]}
               placeholder="Escreva seu comentário..."
               value={novoComentario}
               onChangeText={setNovoComentario}
+              multiline={true}
+              blurOnSubmit={false}
             />
-            <TouchableOpacity style={styles.sendButton} onPress={enviarComentario}>
+
+            <TouchableOpacity
+              style={styles.sendButton}
+              onPress={enviarComentario}
+              activeOpacity={0.8}
+            >
               <Text style={{ color: "#fff" }}>Enviar</Text>
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Comentários virão logo após automaticamente */}
       </View>
     );
   };
@@ -333,18 +319,26 @@ export default function Alimento({ route, navigation }) {
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 20}
       >
         <FlatList
+          ref={flatListRef}
           data={comentariosFiltrados}
           keyExtractor={(item) => item.id}
           ListHeaderComponent={renderHeader}
           renderItem={renderComentario}
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ paddingBottom: 50 }}
+          keyboardDismissMode="none"
+          contentContainerStyle={{ paddingBottom: 80 }}
+          ListEmptyComponent={
+          <Text style={{ textAlign: "center", marginTop: 10, color: "#777" }}>
+            Ainda não há comentários. Seja o primeiro a comentar!
+          </Text>
+        }
         />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
+// --- ESTILOS ---
 const styles = StyleSheet.create({
   title: { fontSize: 20, fontWeight: "700", color: "#111", marginBottom: 6 },
   sectionHeader: {
@@ -373,7 +367,7 @@ const styles = StyleSheet.create({
   ingredientImage: { width: 50, height: 50, marginRight: 12, borderRadius: 8 },
   ingredientName: { fontWeight: "600", fontSize: 14, color: "#111" },
   ingredientDesc: { fontSize: 12, color: "#666" },
-  stepRow: { flexDirection: "row", marginBottom: 8, alignItems: "flex-start" },
+  stepRow: { flexDirection: "row", marginBottom: 8 },
   stepNumber: {
     width: 24,
     height: 24,
@@ -386,17 +380,36 @@ const styles = StyleSheet.create({
   stepNumberText: { color: "#fff", fontWeight: "bold" },
   stepText: { flex: 1, fontSize: 14, color: "#111" },
   mascoteSide: { width: 100, height: 100, marginLeft: 12, marginTop: 10, resizeMode: "contain" },
-  comentarioRow: { flexDirection: "row", marginBottom: 12, paddingHorizontal: 16, alignItems: "flex-start" },
+
+  comentarioRow: {
+    flexDirection: "row",
+    marginBottom: 12,
+    paddingHorizontal: 16,
+    alignItems: "flex-start",
+  },
   comentarioFoto: { width: 40, height: 40, borderRadius: 20, marginRight: 8 },
   comentarioHeader: { flexDirection: "row", justifyContent: "space-between" },
   comentarioData: { fontSize: 12, color: "#888" },
-  input: { flex: 1, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, marginRight: 8 },
-  sendButton: { paddingVertical: 10, paddingHorizontal: 14, backgroundColor: "#1e90ff", borderRadius: 8 },
 
-  image: { width: "100%", height: 220, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 },
-  title: { fontSize: 20, fontWeight: "700", color: "#111", marginBottom: 6 },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    minHeight: 40,
+    maxHeight: 120,
+    textAlignVertical: "top",
+  },
 
-  // Cards das categorias
+  sendButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: "#1e90ff",
+    borderRadius: 8,
+  },
+
+  image: { width: "100%", height: 220 },
+
   categoryCard: {
     backgroundColor: "#4CAF50",
     paddingVertical: 6,
@@ -407,5 +420,5 @@ const styles = StyleSheet.create({
   categoryCardText: { color: "#fff", fontWeight: "600" },
 
   backButton: { position: "absolute", top: 40, left: 16, zIndex: 10 },
-
 });
+ 

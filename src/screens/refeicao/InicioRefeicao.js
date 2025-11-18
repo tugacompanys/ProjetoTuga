@@ -420,7 +420,7 @@ export default function InicioRefeicaoScreen({ navigation }) {
               ))}
             </View>
           )}
-          contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 20 }}
+          contentContainerStyle={{ paddingHorizontal: 10, marginBottom: 100 }}
         />
 
 
