@@ -72,9 +72,9 @@ export default function Configuracoes() {
 
   return (
     <ScrollView
-  style={styles.container}
-  contentContainerStyle={{ paddingBottom: 90 }}
->
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 90 }}
+    >
 
       {/* Conta & Perfil */}
       <Text style={styles.secaoTitulo}>Conta e Perfil</Text>
@@ -144,7 +144,7 @@ export default function Configuracoes() {
       {/* Ajuda & Informações */}
       <Text style={styles.secaoTitulo}>Ajuda e Informações</Text>
       <View style={styles.card}>
-        <TouchableOpacity style={styles.cardItem} onPress={() => Alert.alert("Abrir FAQ")}>
+        <TouchableOpacity style={styles.cardItem} onPress={() => handleAbrirLink("https://mygluco.vercel.app/Sub-paginas/Suporte.html#faq")}>
           <Ionicons name="help-circle" size={25} color="#1E90FF" />
           <Text style={styles.cardItemTexto}>FAQ</Text>
           <Ionicons name="chevron-forward" size={20} color="#999" />
@@ -152,7 +152,7 @@ export default function Configuracoes() {
 
         <View style={styles.divider} />
 
-        <TouchableOpacity style={styles.cardItem} onPress={() => handleAbrirLink("mailto:suporte@mygluco.com")}>
+        <TouchableOpacity style={styles.cardItem} onPress={() => handleAbrirLink("https://mygluco.vercel.app/Sub-paginas/Suporte.html")}>
           <Ionicons name="mail" size={25} color="#20B2AA" />
           <Text style={styles.cardItemTexto}>Contato/Suporte</Text>
           <Ionicons name="chevron-forward" size={20} color="#999" />
@@ -160,7 +160,7 @@ export default function Configuracoes() {
 
         <View style={styles.divider} />
 
-        <TouchableOpacity style={styles.cardItem} onPress={() => handleAbrirLink("https://mygluco.com/privacidade")}>
+        <TouchableOpacity style={styles.cardItem} onPress={() => handleAbrirLink("https://mygluco.vercel.app/Sub-paginas/Privacidade.html")}>
           <Ionicons name="document-text" size={25} color="#808080" />
           <Text style={styles.cardItemTexto}>Política de Privacidade / Termos</Text>
           <Ionicons name="chevron-forward" size={20} color="#999" />
