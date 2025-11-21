@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "AppMygluco",
-    "slug": "appmygluco",
-    "version": "1.0.0",
+    "name": "Mygluco",
+    "slug": "mygluco",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/tugacriança.png",
     "userInterfaceStyle": "light",

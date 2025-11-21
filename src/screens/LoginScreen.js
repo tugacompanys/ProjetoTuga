@@ -16,7 +16,7 @@ import {
   Image
 } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import { FontAwesome, AntDesign, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome, AntDesign, MaterialCommunityIcons, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
@@ -26,6 +26,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen({ navigation }) {
+  const [emailFocus, setEmailFocus] = useState(false);
+  const [senhaFocus, setSenhaFocus] = useState(false);
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -123,58 +125,92 @@ export default function LoginScreen({ navigation }) {
               <Text style={styles.pageTitle}>Entrar</Text>
 
               <Image
-                source={require('../../assets/tugacriança.png')} // ajuste o caminho se necessário
+                source={require('../../assets/tugacriança.png')}
                 style={styles.loginImage}
                 resizeMode="contain"
               />
 
               <Text style={styles.fieldLabel}>Email</Text>
               <TextInput
-                placeholder="Digite seu email"
+                placeholder={emailFocus ? "" : "Digite seu email"}
                 value={email}
                 onChangeText={setEmail}
                 style={styles.input}
                 keyboardType="email-address"
-                mode="outlined"                         // outlined + outlineColor transparent para manter borda arredondada sem linha
-                outlineColor="transparent"
-                activeOutlineColor="transparent"
-                theme={{ colors: { background: 'rgba(93,233,133,0.18)' } }}
-                underlineColorAndroid="transparent"
-              />
-
-              <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={styles.forgotWrap}>
-                <Text style={styles.forgotText}>Esqueci a senha</Text>
-              </TouchableOpacity>
-
-              <Text style={styles.fieldLabel}>Senha</Text>
-              <TextInput
-                value={senha}
-                onChangeText={setSenha}
-                secureTextEntry={!mostrarSenha}
                 mode="outlined"
+
+                onFocus={() => setEmailFocus(true)}
+                onBlur={() => setEmailFocus(false)}
+
+                selectionColor="#000"
+                caretHidden={false}
+
                 outlineColor="transparent"
-                activeOutlineColor="transparent"
-                placeholder="Digite sua senha"
-                style={{
+                activeOutlineColor="#0eaa16ff"
 
-                  fontSize: 16,
-                  width: "100%",
-                  borderRadius: 25,
-                  marginBottom: 12,
-                }}
                 theme={{
-                  colors: { background: "#FFF" }
+                  colors: {
+                    background: 'rgba(93,233,133,0.18)',
+                    text: '#000',
+                    placeholder: '#666'
+                  },
+                  roundness: 16
                 }}
 
-                right={
+                left={
                   <TextInput.Icon
-                    icon={mostrarSenha ? "eye-off" : "eye"}
-                    onPress={() => setMostrarSenha(!mostrarSenha)}
-                    color="#000000ff"
+                    icon={() => <Ionicons name="mail-outline" size={20} color="#000" />}
                   />
                 }
               />
 
+              <Text style={styles.fieldLabel}>Senha</Text>
+              <TextInput
+                placeholder={senhaFocus ? "" : "Digite sua senha"}
+                value={senha}
+                onChangeText={setSenha}
+                style={styles.input}
+                secureTextEntry={!mostrarSenha}
+                mode="outlined"
+
+                onFocus={() => setSenhaFocus(true)}
+                onBlur={() => setSenhaFocus(false)}
+
+                selectionColor="#000"
+                caretHidden={false}
+
+                outlineColor="transparent"
+                activeOutlineColor="#0eaa16ff"
+
+                theme={{
+                  colors: {
+                    background: 'rgba(93,233,133,0.18)',
+                    text: '#000',
+                    placeholder: '#666'
+                  },
+                  roundness: 16
+                }}
+
+                left={
+                  <TextInput.Icon
+                    icon={() => <Ionicons name="lock-closed-outline" size={20} color="#000" />}
+                  />
+                }
+
+                right={
+                  <TextInput.Icon
+                    icon={mostrarSenha ? "eye-off-outline" : "eye-outline"}
+                    onPress={() => setMostrarSenha(!mostrarSenha)}
+                  />
+                }
+              />
+
+              <TouchableOpacity
+                onPress={() => navigation.navigate('ForgotPassword')}
+                style={{ width: '100%', alignItems: 'flex-end', marginTop: 4, marginBottom: 12 }}
+              >
+                <Text style={[styles.forgotText, { marginBottom: 0, top: 0 }]}>Esqueci a senha</Text>
+              </TouchableOpacity>
 
               <TouchableOpacity style={styles.loginBtn} onPress={handleLogin} disabled={loading}>
                 {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginBtnText}>Entrar</Text>}
@@ -201,21 +237,20 @@ export default function LoginScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.signupText}>
-                Não tem conta? <Text style={styles.signupLink} onPress={() => navigation.navigate('Register')}>Criar</Text>
-              </Text>
+              <Text style={styles.signupText}>Não tem conta?</Text>
+              <Text style={styles.signupLink} onPress={() => navigation.navigate('Register')}>Cadastrar</Text>
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-    </View>
+    </View >
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f2f2f2'
+    backgroundColor: '#f2f2f2',
   },
   inner: {
     flex: 1,
@@ -226,7 +261,8 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: '600',
     marginTop: 36,
-    color: '#000'
+    color: '#000',
+    fontWeight: '800'
   },
   loginImage: {
     width: width * 0.5,
@@ -255,16 +291,17 @@ const styles = StyleSheet.create({
     marginBottom: 6
   },
   forgotText: {
-    color: '#5DE985',
+    color: '#0eaa16ff',
     fontSize: 15,
     fontWeight: '500',
     paddingHorizontal: 4,
     marginBottom: -20,
-    top: 10
+    top: 10,
+    textDecorationLine: 'underline',
   },
   loginBtn: {
     width: '100%',
-    backgroundColor: '#5DE985',
+    backgroundColor: '#0eaa16ff',
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
@@ -306,12 +343,18 @@ const styles = StyleSheet.create({
   signupText: {
     textAlign: 'center',
     color: '#555',
-    marginTop: 8,
-    fontSize: 15
+    marginTop: 20,
+    fontSize: 15,
+    gap: 4,
+    right: 50
   },
   signupLink: {
-    color: '#5DE985',
+    color: '#0eaa16ff',
     fontWeight: 'bold',
-    fontSize: 15
+    fontSize: 20,
+    textDecorationLine: 'underline',
+    marginLeft: 36,   // se quiser mais espaço ainda
+    left: 40,
+    bottom: 25
   }
 });
