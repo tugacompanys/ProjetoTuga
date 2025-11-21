@@ -355,6 +355,6 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     marginLeft: 36,   // se quiser mais espaço ainda
     left: 40,
-    bottom: 25
+    bottom: 26
   }
 });

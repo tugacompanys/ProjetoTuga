@@ -19,11 +19,17 @@ import * as ImagePicker from "expo-image-picker";
 const { width } = Dimensions.get("window");
 
 export default function RegisterScreen({ navigation }) {
+  const [nomeFocus, setNomeFocus] = useState(false);
+  const [emailFocus, setEmailFocus] = useState(false);
+  const [senhaFocus, setSenhaFocus] = useState(false);
+  const [confirmarSenhaFocus, setConfirmarSenhaFocus] = useState(false);
   const [step, setStep] = useState(1);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [showSenha, setShowSenha] = useState(false);
+  const [showConfirmSenha, setShowConfirmSenha] = useState(false);
   const [image, setImage] = useState(null);
 
   const pickImage = async () => {
@@ -132,102 +138,164 @@ export default function RegisterScreen({ navigation }) {
             </View>
           </View>
         )}
-{step === 2 && (
-  <>
-    {/* FOTO DO USUÁRIO */}
-    <TouchableOpacity onPress={pickImage} activeOpacity={0.8} style={{ marginTop: -20 }}>
-      <View style={styles.imageWrapper}>
-        <Image
-          source={
-            image
-              ? { uri: image }
-              : { uri: "https://cdn-icons-png.flaticon.com/512/9512/9512683.png" }
-          }
-          style={styles.profileImage}
-        />
-        <View style={styles.cameraIcon}>
-          <Ionicons name="camera-outline" size={20} color="#000000ff" />
-        </View>
-      </View>
-    </TouchableOpacity>
+        {step === 2 && (
+          <>
+            {/* FOTO DO USUÁRIO */}
+            <TouchableOpacity onPress={pickImage} activeOpacity={0.8} style={{ marginTop: -20 }}>
+              <View style={styles.imageWrapper}>
+                <Image
+                  source={
+                    image
+                      ? { uri: image }
+                      : { uri: "https://cdn-icons-png.flaticon.com/512/9512/9512683.png" }
+                  }
+                  style={styles.profileImage}
+                />
+                <View style={styles.cameraIcon}>
+                  <Ionicons name="camera-outline" size={20} color="#000000ff" />
+                </View>
+              </View>
+            </TouchableOpacity>
 
-    {/* CAMPO NOME (SEPARADO E MAIS PRA CIMA) */}
-<View style={styles.singleInputBox}>
-  <Ionicons
-    name="pencil"
-    size={22}
-    color="#000000ff"
-    style={styles.iconAbsolute}
-  />
+            {/* CAMPO NOME (SEPARADO E MAIS PRA CIMA) */}
+            <View style={[
+              styles.singleInputBox,
+              nomeFocus && styles.inputFocused
+            ]}>
+              <Ionicons
+                name="pencil"
+                size={20}
+                color={nomeFocus ? "#0077b6" : "#333"}
+                style={{ marginRight: 10 }} />
 
-  <TextInput
-    style={styles.inputFieldCentered}
-    placeholder="Nome"
-    placeholderTextColor="#000000ff"
-    value={nome}
-    onChangeText={setNome}
-  />
-</View>
-
-    {/* Espaçamento para separar os outros campos */}
-    <View style={{ height: 30 }} />
-
-    {/* CAMPO EMAIL */}
-    <View style={styles.singleInputBox}>
-      <Ionicons name="mail-outline" size={22} color="#0077b6" style={styles.iconLeft} />
-      <TextInput
-        style={styles.inputField}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
-    </View>
-
-    {/* CAMPO SENHA */}
-    <View style={styles.singleInputBox}>
-      <Ionicons name="lock-closed-outline" size={22} color="#0077b6" style={styles.iconLeft} />
-      <TextInput
-        style={styles.inputField}
-        placeholder="Senha"
-        secureTextEntry
-        value={senha}
-        onChangeText={setSenha}
-      />
-    </View>
-
-    {/* CAMPO CONFIRMAR SENHA */}
-    <View style={styles.singleInputBox}>
-      <Ionicons name="shield-checkmark-outline" size={22} color="#0077b6" style={styles.iconLeft} />
-      <TextInput
-        style={styles.inputField}
-        placeholder="Confirmar senha"
-        secureTextEntry
-        value={confirmarSenha}
-        onChangeText={setConfirmarSenha}
-      />
-    </View>
-
-    {/* BOTÃO CADASTRAR */}
-    <TouchableOpacity style={styles.buttonStep2} onPress={handleRegister}>
-      <Text style={styles.buttonText}>Cadastrar</Text>
-    </TouchableOpacity>
+              <TextInput
+                style={styles.inputField}
+                placeholder="Nome completo"
+                placeholderTextColor="#777"
+                value={nome}
+                onChangeText={setNome}
+                onFocus={() => setNomeFocus(true)}
+                onBlur={() => setNomeFocus(false)}
+              />
+            </View>
 
 
-    <View style={{ flexDirection: "row", marginTop: 15 }}>
-  <Text style={{ fontSize: 16, color: "#555" }}>
-    Já possui uma conta?
-  </Text>
+            {/* Espaçamento para separar os outros campos */}
+            <View style={{ height: 30 }} />
 
-  <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-    <Text style={{ fontSize: 16, color: "#0077b6", fontWeight: "bold", marginLeft: 5 }}>
-      Entrar
-    </Text>
-  </TouchableOpacity>
-</View>
+            {/* CAMPO EMAIL */}
+            <View style={[
+              styles.singleInputBox,
+              emailFocus && styles.inputFocused
+            ]}>
 
-  </>
-)}
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color={emailFocus ? "#0077b6" : "#333"}
+                style={{ marginRight: 10 }}
+              />
+
+              <TextInput
+                style={styles.inputField}
+                placeholder="Email"
+                placeholderTextColor="#777"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                onFocus={() => setEmailFocus(true)}
+                onBlur={() => setEmailFocus(false)}
+              />
+            </View>
+
+            {/* CAMPO SENHA */}
+            <View style={[
+              styles.singleInputBox,
+              senhaFocus && styles.inputFocused
+            ]}>
+              <Ionicons
+                name="lock-closed-outline"
+                size={20}
+                color={senhaFocus ? "#0077b6" : "#333"}
+                style={{ marginRight: 10 }}
+              />
+
+              <TextInput
+                style={styles.inputField}
+                placeholder="Senha"
+                placeholderTextColor="#777"
+                secureTextEntry={!showSenha}
+                value={senha}
+                onChangeText={setSenha}
+                onFocus={() => setSenhaFocus(true)}
+                onBlur={() => setSenhaFocus(false)}
+              />
+
+              <TouchableOpacity onPress={() => setShowSenha(!showSenha)}>
+                <Ionicons
+                  name={showSenha ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color="#777"
+                />
+              </TouchableOpacity>
+            </View>
+
+
+
+            {/* CAMPO CONFIRMAR SENHA */}
+            <View style={[
+              styles.singleInputBox,
+              confirmarSenhaFocus && styles.inputFocused
+            ]}>
+              <Ionicons
+                name="shield-checkmark-outline"
+                size={20}
+                color={confirmarSenhaFocus ? "#0077b6" : "#333"}
+                style={{ marginRight: 10 }}
+              />
+
+              <TextInput
+                style={styles.inputField}
+                placeholder="Confirmar senha"
+                placeholderTextColor="#777"
+                secureTextEntry={!showConfirmSenha}
+                value={confirmarSenha}
+                onChangeText={setConfirmarSenha}
+                onFocus={() => setConfirmarSenhaFocus(true)}
+                onBlur={() => setConfirmarSenhaFocus(false)}
+              />
+
+              <TouchableOpacity onPress={() => setShowConfirmSenha(!showConfirmSenha)}>
+                <Ionicons
+                  name={showConfirmSenha ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color="#777"
+                />
+              </TouchableOpacity>
+            </View>
+
+
+            {/* BOTÃO CADASTRAR */}
+            <TouchableOpacity style={styles.buttonStep2} onPress={handleRegister}>
+              <Text style={styles.buttonText}>Cadastrar</Text>
+            </TouchableOpacity>
+
+
+            <View style={{ flexDirection: "row", marginTop: 15 }}>
+              <Text style={{ fontSize: 16, color: "#555" }}>
+                Já possui uma conta?
+              </Text>
+
+              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                <Text style={{ fontSize: 20, color: "#0077b6", fontWeight: "800", marginLeft: 5, underlineColor: "#0077b6", textDecorationLine: "underline", bottom: 4, left: 6 }}>
+                  Entrar
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+          </>
+        )}
 
       </ScrollView>
     </KeyboardAvoidingView>
@@ -369,37 +437,62 @@ const styles = StyleSheet.create({
     marginTop: 20
   },
   iconLeft: {
-  marginRight: 10,
-},
+    marginRight: 10,
+  },
 
-singleInputBox: {
-  width: "90%",
-  backgroundColor: "#fff",
-  flexDirection: "row",
-  alignItems: "center",
-  borderRadius: 16,
-  paddingHorizontal: 14,
-  paddingVertical: 8, // altura menor
-  marginBottom: 14,
-  elevation: 2,
-},
+  singleInputBox: {
+    width: "90%",
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    height: 54,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: "transparent",
+    elevation: 2,
+  },
 
-inputField: {
-  flex: 1,
-  paddingVertical: 6,
-  fontSize: 15,
-},
-iconAbsolute: {
-  position: "absolute",
-  left: 14,
-  zIndex: 10,
-},
+  inputFocused: {
+    borderColor: "#0077b6",
+  },
 
-inputFieldCentered: {
-  flex: 1,
-  fontSize: 15,
-  paddingVertical: 6,
-  textAlign: "center",   // CENTRALIZA DE VERDADE
-},
+
+  inputField: {
+    flex: 1,
+    paddingVertical: 6,
+    fontSize: 15,
+  },
+  iconAbsolute: {
+    position: "absolute",
+    left: 14,
+    zIndex: 10,
+  },
+
+  inputFieldCentered: {
+    flex: 1,
+    fontSize: 15,
+    paddingVertical: 6,
+    textAlign: "center",   // CENTRALIZA DE VERDADE
+  },
+
+  singleInputBox: {
+    width: "90%",
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    height: 54,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: "transparent",
+    elevation: 2,
+  },
+
+  inputFocused: {
+    borderColor: "#0077b6",
+  },
 
 });
