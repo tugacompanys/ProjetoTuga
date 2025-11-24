@@ -119,7 +119,8 @@ export default function LoginScreen({ navigation }) {
     <View style={styles.container}>
       <StatusBar hidden />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+
           <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
             <View style={styles.inner}>
               <Text style={styles.pageTitle}>Entrar</Text>
@@ -351,10 +352,10 @@ const styles = StyleSheet.create({
   signupLink: {
     color: '#0eaa16ff',
     fontWeight: 'bold',
-    fontSize: 20,
-    textDecorationLine: 'underline',
+    fontSize: 17,
+    //textDecorationLine: 'underline',
     marginLeft: 36,   // se quiser mais espaço ainda
-    left: 40,
-    bottom: 26
+    left: 34,
+    bottom: 22,
   }
 });
