@@ -91,202 +91,202 @@ function buildPlan({ sexo, peso, altura, idade, atividade, objetivo }) {
 
 
 
-   
-  const Ruler = ({ min = 30, max = 150, value, onChange, scale = 1.3}) => {
-    const containerWidth = width * 0.8;
-    const totalUnits = max - min;
 
-    // largura fixa pra cada ponteiro (espacamento real)
-    const tickWidth = 18;
+const Ruler = ({ min = 30, max = 150, value, onChange, scale = 1.3 }) => {
+  const containerWidth = width * 0.8;
+  const totalUnits = max - min;
 
-    const innerWidth = tickWidth * totalUnits * scale;
+  // largura fixa pra cada ponteiro (espacamento real)
+  const tickWidth = 18;
 
-    const panX = useRef(new Animated.Value(0)).current;
-    const startOffsetRef = useRef(0);
+  const innerWidth = tickWidth * totalUnits * scale;
+
+  const panX = useRef(new Animated.Value(0)).current;
+  const startOffsetRef = useRef(0);
 
 
-    const ticks = React.useMemo(() => {
-      const arr = [];
-      for (let i = min; i <= max; i++) {
-        arr.push({ value: i, isBig: i % 10 === 0 });
-      }
-      return arr;
-    }, [min, max]);
+  const ticks = React.useMemo(() => {
+    const arr = [];
+    for (let i = min; i <= max; i++) {
+      arr.push({ value: i, isBig: i % 10 === 0 });
+    }
+    return arr;
+  }, [min, max]);
 
-    useEffect(() => {
-      const centerOffset = containerWidth / 2 - tickWidth / 2;
-      const initial = centerOffset - (value - min) * tickWidth;
+  useEffect(() => {
+    const centerOffset = containerWidth / 2 - tickWidth / 2;
+    const initial = centerOffset - (value - min) * tickWidth;
 
-      panX.setValue(initial);
-      startOffsetRef.current = initial;
-    }, [value, containerWidth]);
+    panX.setValue(initial);
+    startOffsetRef.current = initial;
+  }, [value, containerWidth]);
 
-    const panResponder = useRef(
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onMoveShouldSetPanResponder: () => true,
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
 
-        onPanResponderGrant: () => {
-          panX.stopAnimation((curr) => {
-            startOffsetRef.current = curr;
-          });
-        },
+      onPanResponderGrant: () => {
+        panX.stopAnimation((curr) => {
+          startOffsetRef.current = curr;
+        });
+      },
 
-        onPanResponderMove: (_, g) => {
-          const centerOffset = containerWidth / 2 - tickWidth / 2;
-          const maxOffset = centerOffset;
-          const minOffset = centerOffset - totalUnits * tickWidth;
+      onPanResponderMove: (_, g) => {
+        const centerOffset = containerWidth / 2 - tickWidth / 2;
+        const maxOffset = centerOffset;
+        const minOffset = centerOffset - totalUnits * tickWidth;
 
-          let newOffset = startOffsetRef.current + g.dx;
-          newOffset = Math.max(Math.min(newOffset, maxOffset), minOffset);
+        let newOffset = startOffsetRef.current + g.dx;
+        newOffset = Math.max(Math.min(newOffset, maxOffset), minOffset);
 
-          panX.setValue(newOffset);
-        },
+        panX.setValue(newOffset);
+      },
 
-        onPanResponderRelease: (_, g) => {
-          const centerOffset = containerWidth / 2 - tickWidth / 2;
-          const maxOffset = centerOffset;
-          const minOffset = centerOffset - totalUnits * tickWidth;
+      onPanResponderRelease: (_, g) => {
+        const centerOffset = containerWidth / 2 - tickWidth / 2;
+        const maxOffset = centerOffset;
+        const minOffset = centerOffset - totalUnits * tickWidth;
 
-          let final = startOffsetRef.current + g.dx;
-          final = Math.max(Math.min(final, maxOffset), minOffset);
+        let final = startOffsetRef.current + g.dx;
+        final = Math.max(Math.min(final, maxOffset), minOffset);
 
-          let newValue = min + Math.round((centerOffset - final) / tickWidth);
-          newValue = Math.max(min, Math.min(max, newValue));
+        let newValue = min + Math.round((centerOffset - final) / tickWidth);
+        newValue = Math.max(min, Math.min(max, newValue));
 
-          onChange(newValue);
+        onChange(newValue);
 
-          Animated.timing(panX, {
-            toValue: centerOffset - (newValue - min) * tickWidth,
-            duration: 90,
-            useNativeDriver: true,
-          }).start(() => {
-            startOffsetRef.current = centerOffset - (newValue - min) * tickWidth;
-          });
-        },
-      })
-    ).current;
+        Animated.timing(panX, {
+          toValue: centerOffset - (newValue - min) * tickWidth,
+          duration: 90,
+          useNativeDriver: true,
+        }).start(() => {
+          startOffsetRef.current = centerOffset - (newValue - min) * tickWidth;
+        });
+      },
+    })
+  ).current;
 
-    return (
-      <View
+  return (
+    <View
+      style={{
+        width: "90%",
+        alignSelf: "center",
+        backgroundColor: "#fff",
+        borderRadius: 30,
+        padding: 12,
+        elevation: 4,
+        top: -10,
+        alignItems: "center",
+      }}
+    >
+      <Text
         style={{
-          width: "90%",
-          alignSelf: "center",
-          backgroundColor: "#fff",
-          borderRadius: 30,
-          padding: 12,
-          elevation: 4,
-          top: -10,
-          alignItems: "center",
+          fontSize: 40,
+          fontWeight: "800",
+          color: "#2EA3FC",
+          marginBottom: 8,
         }}
       >
-        <Text
+        {value}
+      </Text>
+
+      <View
+        style={{
+          width: "100%",
+          height: 90,
+          overflow: "hidden",
+        }}
+        {...panResponder.panHandlers}
+      >
+        {/* Cabeça arredondada do ponteiro */}
+        <View
+          pointerEvents="none"
           style={{
-            fontSize: 40,
-            fontWeight: "800",
-            color: "#2EA3FC",
-            marginBottom: 8,
+            position: "absolute",
+            left: "50%",
+            top: -10,
+            marginLeft: -20,
+            width: 40,
+            height: 26,
           }}
-        >
-          {value}
-        </Text>
+        />
 
         <View
+          pointerEvents="none"
           style={{
-            width: "100%",
-            height: 90,
-            overflow: "hidden",
+            position: "absolute",
+            left: "50%",
+            top: 5,
+            marginLeft: -15,
+            width: 30,
+            height: 100,
+            borderLeftWidth: 15,
+            borderRightWidth: 15,
+            borderTopWidth: 22,
+            borderTopLeftRadius: 10,
+            borderTopRightRadius: 10,
+            borderLeftColor: "transparent",
+            borderRightColor: "transparent",
+            borderTopColor: "#2EA3FC",
+            zIndex: 9,
           }}
-          {...panResponder.panHandlers}
+        />
+
+
+
+        <View
+          pointerEvents="none"
+          style={{
+            position: "absolute",
+            left: "50%",
+            width: 4,
+            height: 40,
+            backgroundColor: "#2EA3FC",
+            top: 20,
+            marginLeft: -2,
+            borderRadius: 999,
+            zIndex: 9,
+          }}
+        />
+
+
+        <Animated.View
+          style={{
+            flexDirection: "row",
+            width: innerWidth,
+            transform: [{ translateX: panX }],
+          }}
         >
-          {/* Cabeça arredondada do ponteiro */}
-  <View
-    pointerEvents="none"
-    style={{
-      position: "absolute",
-      left: "50%",
-      top: -10,
-      marginLeft: -20,
-      width: 40,
-      height: 26,
-    }}
-  />
-
-  <View
-    pointerEvents="none"
-    style={{
-      position: "absolute",
-      left: "50%",
-      top: 5,
-      marginLeft: -15,
-      width: 30,
-      height: 100,
-      borderLeftWidth: 15,
-      borderRightWidth: 15,
-      borderTopWidth: 22,
-      borderTopLeftRadius: 10,
-      borderTopRightRadius: 10,
-      borderLeftColor: "transparent",
-      borderRightColor: "transparent",
-      borderTopColor: "#2EA3FC",
-      zIndex: 9,
-    }}
-  />
-
-
-
-  <View
-    pointerEvents="none"
-    style={{
-      position: "absolute",
-      left: "50%",
-      width: 4,
-      height: 40,
-      backgroundColor: "#2EA3FC",
-      top: 20,
-      marginLeft: -2,
-      borderRadius: 999,
-      zIndex: 9,
-    }}
-  />
-
-
-          <Animated.View
-            style={{
-              flexDirection: "row",
-              width: innerWidth,
-              transform: [{ translateX: panX }],
-            }}
-          >
-            {ticks.map((tick, i) => (
+          {ticks.map((tick, i) => (
+            <View
+              key={i}
+              style={{
+                width: tickWidth,
+                alignItems: "center",
+              }}
+            >
               <View
-                key={i}
                 style={{
-                  width: tickWidth,
-                  alignItems: "center",
+                  width: 3,
+                  height: tick.isBig ? 36 : 18,
+                  backgroundColor: tick.isBig ? "#2EA3FC" : "#A9D4FF",
+                  borderRadius: 2,
+                  marginTop: 24,
                 }}
-              >
-                <View
-                  style={{
-                    width: 3,
-                    height: tick.isBig ? 36 : 18,
-                    backgroundColor: tick.isBig ? "#2EA3FC" : "#A9D4FF",
-                    borderRadius: 2,
-                    marginTop: 24,
-                  }}
-                />
-                {tick.isBig && (
-                  <Text style={{ fontSize: 11, marginTop: 4 }}>
-                    {tick.value}
-                  </Text>
-                )}
-              </View>
-            ))}
-          </Animated.View>
-        </View>
+              />
+              {tick.isBig && (
+                <Text style={{ fontSize: 11, marginTop: 4 }}>
+                  {tick.value}
+                </Text>
+              )}
+            </View>
+          ))}
+        </Animated.View>
       </View>
-    );
-  };
+    </View>
+  );
+};
 /* ==========================
    Main screen
    ========================== */
@@ -353,17 +353,17 @@ export default function ProfileSetupScreen({ navigation, route }) {
     Animated.timing(slideAlturaAnim, { toValue: height, duration: 200, useNativeDriver: false }).start(() => setShowAlturaModal(false));
   };
 
-   
+
   const [imc, setImc] = useState(null);
   // IMC calculation
 
-    const calcIMC = () => {
-      const h = parseFloat(altura) / 100;
-      const p = parseFloat(peso);
-      if (!h || !p || isNaN(h) || isNaN(p)) return null;
-      const res = p / (h * h);
-      return Math.round(res * 10) / 10;
-    };
+  const calcIMC = () => {
+    const h = parseFloat(altura) / 100;
+    const p = parseFloat(peso);
+    if (!h || !p || isNaN(h) || isNaN(p)) return null;
+    const res = p / (h * h);
+    return Math.round(res * 10) / 10;
+  };
   const calcIdealRange = (hCm) => {
     const h = parseFloat(hCm) / 100;
     if (!h || isNaN(h)) return { min: null, max: null };
@@ -490,128 +490,128 @@ export default function ProfileSetupScreen({ navigation, route }) {
   /* ==========================
      Page components (wizard)
      ========================== */
-const Step1 = (
-  <View style={[styles.page, { width }]}>
+  const Step1 = (
+    <View style={[styles.page, { width }]}>
       <Text style={styles.centerTitle}>Informações básicas</Text>
-    <View
-      style={[
-        styles.infoBox,
-        {
-          paddingHorizontal: 20,
-          paddingVertical: 15,
-          borderRadius: 30,
-          width: "95%",
-          alignSelf: "center",
-          marginTop: 6,
-        },
-      ]}
-    >
-      {/* GÊNERO */}
-      <TouchableOpacity
-        style={[styles.infoRow, { borderBottomWidth: 0, marginBottom: 5 }]}
-        activeOpacity={0.8}
-        onPress={() => setShowSexoModal(true)} // seu modal de sexo
+      <View
+        style={[
+          styles.infoBox,
+          {
+            paddingHorizontal: 20,
+            paddingVertical: 15,
+            borderRadius: 30,
+            width: "95%",
+            alignSelf: "center",
+            marginTop: 6,
+          },
+        ]}
       >
-        <View style={{ flexDirection: "row", alignItems: "center", width: 150 }}>
-          <View style={{ flexDirection: "row", marginRight: 8 }}>
-            <FontAwesome5 name="mars" size={22} color="#2EA3FC" style={{ marginRight: -4 }} />
-            <FontAwesome5 name="venus" size={22} color="#FF69B4" />
+        {/* GÊNERO */}
+        <TouchableOpacity
+          style={[styles.infoRow, { borderBottomWidth: 0, marginBottom: 5 }]}
+          activeOpacity={0.8}
+          onPress={() => setShowSexoModal(true)} // seu modal de sexo
+        >
+          <View style={{ flexDirection: "row", alignItems: "center", width: 150 }}>
+            <View style={{ flexDirection: "row", marginRight: 8 }}>
+              <FontAwesome5 name="mars" size={22} color="#2EA3FC" style={{ marginRight: -4 }} />
+              <FontAwesome5 name="venus" size={22} color="#FF69B4" />
+            </View>
+            <Text style={styles.infoLabel}>Gênero</Text>
           </View>
-          <Text style={styles.infoLabel}>Gênero</Text>
-        </View>
 
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          {/* mostra "Selecione" se sexo vazio */}
-          <Text style={styles.infoValue}>{sexo || "Selecione"}</Text>
-          <Ionicons name="chevron-forward" size={20} color="#C8E0FF" style={{ marginLeft: 8 }} />
-        </View>
-      </TouchableOpacity>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            {/* mostra "Selecione" se sexo vazio */}
+            <Text style={styles.infoValue}>{sexo || "Selecione"}</Text>
+            <Ionicons name="chevron-forward" size={20} color="#C8E0FF" style={{ marginLeft: 8 }} />
+          </View>
+        </TouchableOpacity>
 
-      {/* ALTURA */}
-      <TouchableOpacity
-        style={[styles.infoRow, { borderBottomWidth: 0, marginBottom: 5 }]}
-        activeOpacity={0.8}
-        onPress={openAlturaModal}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center", width: 150 }}>
-          <FontAwesome5 name="child" size={22} color="#2EA3FC" style={{ marginRight: 12 }} />
-          <Text style={styles.infoLabel}>Altura</Text>
-        </View>
+        {/* ALTURA */}
+        <TouchableOpacity
+          style={[styles.infoRow, { borderBottomWidth: 0, marginBottom: 5 }]}
+          activeOpacity={0.8}
+          onPress={openAlturaModal}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center", width: 150 }}>
+            <FontAwesome5 name="child" size={22} color="#2EA3FC" style={{ marginRight: 12 }} />
+            <Text style={styles.infoLabel}>Altura</Text>
+          </View>
 
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text style={styles.infoValue}>{altura ? `${altura} cm` : "Selecione"}</Text>
-          <Ionicons name="chevron-forward" size={20} color="#C8E0FF" style={{ marginLeft: 8 }} />
-        </View>
-      </TouchableOpacity>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={styles.infoValue}>{altura ? `${altura} cm` : "Selecione"}</Text>
+            <Ionicons name="chevron-forward" size={20} color="#C8E0FF" style={{ marginLeft: 8 }} />
+          </View>
+        </TouchableOpacity>
 
-      {/* DATA DE NASCIMENTO */}
-      <TouchableOpacity
-        style={[styles.infoRow, { borderBottomWidth: 0, marginBottom: 0 }]}
-        activeOpacity={0.8}
-        onPress={() => {
-          setDateInput(idade || "");
-          setShowDateModal(true);
-        }}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center", width: 150 }}>
-          <FontAwesome5 name="birthday-cake" size={22} color="#FFA500" style={{ marginRight: 12 }} />
-          <Text style={styles.infoLabel}>Data de Nascimento</Text>
-        </View>
+        {/* DATA DE NASCIMENTO */}
+        <TouchableOpacity
+          style={[styles.infoRow, { borderBottomWidth: 0, marginBottom: 0 }]}
+          activeOpacity={0.8}
+          onPress={() => {
+            setDateInput(idade || "");
+            setShowDateModal(true);
+          }}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center", width: 150 }}>
+            <FontAwesome5 name="birthday-cake" size={22} color="#FFA500" style={{ marginRight: 12 }} />
+            <Text style={styles.infoLabel}>Data de Nascimento</Text>
+          </View>
 
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text style={styles.infoValue}>{idade || "Selecione"}</Text>
-          <Ionicons name="chevron-forward" size={20} color="#C8E0FF" style={{ marginLeft: 8 }} />
-        </View>
-      </TouchableOpacity>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={styles.infoValue}>{idade || "Selecione"}</Text>
+            <Ionicons name="chevron-forward" size={20} color="#C8E0FF" style={{ marginLeft: 8 }} />
+          </View>
+        </TouchableOpacity>
+      </View>
     </View>
-  </View>
-);
-const Step2 = (
+  );
+  const Step2 = (
     <View style={[styles.page, { width }]}>
       <Text style={styles.centerTitle}>Qual é o seu
         {"\n"}
         peso atual?</Text>
 
       {/* Card de peso com mascote e textos */}
-  <View style={styles.imcCard}>
-    {/* Textos do IMC */}
-    <View style={styles.imcTextContainer}>
-      <Text style={styles.imcLabel}>IMC Atual</Text>
-      <Text style={styles.imcValue}>{imc || calcIMC() || "--"}</Text>
-      <Text style={styles.imcRange}>Faixa de Peso Ideal</Text>
-<Text
-  style={[styles.imcRangeValue, { flexShrink: 1 }]}
-  numberOfLines={1}
->
-  {(() => {
-    const r = calcIdealRange(altura);
-    if (!r.min) return "--";
-    return `${r.min} - ${r.max}`;
-  })()}
-</Text>
+      <View style={styles.imcCard}>
+        {/* Textos do IMC */}
+        <View style={styles.imcTextContainer}>
+          <Text style={styles.imcLabel}>IMC Atual</Text>
+          <Text style={styles.imcValue}>{imc || calcIMC() || "--"}</Text>
+          <Text style={styles.imcRange}>Faixa de Peso Ideal</Text>
+          <Text
+            style={[styles.imcRangeValue, { flexShrink: 1 }]}
+            numberOfLines={1}
+          >
+            {(() => {
+              const r = calcIdealRange(altura);
+              if (!r.min) return "--";
+              return `${r.min} - ${r.max}`;
+            })()}
+          </Text>
 
-    </View>
+        </View>
 
-    {/* Mascote posicionado independente */}
-    <View style={styles.imcMascoteWrap}>
-      <Image
-        source={require("../../assets/tuga_prancheta.png")}
-        style={styles.imcMascote}
-        resizeMode="contain"
-      />
-    </View>
-  </View>
+        {/* Mascote posicionado independente */}
+        <View style={styles.imcMascoteWrap}>
+          <Image
+            source={require("../../assets/tuga_prancheta.png")}
+            style={styles.imcMascote}
+            resizeMode="contain"
+          />
+        </View>
+      </View>
 
 
       {/* Ruler */}
       <View style={styles.weightPicker}>
         <Ruler value={peso} step={0.1} min={30} max={150} onChange={setPeso} />
       </View>
-  <View style={{ marginTop: 25, marginBottom: 40 }}>
-    <Text style={{ textAlign: "center", top: 90, fontSize: 13, color: "#989898" }}>
-      Para sua saúde, tente não se afastar muito da faixa de {"\n"} peso ideal.
-    </Text>
-  </View>
+      <View style={{ marginTop: 25, marginBottom: 40 }}>
+        <Text style={{ textAlign: "center", top: 90, fontSize: 13, color: "#989898" }}>
+          Para sua saúde, tente não se afastar muito da faixa de {"\n"} peso ideal.
+        </Text>
+      </View>
 
     </View>
   );
@@ -852,7 +852,7 @@ const styles = StyleSheet.create({
   input: { backgroundColor: "#fff", borderRadius: 12, paddingVertical: 12, paddingHorizontal: 14, marginTop: 6, fontSize: 16 },
   smallCard: { backgroundColor: "#fff", padding: 12, borderRadius: 12, minWidth: 110 },
 
-  imcTextContainer: { justifyContent: "center", alignItems: "flex-start", flex: 1 },  imcCard: {
+  imcTextContainer: { justifyContent: "center", alignItems: "flex-start", flex: 1 }, imcCard: {
     marginHorizontal: 18,
     marginTop: 8,
     backgroundColor: "#fff",
@@ -869,11 +869,11 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     height: "100%",
   },
-    imcRow: { flexDirection: "row", alignItems: "center" },
-    imcLabel: { color: "#8C8A9A", fontSize: 16, fontWeight: "500", alignSelf: "center", marginTop: 30, right:10 },
-    imcValue: { color: "#000000ff", fontSize: 30, fontWeight: "800", marginVertical: 2, left: 40, marginBottom: 20, bottom: 5 },
-    imcRange: { color: "#8C8A9A", fontSize: 16, bottom: 20 },
-    imcRangeValue: { color: "#000000ff", fontSize: 30, fontWeight: "800", bottom: 20, left: 0 },
+  imcRow: { flexDirection: "row", alignItems: "center" },
+  imcLabel: { color: "#8C8A9A", fontSize: 16, fontWeight: "500", alignSelf: "center", marginTop: 30, right: 10 },
+  imcValue: { color: "#000000ff", fontSize: 30, fontWeight: "800", marginVertical: 2, left: 40, marginBottom: 20, bottom: 5 },
+  imcRange: { color: "#8C8A9A", fontSize: 16, bottom: 20 },
+  imcRangeValue: { color: "#000000ff", fontSize: 30, fontWeight: "800", bottom: 20, left: 0 },
   imcMascoteWrap: {
     position: "absolute",  // tira do fluxo do flex
     bottom: 0,             // fixa na parte inferior do card
@@ -940,28 +940,28 @@ const styles = StyleSheet.create({
   saveBtn: { marginTop: 16, backgroundColor: "#1e90ff", paddingVertical: 14, borderRadius: 16, alignItems: "center" },
   saveTxt: { color: "#fff", fontWeight: "700", fontSize: 16 },
   /* novos/ajustados */
-rowLeft: {
-  flexDirection: "row",
-  alignItems: "center",
-},
-iconWrapper: {
-  width: 36,
-  height: 36,
-  borderRadius: 10,
-  marginRight: 12,
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "transparent", // <- remove o fundo azul
-},
-rowLabel: {
-  fontSize: 16,
-  color: "#221F33",
-  fontWeight: "700",
-},
-rowValue: {
-  fontSize: 16,
-  color: "#6B6880",
-},
+  rowLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    marginRight: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "transparent", // <- remove o fundo azul
+  },
+  rowLabel: {
+    fontSize: 16,
+    color: "#221F33",
+    fontWeight: "700",
+  },
+  rowValue: {
+    fontSize: 16,
+    color: "#6B6880",
+  },
 
   infoBox: {
     backgroundColor: "#ffffffff",
@@ -996,6 +996,6 @@ rowValue: {
     fontSize: 16,
     color: "#6B6B6B",
   },
-    weightPicker: { marginTop: 30, alignItems: "center" },
-    weightValue: { fontSize: 48, fontWeight: "800", color: "#2EA3FC", marginBottom: 10 },
+  weightPicker: { marginTop: 30, alignItems: "center" },
+  weightValue: { fontSize: 48, fontWeight: "800", color: "#2EA3FC", marginBottom: 10 },
 });

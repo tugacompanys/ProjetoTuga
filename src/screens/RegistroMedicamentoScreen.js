@@ -5,18 +5,20 @@ import {
   TextInput,
   StyleSheet,
   Alert,
-  FlatList,
   TouchableOpacity,
-  Modal,
   Animated,
   Vibration,
   ScrollView,
+  Image,
 } from "react-native";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
+import { useNavigation } from '@react-navigation/native';
+import { Modal } from "react-native";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -29,27 +31,19 @@ Notifications.setNotificationHandler({
 
 let soundObject = null;
 
-// =================== TOCAR ALARME ===================
 async function tocarAlarme() {
   try {
     if (soundObject) return;
-
     const { sound } = await Audio.Sound.createAsync(
       require("../../assets/sounds/alarme.wav"),
-      {
-        shouldPlay: true,
-        isLooping: true,
-        volume: 1.0,
-      }
+      { shouldPlay: true, isLooping: true, volume: 1.0 }
     );
-
     soundObject = sound;
   } catch (error) {
     console.log("Erro ao tocar alarme:", error);
   }
 }
 
-// =================== PARAR ALARME ===================
 async function pararAlarme() {
   try {
     if (soundObject) {
@@ -62,7 +56,6 @@ async function pararAlarme() {
   }
 }
 
-// =================== VIBRAÇÃO ===================
 const startVibration = () => {
   Vibration.vibrate([500, 500], true);
 };
@@ -76,8 +69,6 @@ export default function RegistroMedicamentoScreen() {
   const [horario, setHorario] = useState(new Date());
   const [horariosSelecionados, setHorariosSelecionados] = useState([]);
   const [mostrarPicker, setMostrarPicker] = useState(false);
-
-  // NOVO → horário digitado
   const [horarioManual, setHorarioManual] = useState("");
 
   const [medicamentos, setMedicamentos] = useState([]);
@@ -87,24 +78,48 @@ export default function RegistroMedicamentoScreen() {
   const [medicamentoAtual, setMedicamentoAtual] = useState(null);
 
   const shakeAnim = useRef(new Animated.Value(0)).current;
+  const shakeLoop = useRef(null);
   const ultimoAlarmeRef = useRef(null);
+  const navigation = useNavigation();
 
-  // Horários rápidos
   const horariosRapidos = ["06:00", "08:00", "12:00", "18:00", "22:00"];
 
-  // ================= ANIMAÇÃO =================
-  const startShake = () => {
-    shakeAnim.setValue(0);
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(shakeAnim, { toValue: 6, duration: 60, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: -6, duration: 60, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: 0, duration: 60, useNativeDriver: true }),
-      ])
-    ).start();
+  const formatarHorario = (text) => {
+    let cleaned = text.replace(/\D/g, "");
+    if (cleaned.length > 4) cleaned = cleaned.slice(0, 4);
+    if (cleaned.length > 2) {
+      cleaned = cleaned.replace(/(\d{2})(\d)/, "$1:$2");
+    }
+    setHorarioManual(cleaned);
   };
 
-  // ================= CARREGAR =================
+  const startShake = () => {
+    shakeAnim.setValue(0);
+
+    shakeLoop.current = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shakeAnim, {
+          toValue: 5,
+          duration: 60,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: -5,
+          duration: 60,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 0,
+          duration: 60,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    shakeLoop.current.start();
+  };
+
+
   useEffect(() => {
     (async () => {
       const data = await AsyncStorage.getItem("@meds");
@@ -117,7 +132,6 @@ export default function RegistroMedicamentoScreen() {
     })();
   }, []);
 
-  // ================= SALVAR =================
   useEffect(() => {
     AsyncStorage.setItem("@meds", JSON.stringify(medicamentos));
   }, [medicamentos]);
@@ -126,7 +140,6 @@ export default function RegistroMedicamentoScreen() {
     AsyncStorage.setItem("@historico", JSON.stringify(historico));
   }, [historico]);
 
-  // ================= VERIFICAR ALARME =================
   useEffect(() => {
     const interval = setInterval(() => {
       const agora = new Date();
@@ -158,16 +171,12 @@ export default function RegistroMedicamentoScreen() {
     return () => clearInterval(interval);
   }, [medicamentos, alarmeVisivel]);
 
-  // ================= ADICIONAR HORÁRIO =================
   const adicionarHorario = () => {
     let novoHorario = null;
 
-    // 1️⃣ Se digitou manualmente
     if (/^\d{2}:\d{2}$/.test(horarioManual)) {
       novoHorario = horarioManual;
-    } 
-    // 2️⃣ Ou usa o DateTimePicker
-    else {
+    } else {
       novoHorario = horario.toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -183,17 +192,9 @@ export default function RegistroMedicamentoScreen() {
     setHorarioManual("");
   };
 
-  // ================= AGENDAR =================
   async function agendarNotificacao() {
-    if (!medicamento) {
-      Alert.alert("Erro", "Digite o nome do medicamento.");
-      return;
-    }
-
-    if (horariosSelecionados.length === 0) {
-      Alert.alert("Erro", "Adicione pelo menos um horário.");
-      return;
-    }
+    if (!medicamento) return Alert.alert("Digite o nome do medicamento.");
+    if (horariosSelecionados.length === 0) return Alert.alert("Adicione um horário.");
 
     for (let h of horariosSelecionados) {
       const [hora, minuto] = h.split(":").map(Number);
@@ -217,10 +218,9 @@ export default function RegistroMedicamentoScreen() {
     setHorariosSelecionados([]);
     setMedicamento("");
 
-    Alert.alert("✅ Alarme criado", `${novo.nome} às ${novo.horarios.join(", ")}`);
+    Alert.alert("✅ Alarme criado!");
   }
 
-  // ================= HISTÓRICO =================
   const registrarHistorico = (status) => {
     if (!medicamentoAtual) return;
 
@@ -228,325 +228,422 @@ export default function RegistroMedicamentoScreen() {
       id: Date.now().toString(),
       nome: medicamentoAtual.nome,
       hora: medicamentoAtual.hora,
-      status,
+      status, // "tomado", "atrasado", "nao_tomado"
       data: new Date().toLocaleDateString(),
     };
 
     setHistorico((prev) => [novoRegistro, ...prev]);
-    pararTudo();
-  };
 
-  const pararTudo = async () => {
-    await pararAlarme();
+    pararAlarme();
     stopVibration();
+    if (shakeLoop.current) {
+      shakeLoop.current.stop();
+      shakeLoop.current = null;
+    }
     setAlarmeVisivel(false);
     setMedicamentoAtual(null);
   };
 
-  const removerMedicamento = (id) => {
-    setMedicamentos(medicamentos.filter((m) => m.id !== id));
-  };
 
-  // ================= RENDER =================
+  useEffect(() => {
+    if (alarmeVisivel) {
+      const timer = setTimeout(() => {
+        if (alarmeVisivel) {
+          registrarHistorico("nao_tomado"); // vermelho automático
+        }
+      }, 300000); // 5 minutos
+
+      return () => clearTimeout(timer);
+    }
+  }, [alarmeVisivel]);
+
+
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.titulo}>💊 Registrar Medicamento</Text>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 60 }}>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nome do medicamento / insulina"
-        value={medicamento}
-        onChangeText={setMedicamento}
-      />
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={28} color="#007AFF" />
+        <Text style={styles.backText}>Voltar</Text>
+      </TouchableOpacity>
 
-      {/* ✅ NOVA FORMA: horário digitado */}
-      <Text style={styles.label}>Digite o horário (ex: 07:30)</Text>
-      <TextInput 
-        mode="time"
-        is24Hour={true}
-        display="default"
-        
-        style={styles.input}
-        placeholder="HH:MM"
-        keyboardType="numeric"
-        maxLength={5}
-        value={horarioManual}
-        onChangeText={setHorarioManual}
-      />
 
-      {/* Horários rápidos */}
-      <Text style={styles.label}>Ou escolha um rápido:</Text>
-      <View style={styles.rapidosContainer}>
-        {horariosRapidos.map((hora) => (
-          <TouchableOpacity
-            key={hora}
-            style={styles.horaRapida}
-            onPress={() => setHorarioManual(hora)}
+      {/* ===== TOPO ===== */}
+      <View style={styles.topo}>
+        <Text style={styles.titulo}>Agenda de Medicamentos</Text>
+
+        <Image
+          source={require("../../assets/remedio.png")}
+          style={styles.imagemTopo}
+        />
+
+        <Text style={styles.descricao}>
+          Nessa tela você poderá adicionar um medicamento e salvar como lembrete
+          para não perder o horário das suas prescrições médicas.
+        </Text>
+      </View>
+
+      {/* ===== CARD DE CADASTRO ===== */}
+      <View style={styles.card}>
+        <Text style={styles.label}>Nome do Medicamento</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="ex. Espironolactona..."
+          value={medicamento}
+          onChangeText={setMedicamento}
+        />
+
+        <Text style={styles.label}>Digite o horário</Text>
+        <TextInput
+          style={styles.inputHorario}
+          placeholder="HH:MM"
+          keyboardType="number-pad"
+          maxLength={5}
+          value={horarioManual}
+          onChangeText={formatarHorario}
+        />
+
+        <TouchableOpacity
+          style={styles.botaoAzul}
+          onPress={() => setMostrarPicker(true)}
+        >
+          <Text style={styles.btnText}>Abrir relógio ⏱️</Text>
+        </TouchableOpacity>
+
+        {mostrarPicker && (
+          <DateTimePicker
+            value={horario}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={(event, selectedDate) => {
+              const currentDate = selectedDate || horario;
+              setMostrarPicker(false);
+              setHorario(currentDate);
+            }}
+          />
+        )}
+
+        <TouchableOpacity style={styles.botaoVerde} onPress={adicionarHorario}>
+          <Text style={styles.btnText}>Adicionar horário +</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* ===== HORÁRIOS + MASCOTE ===== */}
+      <View style={styles.horariosBox}>
+        <Text style={styles.subtitulo}>⏱ Horários Adicionados:</Text>
+
+        {horariosSelecionados.length === 0 && (
+          <Text style={{ color: "#555" }}>Nenhum horário ainda</Text>
+        )}
+
+        {horariosSelecionados.map((h) => (
+          <Text key={h} style={styles.horarioItem}>• {h}</Text>
+        ))}
+
+        {/* MASCOTE (NÃO CORTA) */}
+        <Image
+          source={require("../../assets/tuga_prancheta.png")}
+          style={styles.mascoteDireita}
+        />
+      </View>
+
+      {/* BOTÃO CONFIRMAR */}
+      <TouchableOpacity
+        style={styles.botaoConfirmar}
+        onPress={agendarNotificacao}
+      >
+        <Text style={styles.btnText}>✅ Confirmar Alarme</Text>
+      </TouchableOpacity>
+
+      {/* ===== HISTÓRICO ===== */}
+      <View style={styles.historicoBox}>
+        <Text style={styles.subtitulo}>📋 Histórico</Text>
+
+        {historico.length === 0 && (
+          <Text style={{ color: "#555" }}>Nenhum registro ainda</Text>
+        )}
+
+        {historico.map((h) => (
+          <Text
+            key={h.id}
+            style={{
+              marginBottom: 4,
+              color:
+                h.status === "tomado"
+                  ? "green"
+                  : h.status === "atrasado"
+                    ? "#eab308"
+                    : "red",
+            }}
           >
-            <Text style={{ color: "#fff", fontWeight: "bold" }}>{hora}</Text>
-          </TouchableOpacity>
+            💊 {h.nome} — ⏰ {h.hora}
+          </Text>
         ))}
       </View>
 
-      {/* Picker opcional */}
-      <TouchableOpacity style={styles.btnSelecionar} onPress={() => setMostrarPicker(true)}>
-        <Text style={styles.btnText}>⏰ Abrir relógio</Text>
-      </TouchableOpacity>
 
-      {mostrarPicker && (
-        <DateTimePicker
-          value={horario}
-          mode="time"
-          is24Hour={true}
-          display="default"
-          onChange={(event, selectedDate) => {
-            const currentDate = selectedDate || horario;
-            setMostrarPicker(false);
-            setHorario(currentDate);
-          }}
-        />
-      )}
-
-      <TouchableOpacity style={styles.btnAdicionar} onPress={adicionarHorario}>
-        <Text style={styles.btnText}>➕ Adicionar horário</Text>
-      </TouchableOpacity>
-
-      {horariosSelecionados.map((h) => (
-        <View key={h} style={styles.horarioBox}>
-          <Text style={styles.horarioTexto}>🕒 {h}</Text>
-          <TouchableOpacity onPress={() => setHorariosSelecionados((p) => p.filter((x) => x !== h))}>
-            <Text style={{ color: "#dc2626", fontWeight: "bold" }}>X</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
-
-      <TouchableOpacity style={styles.btnConfirmar} onPress={agendarNotificacao}>
-        <Text style={styles.btnText}>✅ Agendar Alarme</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.subtitulo}>📋 Medicamentos</Text>
-
-      <FlatList
-        data={medicamentos}
-        keyExtractor={(item) => item.id}
-        scrollEnabled={false}
-        renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text style={styles.itemTexto}>
-              💊 {item.nome} - {item.horarios.join(" / ")}
-            </Text>
-
-            <TouchableOpacity onPress={() => removerMedicamento(item.id)} style={styles.removerBtn}>
-              <Text style={{ color: "white" }}>Remover</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-
-      <Text style={styles.subtitulo}>📜 Histórico</Text>
-
-      {historico.map((item) => (
-        <View key={item.id} style={styles.historicoItem}>
-          <Text style={styles.historicoTexto}>💊 {item.nome}</Text>
-          <Text style={styles.historicoTexto}>
-            ⏰ {item.hora} - {item.data} - {item.status}
-          </Text>
-        </View>
-      ))}
-
-      {/* MODAL ALARME */}
-      <Modal visible={alarmeVisivel} transparent animationType="fade">
-        <View style={styles.modalFundo}>
+      {/* ===== MODAL DO ALARME (mantém igual) ===== */}
+      <Modal visible={alarmeVisivel} transparent animationType="slide">
+        <View style={styles.modalBg}>
           <Animated.View
-            style={[styles.modalContent, { transform: [{ translateX: shakeAnim }] }]}
+            style={[
+              styles.modalBox,
+              { transform: [{ translateX: shakeAnim }] }
+            ]}
           >
             <Text style={styles.modalTitulo}>⏰ Hora do medicamento</Text>
 
             {medicamentoAtual && (
-              <Text style={{ marginBottom: 10 }}>
-                {medicamentoAtual.nome} - {medicamentoAtual.hora}
+              <Text style={styles.modalTexto}>
+                {medicamentoAtual.nome} — {medicamentoAtual.hora}
               </Text>
             )}
 
-            <TouchableOpacity style={styles.btnOk} onPress={() => registrarHistorico("Tomado")}>
-              <Text style={{ color: "white", fontWeight: "bold" }}>✅ Tomado</Text>
+            <TouchableOpacity
+              style={styles.btnTomado}
+              onPress={() => registrarHistorico("tomado")}
+            >
+              <Text style={styles.btnText}>✅ Tomei</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.btnCancelar} onPress={pararTudo}>
-              <Text style={styles.btnCancelarText}>Parar alarme</Text>
+            <TouchableOpacity
+              style={styles.btnAtrasado}
+              onPress={() => registrarHistorico("atrasado")}
+            >
+              <Text style={styles.btnText}>⚠️ Tomei com atraso</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.btnNaoTomado}
+              onPress={() => registrarHistorico("nao_tomado")}
+            >
+              <Text style={styles.btnText}>❌ Não tomei</Text>
             </TouchableOpacity>
           </Animated.View>
         </View>
       </Modal>
+
     </ScrollView>
   );
 }
 
-// ================= STYLES =================
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 18,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f5f5f5",
+    padding: 12,
+  },
+
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    marginLeft: -8,
+    marginTop: 18
+  },
+  backText: {
+    color: "#007AFF",
+    fontSize: 20,
+    fontWeight: '700',
+    marginLeft: 6
   },
 
   titulo: {
     fontSize: 22,
     fontWeight: "800",
-    marginBottom: 20,
+    color: "#007AFF",
     textAlign: "center",
-    color: "#0f172a",
+    marginVertical: 10
   },
 
-  subtitulo: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginVertical: 18,
-    color: "#1e293b",
+  topo: {
+    alignItems: "center",
+    marginBottom: 10
+  },
+
+  imagemTopo: {
+    width: 140,
+    height: 80,
+    resizeMode: "contain",
+    marginBottom: 8
+  },
+
+  horariosBox: {
+    backgroundColor: "#e2e8f0",
+    borderRadius: 20,
+    padding: 16,
+    minHeight: 120,
+    marginBottom: 10,
+    position: "relative",
+    overflow: "visible"  // IMPORTANTE: não corta a imagem
+  },
+
+  mascoteDireita: {
+    width: 140,
+    height: 140,
+    position: "absolute",
+    right: -10,
+    bottom: -20,
+    resizeMode: "contain",   // NÃO CORTA
+    transform: [{ scaleX: -1 }]
+  },
+
+  historicoBox: {
+    backgroundColor: "#e2e8f0",
+    borderRadius: 20,
+    minHeight: 100,
+    padding: 16,
+    marginTop: 10
+  },
+  descricao: {
+    textAlign: "center",
+    fontSize: 13,
+    marginBottom: 14,
+    color: "#444"
+  },
+
+  card: {
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 20,
+    marginBottom: 10,
+    elevation: 2
   },
 
   label: {
-    fontWeight: "700",
-    marginBottom: 6,
+    fontWeight: "600",
+    marginBottom: 6
   },
 
   input: {
-    borderWidth: 1,
-    borderColor: "#cbd5e1",
-    backgroundColor: "#fff",
-    padding: 14,
-    borderRadius: 14,
-    marginBottom: 12,
-    fontSize: 16,
-    color: "#0f172a",
+    backgroundColor: "#f1f5f9",
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10
   },
 
-  rapidosContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginBottom: 12,
+  inputHorario: {
+    backgroundColor: "#e0f2fe",
+    padding: 12,
+    borderRadius: 12,
+    fontSize: 18,
+    textAlign: "center",
+    marginBottom: 10
   },
 
-  horaRapida: {
-    backgroundColor: "#4f46e5",
-    padding: 10,
-    borderRadius: 10,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-
-  btnSelecionar: {
-    backgroundColor: "#4f46e5",
-    padding: 14,
-    borderRadius: 14,
+  botaoAzul: {
+    backgroundColor: "#3b82f6",
+    padding: 12,
+    borderRadius: 12,
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 8
   },
 
-  btnAdicionar: {
-    backgroundColor: "#16a34a",
-    padding: 14,
-    borderRadius: 14,
-    alignItems: "center",
+  botaoVerde: {
+    backgroundColor: "#22c55e",
+    padding: 12,
+    borderRadius: 12,
+    alignItems: "center"
   },
 
-  btnConfirmar: {
-    backgroundColor: "#0f172a",
-    padding: 16,
+  horariosBox: {
+    backgroundColor: "#e2e8f0",
     borderRadius: 16,
+    padding: 10,
+    minHeight: 80,
+    marginBottom: 10
+  },
+
+  mascoteDireita: {
+    width: 125,
+    height: 125,
+    position: "absolute",
+    right: -5,
+    bottom: -18,
+    resizeMode: "contain",   // ← ISSO EVITA CORTAR
+    transform: [{ scaleX: -1 }] // ← DESVIRA A IMAGEM (espelho corrigido)
+  },
+
+
+  botaoConfirmar: {
+    backgroundColor: "#000",
+    padding: 16,
+    borderRadius: 18,
     alignItems: "center",
-    marginVertical: 20,
+    marginVertical: 10
+  },
+
+  subtitulo: {
+    fontWeight: "800",
+    marginBottom: 6
+  },
+
+  horarioItem: {
+    marginLeft: 10
+  },
+
+  historicoBox: {
+    backgroundColor: "#e2e8f0",
+    borderRadius: 16,
+    minHeight: 80,
+    padding: 10,
+    marginBottom: 30
   },
 
   btnText: {
     color: "#fff",
-    fontWeight: "700",
-    fontSize: 16,
+    fontWeight: "700"
   },
 
-  horarioBox: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: "#e2e8f0",
-    padding: 12,
-    borderRadius: 12,
-    marginVertical: 6,
-  },
-
-  horarioTexto: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-
-  item: {
-    backgroundColor: "#fff",
-    padding: 14,
-    borderRadius: 16,
-    marginBottom: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
-  itemTexto: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-
-  removerBtn: {
-    backgroundColor: "#dc2626",
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-
-  historicoItem: {
-    backgroundColor: "#fff",
-    padding: 14,
-    borderRadius: 14,
-    marginBottom: 8,
-  },
-
-  historicoTexto: {
-    fontSize: 14,
-  },
-
-  modalFundo: {
+  modalBg: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.75)",
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
 
-  modalContent: {
+  modalBox: {
     backgroundColor: "#fff",
-    padding: 26,
-    borderRadius: 22,
     width: "85%",
+    borderRadius: 20,
+    padding: 20,
     alignItems: "center",
   },
 
   modalTitulo: {
-    fontSize: 20,
-    fontWeight: "900",
-    color: "#dc2626",
-    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: "800",
+    marginBottom: 10,
   },
 
-  btnOk: {
-    backgroundColor: "#16a34a",
-    padding: 14,
-    borderRadius: 14,
+  modalTexto: {
+    fontSize: 16,
+    marginBottom: 20,
+  },
+
+  btnTomado: {
+    backgroundColor: "#22c55e",
+    padding: 12,
+    borderRadius: 12,
     width: "100%",
     alignItems: "center",
+    marginBottom: 8,
   },
 
-  btnCancelar: {
-    marginTop: 10,
+  btnAtrasado: {
+    backgroundColor: "#eab308",
+    padding: 12,
+    borderRadius: 12,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 8,
   },
 
-  btnCancelarText: {
-    color: "#155e75",
-    fontWeight: "bold",
+  btnNaoTomado: {
+    backgroundColor: "#ef4444",
+    padding: 12,
+    borderRadius: 12,
+    width: "100%",
+    alignItems: "center",
   },
 });
