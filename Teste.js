@@ -47,8 +47,6 @@ Notifications.setNotificationHandler({
   }
 })();
 
-
-
 const DAYS_SHORT = ["D", "S", "T", "Q", "Q", "S", "S"];
 const DAYS_KEYS = [0, 1, 2, 3, 4, 5, 6];
 const { width, height } = Dimensions.get("window");
@@ -629,7 +627,6 @@ export default function CalendarMedicationsScreen({ navigation }) {
           </View>
         )}
       </View>
-
 
 
       <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
