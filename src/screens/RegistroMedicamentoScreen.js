@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   },
 
   horariosBox: {
-    backgroundColor: "#e2e8f0",
+    backgroundColor: "#6aa3ecff",
     borderRadius: 20,
     padding: 16,
     minHeight: 120,
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#257afaff",
     padding: 16,
     borderRadius: 20,
     marginBottom: 10,
@@ -512,7 +512,8 @@ const styles = StyleSheet.create({
 
   label: {
     fontWeight: "600",
-    marginBottom: 6
+    marginBottom: 6,
+    color: "#fff",
   },
 
   input: {
@@ -532,7 +533,7 @@ const styles = StyleSheet.create({
   },
 
   botaoAzul: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: "#dba031ff",
     padding: 12,
     borderRadius: 12,
     alignItems: "center",
