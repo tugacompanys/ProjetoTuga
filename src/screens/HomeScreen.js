@@ -161,6 +161,7 @@ export default function HomeScreen({ route, navigation }) {
         </View>
 
 
+      
             {/* Opções do menu */}
             <View style={{ flex: 1 }}>
               <TouchableOpacity
@@ -241,7 +242,6 @@ export default function HomeScreen({ route, navigation }) {
                 </Text>
               </TouchableOpacity>
             </View>
-
             {/* Sair na parte inferior */}
             <TouchableOpacity
               style={[
