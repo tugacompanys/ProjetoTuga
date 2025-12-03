@@ -227,7 +227,7 @@ export default function Alimento({ route, navigation }) {
               </View>
 
               <Image
-                source={require("../../../assets/tuga_bodybuilder.png")}
+                source={require("../../tuga/tuga_lamen.png")}
                 style={styles.mascoteSide}
               />
             </View>
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   },
   stepNumberText: { color: "#fff", fontWeight: "bold" },
   stepText: { flex: 1, fontSize: 14, color: "#111" },
-  mascoteSide: { width: 100, height: 100, marginLeft: 12, marginTop: 10, resizeMode: "contain" },
+  mascoteSide: { width: 170, height: 170, marginLeft: 12, marginTop: 10, resizeMode: "contain", left: 20 },
 
   comentarioRow: {
     flexDirection: "row",
