@@ -310,8 +310,8 @@ const getVideoId = (url) => {
   const videosPorDia = {
 
     0: [
-      {id:'dom1', titulo:'Caminhada no Lugar', subtitulo:'Duração 10 min', url:'https://youtu.be/5xrZRfPa6mE?si=d8EEaOQc9T4igLPP'},
-      {id:'dom2', titulo:'Polichinelo', subtitulo:'Séries 3x10 | Intervalo 30s', url:'https://youtu.be/SWgIDaX5fNA?si=KSuvtOMv2AeuXJ1E'},
+      {id:'dom1', titulo:'Caminhada no Lugar', subtitulo:'Duração 10 min', url:'https://youtu.be/5kXHaLnDjwY?si=gNJ6nX-Lk98c-ros'},
+      {id:'dom2', titulo:'Polichinelo', subtitulo:'Séries 3x10 | Intervalo 30s', url:'https://youtu.be/-AEOKSMJSR0?si=2-qX5ywRvtJVqR8o'},
       {id:'dom3', titulo:'Marcha rápida no lugar', subtitulo:'Séries 3x | Intervalo 30s', url:'https://youtu.be/hxLLhk092eY?si=bPAVvLXT7kqnQPOP'},
       {id:'dom4', titulo:'Step touch', subtitulo:'Séries 3x12 | Intervalo 30s', url:'https://youtu.be/5kXHaLnDjwY?si=gpgG3WPtgVkq2Ux9'},
       {id:'dom5', titulo:'Alongamento leve ', subtitulo:'Duração 5 min', url:'https://youtu.be/HhsgekLIKOc?si=UWnpLHwo6-mw-xur'}
@@ -339,25 +339,25 @@ const getVideoId = (url) => {
       {id:'qua5', titulo:'Alongamento final', subtitulo:'Duração 5 min', url:'https://youtu.be/XC-5pv1QUYo?si=QKVPlQem6Nslwfyc'}
     ],
     4: [
-      {id:'qui1', titulo:'Agachamento com apoio de cadeira', subtitulo:'Séries 3x10 | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd18'},
-      {id:'qui2', titulo:'Elevação lateral de perna', subtitulo:'Séries 3x12 | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd19'},
-      {id:'qui3', titulo:'Elevação de calcanhar', subtitulo:'Séries 3x15 | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd20'},
-      {id:'qui4', titulo:'Equilíbrio em um pé', subtitulo:'Séries 3x20s  | Intervalo 20s', url:'https://www.youtube.com/watch?v=abcd21'},
-      {id:'qui5', titulo:'Prancha lateral apoiada no joelho', subtitulo:'Séries 2x20s | Intervalo 20s', url:'https://www.youtube.com/watch?v=abcd22'}
+      {id:'qui1', titulo:'Agachamento com apoio de cadeira', subtitulo:'Séries 3x10 | Intervalo 30s', url:'https://youtu.be/jbcC5Nqv3jE?si=onTjiWSrd_GNFmE7'},
+      {id:'qui2', titulo:'Elevação lateral de perna', subtitulo:'Séries 3x12 | Intervalo 30s', url:'https://youtu.be/zWrfhUo4QGY?si=-tTygyswCCy4TLfc'},
+      {id:'qui3', titulo:'Elevação de calcanhar', subtitulo:'Séries 3x15 | Intervalo 30s', url:'https://youtu.be/JJUPxKgcArc?si=eDDSZ7waCjAbk_v4'},
+      {id:'qui4', titulo:'Equilíbrio em um pé', subtitulo:'Séries 3x20s  | Intervalo 20s', url:'https://youtu.be/AS9Jcv6INME?si=ezA_OSCdMhlhfMgt'},
+      {id:'qui5', titulo:'Alongamento de costas', subtitulo:'Séries 2x20s | Intervalo 20s', url:'https://youtu.be/AcqE38KZMiI?si=eTQIZCU5pF2u1g8w'}
     ],
     5: [
-      {id:'sex1', titulo:'Caminhada leve no lugar', subtitulo:'Duração 15 min', url:'https://www.youtube.com/watch?v=abcd23'},
-      {id:'sex2', titulo:'Marcha lateral', subtitulo: 'Séries 3x1min | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd24'},
-      {id:'sex3', titulo:'Polichinelo baixo impacto', subtitulo:'Séries 3x30s | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd25'},
-      {id:'sex4', titulo:'Step touch', subtitulo:'Séries 3x1min | Intervalo 30s', url:'https://www.youtube.com/watch?v=abcd26'},
-      {id:'sex5', titulo:'Alongamento final + respiração', subtitulo:'Duração 5 min', url:'https://www.youtube.com/watch?v=abcd27'}
+      {id:'sex1', titulo:'Caminhada leve no lugar', subtitulo:'Duração 15 min', url:'https://youtu.be/5kXHaLnDjwY?si=e8OXlOML7E-QY-u4'},
+      {id:'sex2', titulo:'Marcha lateral', subtitulo: 'Séries 3x1min | Intervalo 30s', url:'https://youtu.be/hu9DleHlVL0?si=hR9Y6IU3McpNfkwk'},
+      {id:'sex3', titulo:'Polichinelo baixo impacto', subtitulo:'Séries 3x30s | Intervalo 30s', url:'https://youtu.be/-AEOKSMJSR0?si=9OtIPEowdOobZV5K'},
+      {id:'sex4', titulo:'Step touch', subtitulo:'Séries 3x1min | Intervalo 30s', url:'https://youtu.be/x9X3AiNQhgc?si=1p5YnLcJ1u6j3Gfd'},
+      {id:'sex5', titulo:'Alongamento final + respiração', subtitulo:'Duração 5 min', url:'https://youtu.be/BWjX9Mjs4f8?si=KiRgx6SCuabsq1Nd'}
     ],
     6: [
-      {id:'sab1', titulo:'Caminhada leve', subtitulo:'Duração 15min', url:'https://www.youtube.com/watch?v=abcd28'},
-      {id:'sab2', titulo:'Alongamento geral', subtitulo:'Duração 5 min', url:'https://www.youtube.com/watch?v=abcd29'},
-      {id:'sab3', titulo:'Mobilidade leve', subtitulo:'Duração 5 min', url:'https://www.youtube.com/watch?v=abcd30'},
-      {id:'sab4', titulo:'Alongamento', subtitulo:'Séries 3x1min | Intervalo 20s', url:'https://www.youtube.com/watch?v=abcd31'},
-      {id:'sab5', titulo:'Postura relaxante deitado', subtitulo:'Duração 5 min', url:'https://www.youtube.com/watch?v=abcd32'}
+      {id:'sab1', titulo:'Caminhada leve', subtitulo:'Duração 15min', url:'https://youtu.be/5kXHaLnDjwY?si=m7F-UNV-uo33rHQY'},
+      {id:'sab2', titulo:'Alongamento geral', subtitulo:'Duração 5 min', url:'https://youtu.be/0iicnvKe-U8?si=MSA2gCy2YuwRjuzv'},
+      {id:'sab3', titulo:'Mobilidade leve', subtitulo:'Duração 5 min', url:'https://youtu.be/jAS814wE6_g?si=c5ONea7rbAV3Qddv'},
+      {id:'sab4', titulo:'Alongamento', subtitulo:'Séries 3x1min | Intervalo 20s', url:'https://youtu.be/SibvZTWRFG0?si=E9v8v2iZdCm8NPuE'},
+      {id:'sab5', titulo:'Postura relaxante deitado', subtitulo:'Duração 5 min', url:'https://youtu.be/BWjX9Mjs4f8?si=Z_q1fW7WqHo-4PHY'}
     ]
   };
 

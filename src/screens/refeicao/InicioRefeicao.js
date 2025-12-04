@@ -16,6 +16,8 @@ import Svg, { Path } from "react-native-svg";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';
 
+import MascoteAssistant from "../MascoteAssistant";
+
 
 
 const { width } = Dimensions.get("window");
@@ -427,6 +429,7 @@ export default function InicioRefeicaoScreen({ navigation }) {
 
       </ScrollView>
 
+    <MascoteAssistant/>
       {/* Footer */}
       <View style={styles.footerWrapper}>
         <LinearGradient

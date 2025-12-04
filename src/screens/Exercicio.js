@@ -6,6 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ModalExercicio } from "./videos_exercicio";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import MascoteAssistant from "./MascoteAssistant";
+
 
 
 const screenWidth = Dimensions.get('window').width;
@@ -50,6 +52,8 @@ const HeartRateBPM = ({ bpm }) => {
       }, i * waveInterval);
     }
 
+
+
     setShowPopup(true);
     setTimeout(() => setShowPopup(false), 10000); // 🔥 fecha automaticamente em 2,5s
   };
@@ -71,7 +75,7 @@ const HeartRateBPM = ({ bpm }) => {
         );
       })}
 
-      <TouchableOpacity onPress={startWave} activeOpacity={0.9}>
+      <TouchableOpacity onPress={startWave} activeOpacity={0.9} >
         <LinearGradient
           colors={['#8AF7AE', '#5DE985']}
           style={styles.BPM}
@@ -112,6 +116,13 @@ export default function App() {
   const [ultimaSemana, setUltimaSemana] = useState(null);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [modalIndex, setModalIndex] = useState(0);
+  const diasRef = useRef(null);
+  const caloriasRef = useRef(null);
+  const bpmRef = useRef(null);
+  const botaoRef = useRef(null); 
+  const carrosselRef = useRef(null);
+
+
 
   const getWeekNumber = (date) => {
     const d = new Date(date.getTime());
@@ -195,7 +206,8 @@ export default function App() {
         <Text style={{ color: 'white', margin: -9, marginBottom: 15, marginLeft: 20, fontSize: 15, fontWeight: 'light' }}>
           Foco na saúde - Semana 1
         </Text>
-        <View style={styles.diasContainer}>
+          <View ref={diasRef} style={styles.diasContainer}>
+
           {dias.map((dia, index) => {
             const ativo = index === hoje;
             let indicador = '•';
@@ -235,9 +247,8 @@ export default function App() {
       />
 
       {/* FlatList */}
-      <View style={{ flex: 0.6, position: 'relative', top: -50 }}>
+      <View ref={carrosselRef} style={{ flex: 0.6, position: 'relative', top: -50 }}>
         <Animated.FlatList
-          ref={flatListRef}
           data={CarroselDia}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -260,7 +271,7 @@ export default function App() {
                   <Text style={{ position: 'absolute', top: -20, left: index === 6 ? 8 : 18, fontSize: 25, fontWeight: 'bold', color: '#2f3132' }}>{info.nome}</Text>
 
                   <View style={{ flexDirection: 'row', marginTop: 50, justifyContent: 'space-between', width: '90%' }}>
-                    <View style={styles.valorPeso}>
+                  <View ref={caloriasRef} style={styles.valorPeso}>
                       <Text style={styles.TextoDomingo}>Gasto Calórico:</Text>
                       <View style={{ backgroundColor: "white", alignSelf: 'center', width: '85', height: '85', borderRadius: 50 }}>
                         <View style={{ backgroundColor: "#bce5fe", alignSelf: 'center', width: 70, height: 70, borderRadius: 50, top: 7.5, justifyContent: 'center', alignItems: 'center' }}>
@@ -270,8 +281,8 @@ export default function App() {
                       </View>
                     </View>
 
-                    <View style={styles.batimento}>
-                      <Text style={styles.TextoDomingo}>BPM estimado:</Text>
+                    <View ref={bpmRef} style={styles.batimento}>
+                        <Text style={styles.TextoDomingo}>BPM estimado:</Text>
 
                       <HeartRateBPM bpm={info.bpm} />
 
@@ -288,12 +299,14 @@ export default function App() {
                   </View>
                 </View>
 
-                <TouchableOpacity
-                  style={[styles.botao, { backgroundColor: isHoje ? '#0B58D8' : 'gray' }]}
-                  onPress={() => isHoje ? iniciarTreino(index) : abrirModal(index)}
-                >
-                  <Text style={styles.botaoTexto}>Iniciar treino</Text>
-                </TouchableOpacity>
+            <TouchableOpacity
+              ref={botaoRef}
+              style={[styles.botao, { backgroundColor: isHoje ? '#0B58D8' : 'gray' }]}
+              onPress={() => isHoje ? iniciarTreino(index) : abrirModal(index)}
+            >
+              <Text style={styles.botaoTexto}>Iniciar treino</Text>
+            </TouchableOpacity>
+
               </View>
             );
           }}
@@ -307,6 +320,98 @@ export default function App() {
           index={modalIndex}
         />
       )}
+
+<MascoteAssistant
+  screenRefs={{
+    dias: diasRef,
+    carrossel: carrosselRef,
+    calorias: caloriasRef,
+    bpm: bpmRef,
+    botao: botaoRef,
+  }}
+
+  explicacoes={[
+    {
+      id: "dias",
+      texto: "Aqui no topo você encontra os dias da semana. Toque neles para ver os treinos de cada dia!",
+      img: require("../tuga/tuga_falando.png"),
+    },
+    {
+      id: "carrossel",
+      texto: "Este é o carrossel de exercícios. Passe para o lado para ver as atividades de hoje.",
+      img: require("../tuga/tuga_falando.png"),
+    },
+    {
+      id: "calorias",
+      texto: "Aqui está o gasto calórico estimado para o treino selecionado.",
+      img: require("../tuga/tuga_apontando.png"),
+    },
+    {
+      id: "bpm",
+      texto: "Aqui mostramos o BPM aproximado baseado na intensidade do exercício.",
+      img: require("../../assets/tuga_prancheta.png"),
+    },
+    {
+      id: "botao",
+      texto: "E aqui está o botão para iniciar seu treino. Quando estiver pronto, é só começar!",
+      img: require("../../assets/TugaTerra.png"),
+    },
+            {
+          id: "quem_e_mindsync_1",
+          texto: "A MindSync é uma equipe formada durante o curso de Desenvolvimento de Sistemas da ETEC Sapopemba!",
+          img: require("../tuga/tuga_alto.png"),
+        },
+        {
+          id: "quem_e_mindsync_2",
+          texto: "Somos 6 integrantes dedicados a criar soluções tecnológicas: Keven, Renan, Ismael, Matheus, Carlos e Kauã.",
+          img: require("../tuga/tuga_alto.png"),
+        },
+        {
+          id: "quem_e_mindsync_3",
+          texto: "Nosso TCC é este aplicativo desenvolvido especialmente para ajudar no controle da diabetes!",
+          img: require("../tuga/tuga_alto.png"),
+          flip: true,
+        },
+    
+        // ================== QUEM SOU EU (TUGA) ==================
+        {
+          id: "quem_sou_eu_1",
+          texto: "Eu sou o Tuga! Seu assistente que deixa tudo mais fácil e divertido!",
+          img: require("../tuga/tuga_naruto.png"),
+        },
+        {
+          id: "quem_sou_eu_2",
+          texto: "Fui criado para ajudar pessoas que não têm tanta familiaridade com tecnologia, como idosos.",
+          img: require("../tuga/tuga_falando.png"),
+        },
+        {
+          id: "quem_sou_eu_3",
+          texto: "Mas eu ajudo qualquer pessoa que queira acompanhar sua saúde com mais carinho e facilidade!",
+          img: require("../tuga/tuga_falando.png"),
+          flip: true,
+        },
+    
+        // ================== COMO O APP AJUDA ==================
+        {
+          id: "como_ajuda_1",
+          texto: "O app permite acompanhar glicemia, alimentação, exercícios e medicamentos, tudo em um só lugar!",
+          img: require("../tuga/tuga_alto.png"),
+        },
+        {
+          id: "como_ajuda_2",
+          texto: "Isso ajuda a entender melhor a diabetes no dia a dia e a manter hábitos mais saudáveis!",
+          img: require("../tuga/tuga_alto.png"),
+        },
+        {
+          id: "como_ajuda_3",
+          texto: "Estou sempre aqui para guiar você em cada passo. Vamos juntos cuidar da sua saúde! 💙",
+          img: require("../tuga/tuga_alto.png"),
+          flip: true,
+        },
+  ]}
+  onFinish={() => navigation.navigate("VideosExercicio")}
+/>
+
 
 
       {/* Footer */}

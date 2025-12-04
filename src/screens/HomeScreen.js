@@ -19,6 +19,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import MascoteAssistant from "./MascoteAssistant";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -480,6 +481,67 @@ export default function HomeScreen({ route, navigation }) {
         </Modal>
       </ScrollView>
 
+
+
+
+    <MascoteAssistant
+      explicacoes={[
+    // ================== QUEM É A MINDSYNC ==================
+    {
+      id: "quem_e_mindsync_1",
+      texto: "A MindSync é uma equipe formada durante o curso de Desenvolvimento de Sistemas da ETEC Sapopemba!",
+      img: require("../tuga/tuga_alto.png"),
+    },
+    {
+      id: "quem_e_mindsync_2",
+      texto: "Somos 6 integrantes dedicados a criar soluções tecnológicas: Keven, Renan, Ismael, Matheus, Carlos e Kauã.",
+      img: require("../tuga/tuga_alto.png"),
+    },
+    {
+      id: "quem_e_mindsync_3",
+      texto: "Nosso TCC é este aplicativo desenvolvido especialmente para ajudar no controle da diabetes!",
+      img: require("../tuga/tuga_alto.png"),
+      flip: true,
+    },
+
+    // ================== QUEM SOU EU (TUGA) ==================
+    {
+      id: "quem_sou_eu_1",
+      texto: "Eu sou o Tuga! Seu assistente que deixa tudo mais fácil e divertido!",
+      img: require("../tuga/tuga_naruto.png"),
+    },
+    {
+      id: "quem_sou_eu_2",
+      texto: "Fui criado para ajudar pessoas que não têm tanta familiaridade com tecnologia, como idosos.",
+      img: require("../tuga/tuga_falando.png"),
+    },
+    {
+      id: "quem_sou_eu_3",
+      texto: "Mas eu ajudo qualquer pessoa que queira acompanhar sua saúde com mais carinho e facilidade!",
+      img: require("../tuga/tuga_falando.png"),
+      flip: true,
+    },
+
+    // ================== COMO O APP AJUDA ==================
+    {
+      id: "como_ajuda_1",
+      texto: "O app permite acompanhar glicemia, alimentação, exercícios e medicamentos, tudo em um só lugar!",
+      img: require("../tuga/tuga_alto.png"),
+    },
+    {
+      id: "como_ajuda_2",
+      texto: "Isso ajuda a entender melhor a diabetes no dia a dia e a manter hábitos mais saudáveis!",
+      img: require("../tuga/tuga_alto.png"),
+    },
+    {
+      id: "como_ajuda_3",
+      texto: "Estou sempre aqui para guiar você em cada passo. Vamos juntos cuidar da sua saúde! 💙",
+      img: require("../tuga/tuga_alto.png"),
+      flip: true,
+    },
+  ]}
+
+    />
 
 
 

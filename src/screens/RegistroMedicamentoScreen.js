@@ -518,10 +518,10 @@ export default function RegistroMedicamentoScreen() {
 
       {/* ===== HORÁRIOS + MASCOTE ===== */}
       <View style={styles.horariosBox}>
-        <Text style={styles.subtitulo}>⏱ Horários Adicionados:</Text>
+        <Text style={styles.subtitulo1}>⏱ Horários Adicionados:</Text>
 
         {horariosSelecionados.length === 0 && (
-          <Text style={{ color: "#555" }}>Nenhum horário ainda</Text>
+          <Text style={{ color: "#555", top: 25 }}>Nenhum horário ainda</Text>
         )}
 
         {horariosSelecionados.map((h) => {
@@ -548,12 +548,13 @@ export default function RegistroMedicamentoScreen() {
             </Animated.View>
           );
         })}
-
+<View style={styles.bloco}>
         {/* MASCOTE (NÃO CORTA) */}
         <Image
-          source={require("../../assets/tuga_prancheta.png")}
+          source={require("../tuga/tuga_remedio.png")}
           style={styles.mascoteDireita}
         />
+        </View>
       </View>
 
       <View style={{ marginVertical: 10 }}>
@@ -843,12 +844,11 @@ const styles = StyleSheet.create({
     width: 130,
     height: 139,
     position: "absolute",
-    right: -15,
+    right: -20,
     bottom: -10,
     resizeMode: "contain",
     transform: [{ scaleX: -1 }]
   },
-
   botaoConfirmar: {
     backgroundColor: colors.escuro,
     padding: 18,
@@ -863,7 +863,7 @@ const styles = StyleSheet.create({
 
   subtitulo: {
     fontWeight: "800",
-    marginBottom: 6
+    marginBottom: 6,
   },
 
   horarioItem: {
@@ -1036,5 +1036,18 @@ const styles = StyleSheet.create({
   removerTexto: {
     color: "#ef4444",
     fontWeight: "700",
-  }
+  },
+  bloco: {overflow: "hidden", height: 160, width: 160, left: 150, marginBottom: -100, bottom: 80,},
+  
+
+  mascoteDireita: {
+    width: 175,
+    height: 175,
+    position: "absolute",
+    right: -15,
+    bottom: -40,
+    resizeMode: "contain",
+    transform: [{ scaleX: -1 }]
+  },
+  subtitulo1: {top: 25, fontWeight: "600"}
 });
