@@ -34,6 +34,7 @@ export default function IndiceDiarioScreen({ route, navigation }) {
     ]
     : [];
 
+
   return (
     <View style={styles.container}>
       {/* Botão de voltar */}

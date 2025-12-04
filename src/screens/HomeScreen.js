@@ -119,6 +119,28 @@ export default function HomeScreen({ route, navigation }) {
   }, [navigation, route?.params]);
 
 
+  useEffect(() => {
+    const carregarPlano = async () => {
+      try {
+        const planoSalvo = await AsyncStorage.getItem("@nutrition_plan");
+
+        if (planoSalvo) {
+          setPlano(JSON.parse(planoSalvo));
+        } else {
+          setPlano(null);
+        }
+      } catch (error) {
+        console.log("Erro ao carregar plano na Home:", error);
+      }
+    };
+
+    carregarPlano();
+
+    const unsubscribe = navigation.addListener("focus", carregarPlano);
+    return unsubscribe;
+  }, [navigation]);
+
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -146,19 +168,19 @@ export default function HomeScreen({ route, navigation }) {
           <Animated.View
             style={[styles.menuContainer, { width: screenWidth * 0.8 }]}
           >
-{/* Menu Header */}
-        <View style={styles.menuHeader}>
-          <TouchableOpacity onPress={() => {
-            setMenuAberto(false); // fecha o menu
-            navigation.navigate("EditarPerfil"); // navega para EditarPerfil
-          }}>
-            <Image
-              source={{ uri: "https://cdn-icons-png.flaticon.com/512/147/147142.png" }}
-              style={styles.menuAvatar}
-            />
-          </TouchableOpacity>
-          <Text style={styles.menuName}>{nome}</Text>
-        </View>
+            {/* Menu Header */}
+            <View style={styles.menuHeader}>
+              <TouchableOpacity onPress={() => {
+                setMenuAberto(false); // fecha o menu
+                navigation.navigate("EditarPerfil"); // navega para EditarPerfil
+              }}>
+                <Image
+                  source={{ uri: "https://cdn-icons-png.flaticon.com/512/147/147142.png" }}
+                  style={styles.menuAvatar}
+                />
+              </TouchableOpacity>
+              <Text style={styles.menuName}>{nome}</Text>
+            </View>
 
 
             {/* Opções do menu */}
@@ -303,29 +325,64 @@ export default function HomeScreen({ route, navigation }) {
         </View>
 
         {/* Resumo Diário */}
-        <View style={[styles.card, { backgroundColor: "#fff" }]}>
-          <Text style={styles.cardTitle}>Resumo Diário</Text>
+        {/* Resumo Diário */}
+        <Animated.View entering={FadeInUp} style={styles.summaryCard}>
+          <Text style={styles.cardTitle}>📊 Resumo Diário</Text>
+
           {plano ? (
             <>
-              <Text>Meta: {plano.macros.kcal} kcal</Text>
-              <Text>
-                Carbo: {plano.macros.carbs_g} g · Prot: {plano.macros.protein_g} g · Gord: {plano.macros.fat_g} g
-              </Text>
-              <Text style={{ marginTop: 6, fontWeight: "600" }}>
-                Café da manhã: {plano.perMeal.cafe.kcal} kcal
-              </Text>
-              <Text style={{ marginTop: 6, fontWeight: "600" }}>
-                Almoço: {plano.perMeal.almoco.kcal} kcal
-              </Text>
-              <Text style={{ marginTop: 6, fontWeight: "600" }}>
-                Jantar: {plano.perMeal.jantar.kcal} kcal
-              </Text>
-              <Text style={{ marginTop: 6, fontWeight: "600" }}>
-                Lanche/Ceia: {plano.perMeal.lanche.kcal} kcal
-              </Text>
+              {/* META */}
+              <View style={styles.summaryBlock}>
+                <Ionicons name="flag-outline" size={20} color="#1e90ff" />
+                <Text style={styles.summaryTitle}>Meta diária</Text>
+                <Text style={styles.summaryValue}>{plano.macros.kcal} kcal</Text>
+              </View>
+
+              {/* MACROS */}
+              <View style={styles.macrosRow}>
+                <View style={styles.macroBox}>
+                  <Text style={styles.macroLabel}>Carbo</Text>
+                  <Text style={styles.macroValue}>{plano.macros.carbs_g}g</Text>
+                </View>
+                <View style={styles.macroBox}>
+                  <Text style={styles.macroLabel}>Proteína</Text>
+                  <Text style={styles.macroValue}>{plano.macros.protein_g}g</Text>
+                </View>
+                <View style={styles.macroBox}>
+                  <Text style={styles.macroLabel}>Gordura</Text>
+                  <Text style={styles.macroValue}>{plano.macros.fat_g}g</Text>
+                </View>
+              </View>
+
+              {/* REFEIÇÕES */}
+              <View style={styles.mealsBox}>
+                <Text style={styles.mealsTitle}>Refeições do dia</Text>
+
+                <View style={styles.mealItem}>
+                  <Text style={styles.mealLabel}>☕ Café da manhã</Text>
+                  <Text style={styles.mealValue}>{plano.perMeal.cafe.kcal} kcal</Text>
+                </View>
+
+                <View style={styles.mealItem}>
+                  <Text style={styles.mealLabel}>🍛 Almoço</Text>
+                  <Text style={styles.mealValue}>{plano.perMeal.almoco.kcal} kcal</Text>
+                </View>
+
+                <View style={styles.mealItem}>
+                  <Text style={styles.mealLabel}>🌙 Jantar</Text>
+                  <Text style={styles.mealValue}>{plano.perMeal.jantar.kcal} kcal</Text>
+                </View>
+
+                <View style={styles.mealItem}>
+                  <Text style={styles.mealLabel}>🍎 Lanche/Ceia</Text>
+                  <Text style={styles.mealValue}>{plano.perMeal.lanche.kcal} kcal</Text>
+                </View>
+              </View>
             </>
           ) : registrosHoje.length === 0 ? (
-            <Text>Nenhum registro para hoje.</Text>
+            <Text style={{ textAlign: "center", marginTop: 10 }}>
+              Nenhum registro para hoje.
+            </Text>
           ) : (
             registrosHoje.map((item, index) => (
               <Text key={index}>
@@ -333,7 +390,8 @@ export default function HomeScreen({ route, navigation }) {
               </Text>
             ))
           )}
-        </View>
+        </Animated.View>
+
 
         {/* Notícias */}
         <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 20 }}>
@@ -541,6 +599,90 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   cardTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+
+  // RESUMO DIÁRIO NOVO
+  summaryCard: {
+    backgroundColor: "#ffffff",
+    marginHorizontal: 20,
+    marginBottom: 20,
+    padding: 20,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+
+  summaryBlock: {
+    alignItems: "center",
+    marginBottom: 15,
+  },
+
+  summaryTitle: {
+    marginTop: 4,
+    fontSize: 14,
+    color: "#888",
+  },
+
+  summaryValue: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1e90ff",
+  },
+
+  macrosRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+
+  macroBox: {
+    backgroundColor: "#f0f8ff",
+    padding: 10,
+    borderRadius: 14,
+    width: "30%",
+    alignItems: "center",
+  },
+
+  macroLabel: {
+    fontSize: 12,
+    color: "#777",
+  },
+
+  macroValue: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+
+  mealsBox: {
+    backgroundColor: "#f9f9f9",
+    borderRadius: 16,
+    padding: 15,
+  },
+
+  mealsTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+
+  mealItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 4,
+  },
+
+  mealLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  mealValue: {
+    fontSize: 14,
+    color: "#444",
+  },
 
   // Dicas
   dicasCarousel: {

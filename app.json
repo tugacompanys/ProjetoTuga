@@ -31,7 +31,21 @@
       ]
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "android": {
+            "permissions": [
+              "RECEIVE_BOOT_COMPLETED",
+              "VIBRATE",
+              "WAKE_LOCK",
+              "POST_NOTIFICATIONS"
+            ]
+          },
+          "sound": "alarme.wav"
+        }
+      ]
     ],
     "extra": {
       "eas": {

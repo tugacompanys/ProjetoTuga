@@ -86,7 +86,6 @@ export default function RegistroMedicamentoScreen() {
   const [medicamentos, setMedicamentos] = useState([]);
   const [historico, setHistorico] = useState([]);
 
-
   const [alarmeVisivel, setAlarmeVisivel] = useState(false);
   const [medicamentoAtual, setMedicamentoAtual] = useState(null);
 
@@ -106,7 +105,6 @@ export default function RegistroMedicamentoScreen() {
       setDiasSelecionados([...diasSelecionados, dia]);
     }
   };
-
 
   const formatarHorario = (text) => {
     let cleaned = text.replace(/\D/g, "");
@@ -143,6 +141,7 @@ export default function RegistroMedicamentoScreen() {
     shakeLoop.current.start();
   };
 
+
   // carregar dados e pedir permissão de notificações
   useEffect(() => {
     (async () => {
@@ -158,6 +157,35 @@ export default function RegistroMedicamentoScreen() {
       } catch (err) {
         console.log("Erro ao carregar dados iniciais:", err);
       }
+
+      useEffect(() => {
+        (async () => {
+          const { status } = await Notifications.getPermissionsAsync();
+
+          if (status !== 'granted') {
+            await Notifications.requestPermissionsAsync();
+          }
+        })();
+      }, []);
+
+      // Criar canal de alarme para Android (acorda o telefone!)
+      await Notifications.setNotificationChannelAsync("alarm-channel", {
+        name: "Alarmes de Medicamento",
+        importance: Notifications.AndroidImportance.MAX,
+        sound: "alarme.wav", // seu áudio
+        vibrationPattern: [0, 1000, 500, 1000],
+        lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+      });
+
+      const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+        const data = response.notification.request.content.data;
+
+        if (data?.screen === "medicamento") {
+          navigation.navigate("RegistroMedicamentoScreen");
+        }
+      });
+
+      return () => subscription.remove();
     })();
 
     // cleanup ao desmontar: garantir que alarme/vibração/parada são executados
@@ -260,42 +288,92 @@ export default function RegistroMedicamentoScreen() {
     });
   };
 
+  function calcularProximoHorario(hora, minuto) {
+    const agora = new Date();
+    const proximo = new Date();
+
+    proximo.setHours(hora);
+    proximo.setMinutes(minuto);
+    proximo.setSeconds(0);
+
+    // Se já passou hoje, agenda para amanhã
+    if (proximo <= agora) {
+      proximo.setDate(proximo.getDate() + 1);
+    }
+
+    return proximo;
+  }
+
+  function calcularPreAlarme(data) {
+    const novaData = new Date(data);
+    novaData.setMinutes(novaData.getMinutes() - 5);
+    return novaData;
+  }
+
+
+
   async function agendarNotificacao() {
-    if (!medicamento) return Alert.alert("Digite o nome do medicamento.");
-    if (horariosSelecionados.length === 0) return Alert.alert("Adicione um horário.");
+    if (!medicamento) {
+      Alert.alert("Digite o nome do medicamento.");
+      return;
+    }
+
+    if (horariosSelecionados.length === 0) {
+      Alert.alert("Adicione um horário.");
+      return;
+    }
 
     try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "💊 Medicamento Registrado",
+          body: `Você registrou: ${medicamento}`,
+          sound: "default",
+        },
+        trigger: null,
+      });
+
       for (let h of horariosSelecionados) {
         const [hora, minuto] = h.hora.split(":").map(Number);
 
-        await Notifications.scheduleNotificationAsync({
-          content: {
-            title: "⏰ Hora do medicamento",
-            body: `Tomar: ${medicamento}`,
-            sound: "default",
-          },
-          trigger: { hour: hora, minute: minuto, repeats: true },
-        });
+        const proximaData = calcularProximoHorario(hora, minuto);
+        const preAlarme = calcularPreAlarme(proximaData);
+
+        if (preAlarme > new Date()) {
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              //title: "⏰ Já já está na hora",
+              body: `Prepare-se para tomar: ${medicamento}`,
+              sound: "default",
+            },
+            trigger: { date: preAlarme },
+          });
+        }
       }
-      setDiasSelecionados([]);
 
       const novo = {
         id: Date.now().toString(),
         nome: medicamento,
-        horarios: horariosSelecionados.map(h => h.hora), // ✅ agora só salva a string
-        dias: diasSelecionados.length ? [...diasSelecionados] : [...diasSemana],
+        horarios: horariosSelecionados.map((h) => h.hora),
+        dias: diasSelecionados.length
+          ? [...diasSelecionados]
+          : [...diasSemana],
       };
 
       setMedicamentos([...medicamentos, novo]);
       setHorariosSelecionados([]);
       setMedicamento("");
+      setDiasSelecionados([]);
 
-      Alert.alert("✅ Alarme criado!");
+      Alert.alert("✅ Alarme criado com sucesso!");
+
     } catch (err) {
       console.log("Erro ao agendar notificação:", err);
       Alert.alert("Erro ao criar alarmes. Veja console.");
     }
   }
+
+
 
   const registrarHistorico = (status) => {
     if (!medicamentoAtual) return;
@@ -393,21 +471,26 @@ export default function RegistroMedicamentoScreen() {
         />
 
         <Text style={styles.label}>Digite o horário</Text>
-        <TextInput
-          style={styles.inputHorario}
-          placeholder="HH:MM"
-          keyboardType="number-pad"
-          maxLength={5}
-          value={horarioManual}
-          onChangeText={formatarHorario}
-        />
 
-        <TouchableOpacity
-          style={styles.botaoAzul}
-          onPress={() => setMostrarPicker(true)}
-        >
-          <Text style={styles.btnText}>Abrir relógio ⏱️</Text>
-        </TouchableOpacity>
+        <View style={styles.horarioWrapper}>
+          <TextInput
+            style={styles.inputHorario}
+            value={horarioManual}
+            onChangeText={formatarHorario}
+            placeholder="HH:MM"
+            placeholderTextColor="#64748b"
+            keyboardType="numeric"
+            maxLength={5}
+          />
+
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => setMostrarPicker(true)}
+          >
+            <Ionicons name="time-outline" size={24} color="#1e40af" />
+          </TouchableOpacity>
+        </View>
+
 
         {mostrarPicker && (
           <DateTimePicker
@@ -513,34 +596,48 @@ export default function RegistroMedicamentoScreen() {
         )}
 
         {medicamentos.map((m) => (
-          <View key={m.id} style={styles.medicamentoCard}>
-            <Text style={{ fontWeight: "800", fontSize: 16 }}>
-              💊 {m.nome}
+          <View key={m.id} style={styles.medicamentoCardNovo}>
+
+            <View style={styles.topoCardMedicamento}>
+
+              <View style={styles.iconeCircle}>
+                <Ionicons name="medkit" size={22} color="#fff" />
+              </View>
+
+              <View style={{ flex: 1 }}>
+                <Text style={styles.nomeMedicamento}>
+                  {m.nome}
+                </Text>
+
+                <Text style={styles.infoSecundaria}>
+                  {m.horarios?.length || 0} vez(es) ao dia
+                </Text>
+              </View>
+
+              <TouchableOpacity onPress={() => removerMedicamento(m.id)}>
+                <Ionicons name="trash-outline" size={22} color="#ef4444" />
+              </TouchableOpacity>
+
+            </View>
+
+
+            {/* HORÁRIOS EM TAGS */}
+            <View style={styles.horariosTags}>
+              {m.horarios?.map((hora) => (
+                <View key={hora} style={styles.tagHorario}>
+                  <Text style={styles.tagTexto}>{hora}</Text>
+                </View>
+              ))}
+            </View>
+
+            {/* DIAS */}
+            <Text style={styles.diasTexto}>
+              📅 {m.dias?.join(" • ") || "Todos os dias"}
             </Text>
 
-            <Text>
-              ⏰ Horários: {m.horarios?.join(", ") || "Não definido"}
-            </Text>
-
-            <Text>
-              🔁 {m.horarios?.length || 0} vez(es) ao dia
-            </Text>
-
-            <Text>
-              📅 Dias: {m.dias?.join(", ") || "Todos os dias"}
-            </Text>
-
-
-            <TouchableOpacity
-              onPress={() => removerMedicamento(m.id)}
-              style={styles.btnRemover}
-            >
-              <Text style={{ color: "#fff", fontWeight: "700" }}>🗑 Remover</Text>
-            </TouchableOpacity>
           </View>
         ))}
       </View>
-
 
       {/* ===== MODAL DO ALARME ===== */}
       <Modal visible={alarmeVisivel} transparent animationType="slide">
@@ -598,7 +695,7 @@ export default function RegistroMedicamentoScreen() {
         </View>
       </Modal>
 
-    </ScrollView>
+    </ScrollView >
   );
 }
 
@@ -683,15 +780,30 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
 
+  horarioWrapper: {
+    position: "relative",
+    justifyContent: "center",
+    marginBottom: 12
+  },
+
+  iconButton: {
+    position: "absolute",
+    right: 15,
+    padding: 8,
+    borderRadius: 50,
+    backgroundColor: "#dbeafe"
+  },
+
   inputHorario: {
     backgroundColor: "#ecfeff",
     padding: 14,
+    paddingRight: 50,
     borderRadius: 16,
     fontSize: 20,
     textAlign: "center",
+    textAlignVertical: "center", // ✅ ESSA LINHA
     borderWidth: 2,
-    borderColor: colors.azulClaro,
-    marginBottom: 12
+    borderColor: "#38bdf8",
   },
 
   botaoAzul: {
@@ -705,7 +817,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 10,
   },
-
 
   botaoVerde: {
     backgroundColor: colors.verde,
@@ -728,7 +839,6 @@ const styles = StyleSheet.create({
     borderColor: "#bae6fd",
   },
 
-
   mascoteDireita: {
     width: 130,
     height: 139,
@@ -750,7 +860,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.6,
     shadowRadius: 15,
   },
-
 
   subtitulo: {
     fontWeight: "800",
@@ -782,7 +891,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: colors.azul,
   },
-
 
   historicoBox: {
     backgroundColor: "#e2e8f0",
@@ -818,6 +926,24 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
   },
 
+  btnTomado: {
+    backgroundColor: colors.verde,
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+    marginTop: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  btnAtrasado: {
+    backgroundColor: "#f97316",
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+    marginTop: 10,
+    width: "100%",
+    alignItems: "center",
+  },
 
   modalTitulo: {
     fontSize: 18,
@@ -837,33 +963,76 @@ const styles = StyleSheet.create({
     marginVertical: 6
   },
 
-  btnRemover: {
-    backgroundColor: "#ef4444",
-    padding: 10,
-    borderRadius: 10,
-    marginTop: 8,
-    alignItems: "center"
+  medicamentoCardNovo: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 16,
+    marginVertical: 10,
+
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+
+    elevation: 4,
   },
 
-  btnTomado: {
-    backgroundColor: "#22c55e",
-    padding: 12,
-    borderRadius: 12,
-    width: "100%",
+  topoCardMedicamento: {
+    flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 10
   },
 
-  btnAtrasado: {
-    backgroundColor: "#eab308",
-    padding: 12,
-    borderRadius: 12,
-    width: "100%",
+  iconeCircle: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: "#1e40af",
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
+    marginRight: 10
   },
 
-  // botão vermelho remover horário
+  nomeMedicamento: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: "#1e293b"
+  },
+
+  infoSecundaria: {
+    fontSize: 13,
+    color: "#64748b"
+  },
+
+  horariosTags: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 8
+  },
+
+  tagHorario: {
+    backgroundColor: "#38bdf8",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    marginRight: 6,
+    marginBottom: 6
+  },
+
+  tagTexto: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 13
+  },
+
+  diasTexto: {
+    marginTop: 6,
+    fontSize: 13,
+    color: "#475569",
+    fontWeight: "600"
+  },
+
+  // botão vermelho remover horário "HORÁRIOS ADICIONADOS"
   removerTexto: {
     color: "#ef4444",
     fontWeight: "700",
