@@ -840,15 +840,7 @@ const styles = StyleSheet.create({
     borderColor: "#bae6fd",
   },
 
-  mascoteDireita: {
-    width: 130,
-    height: 139,
-    position: "absolute",
-    right: -20,
-    bottom: -10,
-    resizeMode: "contain",
-    transform: [{ scaleX: -1 }]
-  },
+ 
   botaoConfirmar: {
     backgroundColor: colors.escuro,
     padding: 18,
@@ -1037,17 +1029,22 @@ const styles = StyleSheet.create({
     color: "#ef4444",
     fontWeight: "700",
   },
-  bloco: {overflow: "hidden", height: 160, width: 160, left: 150, marginBottom: -100, bottom: 80,},
+  bloco: {height: 160, width: 160, left: 150, marginBottom: -100, bottom: 80,},
   
 
   mascoteDireita: {
     width: 175,
     height: 175,
     position: "absolute",
-    right: -15,
-    bottom: -40,
+    right: -80,
+    bottom: 10,
     resizeMode: "contain",
     transform: [{ scaleX: -1 }]
   },
-  subtitulo1: {top: 25, fontWeight: "600"}
+  
+  subtitulo1: {
+    fontWeight: "800",
+    marginBottom: 6,
+    
+  },  
 });
